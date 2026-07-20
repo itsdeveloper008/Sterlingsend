@@ -1,0 +1,17 @@
+@media print {
+  body[data-guest-preview] > div > header,
+  body[data-guest-preview] > div > footer,
+  body[data-guest-preview] .guest-preview-toolbar,
+  body[data-guest-preview] .guest-preview-shell {
+    display: none !important;
+  }
+
+  body[data-guest-preview] main {
+    padding: 0 !important;
+  }
+
+  body[data-guest-preview] .invoice-pdf-preview-canvas {
+    padding: 0 !important;
+    background: #fff !important;
+  }
+}

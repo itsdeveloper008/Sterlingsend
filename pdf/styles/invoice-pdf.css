@@ -1,0 +1,354 @@
+.invoice-pdf-template {
+  --pdf-primary: #14b8a6;
+  --pdf-text: #0f172a;
+  --pdf-muted: #64748b;
+  --pdf-border: #e2e8f0;
+  --pdf-bg: #ffffff;
+  --pdf-soft: #f8fafc;
+  position: relative;
+  width: 100%;
+  max-width: 794px;
+  margin: 0 auto;
+  background: var(--pdf-bg);
+  color: var(--pdf-text);
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 12px 40px rgba(15, 23, 42, 0.08);
+  border: 1px solid var(--pdf-border);
+  border-radius: 28px;
+  overflow: hidden;
+}
+
+.invoice-pdf-accent {
+  height: 4px;
+  background: linear-gradient(90deg, #14b8a6 0%, #06b6d4 100%);
+}
+
+.invoice-pdf-header,
+.invoice-pdf-customer,
+.invoice-pdf-items,
+.invoice-pdf-totals,
+.invoice-pdf-footer {
+  padding: 28px 36px;
+}
+
+.invoice-pdf-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 1px solid var(--pdf-border);
+}
+
+.invoice-pdf-brand {
+  display: flex;
+  gap: 16px;
+  min-width: 0;
+}
+
+.invoice-pdf-logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: 16px;
+  border: 1px solid var(--pdf-border);
+  background: #fff;
+}
+
+.invoice-pdf-logo-fallback {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: rgba(20, 184, 166, 0.12);
+  color: #0d9488;
+  font-size: 20px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.invoice-pdf-business-name {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.invoice-pdf-business-meta,
+.invoice-pdf-customer-meta {
+  color: var(--pdf-muted);
+  font-size: 13px;
+}
+
+.invoice-pdf-business-meta p,
+.invoice-pdf-customer-meta p {
+  margin: 0;
+}
+
+.invoice-pdf-invoice-meta {
+  text-align: right;
+  min-width: 180px;
+}
+
+.invoice-pdf-status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.invoice-pdf-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.invoice-pdf-label {
+  margin: 0 0 4px;
+  color: var(--pdf-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+}
+
+.invoice-pdf-number {
+  margin: 0 0 16px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.invoice-pdf-dates {
+  margin: 0;
+}
+
+.invoice-pdf-dates div {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.invoice-pdf-dates dt {
+  color: var(--pdf-muted);
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.invoice-pdf-dates dd {
+  margin: 0;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.invoice-pdf-section-label {
+  margin: 0 0 8px;
+  color: var(--pdf-muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.invoice-pdf-customer-name {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.invoice-pdf-customer-company {
+  margin: 0 0 8px;
+  color: var(--pdf-muted);
+}
+
+.invoice-pdf-items-list {
+  background: var(--pdf-soft);
+  border-radius: 16px;
+  padding: 4px 16px;
+}
+
+.invoice-pdf-line-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.invoice-pdf-line-item:last-child {
+  border-bottom: none;
+}
+
+.invoice-pdf-line-item-title {
+  margin: 0;
+  font-weight: 600;
+  color: var(--pdf-text);
+}
+
+.invoice-pdf-line-item-meta {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--pdf-muted);
+}
+
+.invoice-pdf-line-item-amount {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.invoice-pdf-totals {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid var(--pdf-border);
+}
+
+.invoice-pdf-totals dl {
+  width: min(100%, 320px);
+  margin: 0;
+}
+
+.invoice-pdf-totals div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 6px 0;
+}
+
+.invoice-pdf-totals dt {
+  color: var(--pdf-muted);
+}
+
+.invoice-pdf-totals dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.invoice-pdf-grand-total {
+  margin-top: 8px;
+  padding-top: 14px !important;
+  border-top: 1px solid var(--pdf-border);
+}
+
+.invoice-pdf-grand-total dt,
+.invoice-pdf-grand-total dd {
+  font-size: 20px;
+  color: var(--pdf-text);
+  font-weight: 700;
+}
+
+.invoice-pdf-footer {
+  border-top: 1px solid var(--pdf-border);
+  background: #fafbfc;
+}
+
+.invoice-pdf-notes-copy {
+  margin: 0 0 20px;
+  white-space: pre-wrap;
+  color: var(--pdf-muted);
+}
+
+.invoice-pdf-footer-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--pdf-muted);
+  font-size: 12px;
+}
+
+.invoice-pdf-footer-meta p {
+  margin: 0;
+}
+
+@media (max-width: 767px) {
+  .invoice-pdf-header,
+  .invoice-pdf-customer,
+  .invoice-pdf-items,
+  .invoice-pdf-totals,
+  .invoice-pdf-footer {
+    padding: 20px;
+  }
+
+  .invoice-pdf-header {
+    flex-direction: column;
+  }
+
+  .invoice-pdf-invoice-meta {
+    text-align: left;
+  }
+
+  .invoice-pdf-dates div {
+    justify-content: flex-start;
+  }
+
+  .invoice-pdf-footer-meta {
+    flex-direction: column;
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  [data-dashboard-layout] aside,
+  [data-dashboard-layout] [data-dashboard-header],
+  [data-dashboard-layout] [data-dashboard-mobile-nav],
+  .pdf-preview-toolbar,
+  .pdf-preview-shell {
+    display: none !important;
+  }
+
+  [data-dashboard-layout] main {
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .invoice-pdf-preview-canvas {
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  .invoice-pdf-template {
+    max-width: none;
+    width: 100%;
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .invoice-pdf-footer {
+    background: #fff;
+  }
+}

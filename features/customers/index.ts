@@ -1,0 +1,10 @@
+export { CustomersListPage } from "./components/customers-list-page";
+export { CreateCustomerPage } from "./components/create-customer-page";
+export { EditCustomerPage } from "./components/edit-customer-page";
+export { CustomerDetailPage } from "./components/customer-detail-page";
+export { CustomerForm } from "./components/customer-form";
+export { CustomerTable } from "./components/customer-table";
+export { CustomerSearch } from "./components/customer-search";
+export { CustomerCard } from "./components/customer-card";
+export { CustomerEmptyState } from "./components/customer-empty-state";
+export { DeleteCustomerModal } from "./components/delete-customer-modal";

@@ -1,0 +1,87 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function businessOwned(businessId) {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/businesses/$(businessId)).data.ownerId == request.auth.uid;
+    }
+
+    function userBusinessId() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.businessId;
+    }
+
+    function customerBelongsToUserBusiness() {
+      return isSignedIn() &&
+        resource.data.businessId == userBusinessId() &&
+        businessOwned(resource.data.businessId);
+    }
+
+    function invoiceBelongsToUserBusiness() {
+      return isSignedIn() &&
+        resource.data.businessId == userBusinessId() &&
+        businessOwned(resource.data.businessId);
+    }
+
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    match /businesses/{businessId} {
+      allow read: if isSignedIn() &&
+        resource.data.ownerId == request.auth.uid;
+      allow create: if isSignedIn() &&
+        request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isSignedIn() &&
+        resource.data.ownerId == request.auth.uid;
+    }
+
+    match /customers/{customerId} {
+      allow read: if customerBelongsToUserBusiness();
+      allow create: if isSignedIn() &&
+        request.resource.data.businessId == userBusinessId() &&
+        businessOwned(request.resource.data.businessId);
+      allow update: if customerBelongsToUserBusiness() &&
+        request.resource.data.businessId == resource.data.businessId;
+      allow delete: if false;
+    }
+
+    match /invoices/{invoiceId} {
+      allow read: if invoiceBelongsToUserBusiness();
+      allow create: if isSignedIn() &&
+        request.resource.data.businessId == userBusinessId() &&
+        businessOwned(request.resource.data.businessId);
+      allow update: if invoiceBelongsToUserBusiness() &&
+        request.resource.data.businessId == resource.data.businessId;
+      allow delete: if false;
+    }
+
+    match /payments/{paymentId} {
+      allow read: if isSignedIn() &&
+        resource.data.businessId == userBusinessId() &&
+        businessOwned(resource.data.businessId);
+      allow write: if false;
+    }
+
+    match /savedServices/{serviceId} {
+      allow read: if isSignedIn() &&
+        businessOwned(resource.data.businessId);
+      allow create: if isSignedIn() &&
+        businessOwned(request.resource.data.businessId);
+      allow update, delete: if isSignedIn() &&
+        businessOwned(resource.data.businessId);
+    }
+
+    match /settings/{businessId} {
+      allow read, write: if businessOwned(businessId);
+    }
+  }
+}

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="480" viewBox="0 0 680 480" fill="none" role="img" aria-label="Illustration of Valix invoice showing draft invoice with line items">
+  <rect width="680" height="480" rx="28" fill="#F4F7FB"/>
+  <rect x="48" y="40" width="584" height="400" rx="24" fill="#FFFFFF" stroke="#E2E8F0"/>
+  <rect x="72" y="64" width="40" height="40" rx="12" fill="#14B8A6"/>
+  <text x="92" y="90" fill="#FFFFFF" font-family="system-ui,sans-serif" font-size="16" font-weight="700" text-anchor="middle">B</text>
+  <text x="128" y="82" fill="#0F172A" font-family="system-ui,sans-serif" font-size="13" font-weight="600">Bright Studio Ltd</text>
+  <text x="128" y="98" fill="#64748B" font-family="system-ui,sans-serif" font-size="10">hello@brightstudio.co.uk</text>
+  <rect x="500" y="64" width="108" height="28" rx="14" fill="#FFFBEB" stroke="#FDE68A"/>
+  <circle cx="514" cy="78" r="3" fill="#F59E0B"/>
+  <text x="528" y="82" fill="#B45309" font-family="system-ui,sans-serif" font-size="9" font-weight="700">DRAFT INVOICE</text>
+  <text x="72" y="140" fill="#94A3B8" font-family="system-ui,sans-serif" font-size="9" font-weight="600" letter-spacing="0.1em">INVOICE</text>
+  <text x="72" y="162" fill="#0F172A" font-family="system-ui,sans-serif" font-size="18" font-weight="700">INV-2026-0042</text>
+  <rect x="72" y="184" width="536" height="120" rx="16" fill="#F8FAFC"/>
+  <text x="88" y="214" fill="#0F172A" font-family="system-ui,sans-serif" font-size="12" font-weight="600">Brand identity design</text>
+  <text x="88" y="230" fill="#64748B" font-family="system-ui,sans-serif" font-size="10">1 � �2,400.00</text>
+  <text x="560" y="220" fill="#0F172A" font-family="system-ui,sans-serif" font-size="13" font-weight="700" text-anchor="end">�2,400.00</text>
+  <line x1="88" y1="244" x2="592" y2="244" stroke="#EEF2F7"/>
+  <text x="88" y="268" fill="#0F172A" font-family="system-ui,sans-serif" font-size="12" font-weight="600">Website development</text>
+  <text x="560" y="274" fill="#0F172A" font-family="system-ui,sans-serif" font-size="13" font-weight="700" text-anchor="end">�4,800.00</text>
+  <line x1="88" y1="288" x2="592" y2="288" stroke="#EEF2F7"/>
+  <text x="88" y="312" fill="#0F172A" font-family="system-ui,sans-serif" font-size="12" font-weight="600">Monthly retainer</text>
+  <text x="560" y="318" fill="#0F172A" font-family="system-ui,sans-serif" font-size="13" font-weight="700" text-anchor="end">�950.00</text>
+  <text x="480" y="360" fill="#64748B" font-family="system-ui,sans-serif" font-size="11">Total</text>
+  <text x="592" y="392" fill="#0F172A" font-family="system-ui,sans-serif" font-size="24" font-weight="700" text-anchor="end">�8,150.00</text>
+</svg>
