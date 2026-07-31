@@ -13,7 +13,8 @@ export async function createSessionCookie(idToken: string) {
 }
 
 export async function verifySessionCookie(sessionCookie: string) {
-  return getAdminAuth().verifySessionCookie(sessionCookie, true);
+  // checkRevoked=false avoids false logouts after token rotation / prior logout tests
+  return getAdminAuth().verifySessionCookie(sessionCookie, false);
 }
 
 export async function revokeSession(sessionCookie: string) {

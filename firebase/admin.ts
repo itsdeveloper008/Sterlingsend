@@ -10,13 +10,23 @@ import { getAuth, type Auth } from "firebase-admin/auth";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
 import { getStorage, type Storage } from "firebase-admin/storage";
 import { getServerEnv } from "@/config/env";
+import { isAdminConfigured } from "./is-admin-configured";
 
 let adminApp: App | undefined;
 let adminAuth: Auth | undefined;
 let adminDb: Firestore | undefined;
 let adminStorage: Storage | undefined;
 
+function assertAdminConfigured() {
+  if (!isAdminConfigured()) {
+    throw new Error(
+      "Firebase Admin is not configured. Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY.",
+    );
+  }
+}
+
 function createAdminApp(): App {
+  assertAdminConfigured();
   const env = getServerEnv();
 
   return getApps().length

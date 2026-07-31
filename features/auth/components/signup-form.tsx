@@ -2,18 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ensureUserDocument } from "@/actions/onboarding.actions";
 import { useAuth } from "@/hooks/use-auth";
 import { routes } from "@/config/routes";
+import { getAuthErrorMessage } from "@/features/auth/lib/auth-errors";
 import { PageDescription, PageTitle } from "@/components/design-system/typography";
 
 export function SignupForm() {
-  const router = useRouter();
   const { signUp } = useAuth();
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
@@ -25,14 +23,13 @@ export function SignupForm() {
     setLoading(true);
 
     try {
-      await signUp(email, password, displayName);
-      await ensureUserDocument();
+      const redirectTo = await signUp(email, password, displayName);
       toast.success("Account created");
-      router.push(routes.onboarding);
-      router.refresh();
-    } catch {
-      toast.error("Could not create account. Try a different email.");
-    } finally {
+      window.location.assign(redirectTo ?? routes.onboarding);
+    } catch (error) {
+      toast.error(
+        getAuthErrorMessage(error, "Could not create account. Try a different email."),
+      );
       setLoading(false);
     }
   }

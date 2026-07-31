@@ -340,27 +340,77 @@ button.bonsai-pill {
   color: var(--m-teal);
 }
 
-/* Logo / social proof strip */
-.bonsai-logo-row {
+/* Logo / social proof marquee */
+.bonsai-logo-marquee {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 12%,
+    black 88%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 12%,
+    black 88%,
+    transparent
+  );
+}
+
+.bonsai-logo-track {
   display: flex;
-  flex-wrap: wrap;
+  width: max-content;
+  animation: bonsai-marquee 20s linear infinite;
+}
+
+.bonsai-logo-marquee:hover .bonsai-logo-track {
+  animation-play-state: paused;
+}
+
+.bonsai-logo-group {
+  display: flex;
+  align-items: center;
+  gap: 5rem;
+  padding-right: 5rem;
+}
+
+.bonsai-logo-item {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 1.25rem 2rem;
+  color: #b6bcc6;
+  transition: color 0.25s ease, transform 0.25s ease;
 }
 
-.bonsai-logo-mark {
-  font-size: 0.9375rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #9ca3af;
-  opacity: 0.85;
-  transition: color 0.2s ease, opacity 0.2s ease;
+.bonsai-logo-item svg {
+  height: 2.25rem;
+  width: 2.25rem;
 }
 
-.bonsai-logo-mark:hover {
-  color: #6b7280;
-  opacity: 1;
+.bonsai-logo-item:hover {
+  color: var(--brand-color, #374151);
+  transform: scale(1.08);
+}
+
+/* Track moves right so logos flow left-to-right */
+@keyframes bonsai-marquee {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bonsai-logo-track {
+    animation: none;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
 }
 
 /* Feature showcase chips */

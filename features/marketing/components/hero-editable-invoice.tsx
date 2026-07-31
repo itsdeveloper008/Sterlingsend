@@ -50,43 +50,38 @@ export function HeroEditableInvoice() {
 
   return (
     <div id="try-invoice" className="mx-auto w-full max-w-6xl" ref={cardRef}>
-      <div className="no-print mb-3 flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm text-[#6B7280]">
-          Click any field to edit - then download your PDF.
-        </p>
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => window.print()}
-            disabled={busy}
-          >
-            <Printer className="mr-1.5 h-4 w-4" />
-            Print
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            onClick={() => void handleDownloadPdf()}
-            disabled={busy}
-            className="bg-[#0D9488] hover:bg-[#0F766E]"
-          >
-            {busy ? (
-              <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-            ) : (
-              <Download className="mr-1.5 h-4 w-4" />
-            )}
-            Download PDF
-          </Button>
-        </div>
-      </div>
-
       <EditableInvoiceCard
         invoice={invoice}
         dispatch={dispatch}
         onLogoFile={setLogoFromFile}
       />
+
+      <div className="no-print mt-4 flex flex-wrap items-center justify-center gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => window.print()}
+          disabled={busy}
+        >
+          <Printer className="mr-1.5 h-4 w-4" />
+          Print
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => void handleDownloadPdf()}
+          disabled={busy}
+          className="bg-[#0D9488] hover:bg-[#0F766E]"
+        >
+          {busy ? (
+            <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+          ) : (
+            <Download className="mr-1.5 h-4 w-4" />
+          )}
+          Download PDF
+        </Button>
+      </div>
 
       <p className="builder-login-hint no-print mt-4">
         Want to save this invoice and reuse client details next time?{" "}

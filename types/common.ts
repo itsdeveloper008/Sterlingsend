@@ -1,5 +1,7 @@
 import type { Timestamp } from "firebase/firestore";
 
+export type { CurrencyCode } from "@/config/currencies";
+
 export type FirestoreTimestamp = Timestamp | Date;
 
 export interface BaseDocument {
@@ -11,8 +13,6 @@ export interface BaseDocument {
 export interface SoftDeletable {
   deletedAt?: FirestoreTimestamp | null;
 }
-
-export type CurrencyCode = "GBP" | "EUR" | "USD";
 
 export interface Address {
   line1: string;

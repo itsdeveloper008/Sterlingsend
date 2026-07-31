@@ -1,3 +1,4 @@
+import { CURRENCY_CODES } from "@/config/currencies";
 import { z } from "zod";
 
 export const businessDetailsSchema = z.object({
@@ -27,7 +28,7 @@ export const invoicePreferencesSchema = z.object({
     .number()
     .int("Must be a whole number")
     .min(1, "Starting number must be at least 1"),
-  currency: z.enum(["GBP", "EUR", "USD"]),
+  currency: z.enum(CURRENCY_CODES),
 });
 
 export const onboardingSchema = businessDetailsSchema

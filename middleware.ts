@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { SESSION_COOKIE_NAME, authRoutes, routes } from "@/config/routes";
+import { SESSION_COOKIE_NAME, routes } from "@/config/routes";
 
 const protectedPrefixes = [
   "/dashboard",
@@ -10,16 +10,26 @@ const protectedPrefixes = [
   "/settings",
 ];
 
-const authPrefixes = ["/login", "/signup", "/forgot-password"];
-
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const session = request.cookies.get(SESSION_COOKIE_NAME)?.value;
 
+  if (request.nextUrl.searchParams.get("clearSession") === "1") {
+    const loginUrl = new URL(routes.login, request.url);
+    const response = NextResponse.redirect(loginUrl);
+    response.cookies.set({
+      name: SESSION_COOKIE_NAME,
+      value: "",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 0,
+    });
+    return response;
+  }
+
   const isProtected = protectedPrefixes.some((prefix) =>
-    pathname.startsWith(prefix),
-  );
-  const isAuthRoute = authPrefixes.some((prefix) =>
     pathname.startsWith(prefix),
   );
 
@@ -29,20 +39,22 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isAuthRoute && session) {
-    return NextResponse.redirect(new URL(routes.dashboard, request.url));
-  }
-
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
+    "/dashboard",
     "/dashboard/:path*",
+    "/onboarding",
     "/onboarding/:path*",
+    "/customers",
     "/customers/:path*",
+    "/invoices",
     "/invoices/:path*",
+    "/services",
     "/services/:path*",
+    "/settings",
     "/settings/:path*",
     "/login",
     "/signup",

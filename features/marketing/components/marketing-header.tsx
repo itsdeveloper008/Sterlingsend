@@ -84,8 +84,8 @@ export function MarketingHeader() {
     <header
       className={cn("bonsai-header", scrolled && "bonsai-header--scrolled")}
     >
-      <div className="bonsai-container flex h-[5rem] items-center justify-between gap-4">
-        <Logo href={routes.home} size={60} />
+      <div className="bonsai-container flex h-[5.5rem] items-center justify-between gap-4">
+        <Logo href={routes.home} size={84} />
 
         <nav className="relative hidden items-center gap-7 lg:flex" aria-label="Main">
           {nav.map((item) =>
@@ -159,7 +159,7 @@ export function MarketingHeader() {
       </div>
 
       {mobileOpen ? (
-        <div className="fixed inset-0 top-20 z-40 overflow-y-auto bg-white lg:hidden">
+        <div className="fixed inset-0 top-[5.5rem] z-40 overflow-y-auto bg-white lg:hidden">
           <div className="bonsai-container space-y-6 py-6">
             {productColumns.map((col) => (
               <div key={col.title}>

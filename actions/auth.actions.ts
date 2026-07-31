@@ -1,7 +1,9 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getServerSession } from "@/firebase/session";
+import { SESSION_COOKIE_NAME } from "@/config/routes";
 import { userService } from "@/services/user.service";
 import { businessService } from "@/services/business.service";
 import { routes } from "@/config/routes";
@@ -10,7 +12,16 @@ export async function getCurrentUserContext() {
   const session = await getServerSession();
   if (!session) return null;
 
-  const user = await userService.getById(session.uid);
+  let user = await userService.getById(session.uid);
+  if (!user) {
+    await userService.create({
+      id: session.uid,
+      email: session.email ?? "",
+      displayName: session.name ?? "",
+    });
+    user = await userService.getById(session.uid);
+  }
+
   if (!user) return null;
 
   const business = user.businessId
@@ -21,10 +32,18 @@ export async function getCurrentUserContext() {
 }
 
 export async function requireAuth() {
+  const cookieStore = await cookies();
+  const hasSessionCookie = Boolean(
+    cookieStore.get(SESSION_COOKIE_NAME)?.value,
+  );
   const context = await getCurrentUserContext();
+
   if (!context) {
-    redirect(routes.login);
+    redirect(
+      hasSessionCookie ? `${routes.login}?clearSession=1` : routes.login,
+    );
   }
+
   return context;
 }
 

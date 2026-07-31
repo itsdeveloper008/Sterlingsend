@@ -1,12 +1,13 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import {
   createSessionCookie,
-  revokeSession,
   SESSION_COOKIE_NAME,
   SESSION_EXPIRES_IN_MS,
 } from "@/firebase/session";
-import { ensureUserDocument } from "@/actions/onboarding.actions";
+import { getAdminAuth } from "@/firebase/admin";
+import { userService } from "@/services/user.service";
+import { businessService } from "@/services/business.service";
+import { routes } from "@/config/routes";
 
 export async function POST(request: Request) {
   try {
@@ -16,8 +17,26 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing idToken" }, { status: 400 });
     }
 
+    const decoded = await getAdminAuth().verifyIdToken(idToken);
     const sessionCookie = await createSessionCookie(idToken);
-    const response = NextResponse.json({ success: true });
+
+    let user = await userService.getById(decoded.uid);
+    if (!user) {
+      await userService.create({
+        id: decoded.uid,
+        email: decoded.email ?? "",
+        displayName: decoded.name ?? "",
+      });
+      user = await userService.getById(decoded.uid);
+    }
+
+    const business = user?.businessId
+      ? await businessService.getById(user.businessId)
+      : await businessService.getByOwnerId(decoded.uid);
+
+    const redirectTo = business ? routes.dashboard : routes.onboarding;
+
+    const response = NextResponse.json({ success: true, redirectTo });
 
     response.cookies.set({
       name: SESSION_COOKIE_NAME,
@@ -29,34 +48,20 @@ export async function POST(request: Request) {
       maxAge: SESSION_EXPIRES_IN_MS / 1000,
     });
 
-    try {
-      await ensureUserDocument();
-    } catch (ensureError) {
-      console.error("[auth/session] ensureUserDocument failed", ensureError);
-    }
-
     return response;
   } catch (error) {
     console.error("[auth/session] POST failed", error);
-    return NextResponse.json(
-      { error: "Failed to create session" },
-      { status: 401 },
-    );
+    const message =
+      error instanceof Error ? error.message : "Failed to create session";
+    const status = message.includes("Firebase Admin is not configured")
+      ? 503
+      : 401;
+    return NextResponse.json({ error: message }, { status });
   }
 }
 
 export async function DELETE() {
-  const cookieStore = await cookies();
-  const session = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   const response = NextResponse.json({ success: true });
-
-  if (session) {
-    try {
-      await revokeSession(session);
-    } catch (error) {
-      console.error("[auth/session] revoke failed", error);
-    }
-  }
 
   response.cookies.set({
     name: SESSION_COOKIE_NAME,

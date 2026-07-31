@@ -8,6 +8,7 @@ import {
   calculateItemsFromForm,
   generateInvoiceNumber,
 } from "@/lib/invoice/calculations";
+import { createId } from "@/lib/id";
 import { assertStatusTransition } from "@/lib/invoice/status-transitions";
 import { docToData, withTimestamps, withUpdatedAt } from "@/lib/firestore-utils";
 import { businessService } from "@/services/business.service";
@@ -339,7 +340,7 @@ export class InvoiceService {
       status: INVOICE_STATUSES.DRAFT,
       notes: existing.notes,
       items: existing.items.map((item) => ({
-        id: crypto.randomUUID(),
+        id: createId(),
         description: item.description,
         quantity: item.quantity,
         unitPrice: item.unitPrice,

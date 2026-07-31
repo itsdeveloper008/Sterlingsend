@@ -22,12 +22,12 @@ import { isFirebaseConfigured } from "@/firebase/is-configured";
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<string | null>;
   signUp: (
     email: string,
     password: string,
     displayName?: string,
-  ) => Promise<void>;
+  ) => Promise<string | null>;
   signOut: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
   refreshSession: () => Promise<void>;
@@ -35,13 +35,32 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-async function persistSession(user: User) {
+async function persistSession(user: User): Promise<string | null> {
   const idToken = await getIdToken(user, true);
-  await fetch("/api/auth/session", {
+  const response = await fetch("/api/auth/session", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ idToken }),
+    credentials: "same-origin",
   });
+
+  if (!response.ok) {
+    let message = "Could not start your session. Please try again.";
+    try {
+      const payload = (await response.json()) as { error?: string };
+      if (payload.error) message = payload.error;
+    } catch {
+      // ignore JSON parse errors
+    }
+    throw new Error(message);
+  }
+
+  try {
+    const payload = (await response.json()) as { redirectTo?: string };
+    return payload.redirectTo ?? null;
+  } catch {
+    return null;
+  }
 }
 
 async function clearSession() {
@@ -71,8 +90,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw new Error("Firebase is not configured. Add keys to .env.local");
     }
     const nextUser = await signIn(email, password);
-    await persistSession(nextUser);
+    const redirectTo = await persistSession(nextUser);
     setUser(nextUser);
+    return redirectTo;
   }, []);
 
   const handleSignUp = useCallback(
@@ -81,8 +101,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error("Firebase is not configured. Add keys to .env.local");
       }
       const nextUser = await signUp(email, password, displayName);
-      await persistSession(nextUser);
+      const redirectTo = await persistSession(nextUser);
       setUser(nextUser);
+      return redirectTo;
     },
     [],
   );

@@ -13,16 +13,26 @@ const DASHBOARD_INVOICE_LIMIT = 500;
 
 export default async function DashboardPage() {
   const { business } = await requireOnboarding();
-  const result = await invoiceService.getInvoices({
-    businessId: business.id,
-    limit: DASHBOARD_INVOICE_LIMIT,
-    sortBy: "createdAt",
-    sortDirection: "desc",
-  });
 
-  const stats = computeDashboardStats(result.invoices);
-  const overdue = getOverdueInvoices(result.invoices);
-  const recent = getRecentInvoices(result.invoices, 5);
+  let invoices: Awaited<
+    ReturnType<typeof invoiceService.getInvoices>
+  >["invoices"] = [];
+
+  try {
+    const result = await invoiceService.getInvoices({
+      businessId: business.id,
+      limit: DASHBOARD_INVOICE_LIMIT,
+      sortBy: "createdAt",
+      sortDirection: "desc",
+    });
+    invoices = result.invoices;
+  } catch (error) {
+    console.error("[dashboard] Failed to load invoices", error);
+  }
+
+  const stats = computeDashboardStats(invoices);
+  const overdue = getOverdueInvoices(invoices);
+  const recent = getRecentInvoices(invoices, 5);
 
   return (
     <DashboardOverview

@@ -40,7 +40,7 @@ export function Logo({
       ) : null}
       {showWordmark ? (
         <span className="text-[1.25rem] font-bold leading-none sm:text-[1.375rem]">
-          {siteConfig.name}
+          Sterling<span className="text-[#0D9488]">Send</span>
         </span>
       ) : null}
     </Link>

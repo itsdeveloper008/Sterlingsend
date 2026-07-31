@@ -27,6 +27,7 @@ import {
   ensureUserDocument,
 } from "@/actions/onboarding.actions";
 import { routes } from "@/config/routes";
+import { getCurrenciesForSelect, getCurrencyLabel } from "@/config/currencies";
 import { ButtonLink } from "@/components/ui/button-link";
 import { cn } from "@/lib/utils";
 
@@ -354,9 +355,11 @@ export function OnboardingWizard({ userEmail }: { userEmail?: string }) {
                     "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 outline-none",
                   )}
                 >
-                  <option value="GBP">GBP - British Pound</option>
-                  <option value="EUR">EUR - Euro</option>
-                  <option value="USD">USD - US Dollar</option>
+                  {getCurrenciesForSelect().map((currency) => (
+                    <option key={currency.code} value={currency.code}>
+                      {getCurrencyLabel(currency.code)}
+                    </option>
+                  ))}
                 </select>
                 <FieldError message={errors.currency} />
               </div>

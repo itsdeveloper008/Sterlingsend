@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { INVOICE_STATUSES } from "@/types";
+import { createId } from "@/lib/id";
 
 const invoiceStatusSchema = z.enum([
   INVOICE_STATUSES.DRAFT,
@@ -44,7 +45,7 @@ export function defaultInvoiceFormValues(
     notes: "",
     items: [
       {
-        id: crypto.randomUUID(),
+        id: createId(),
         description: "",
         quantity: 1,
         unitPrice: 0,

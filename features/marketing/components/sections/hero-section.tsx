@@ -1,9 +1,6 @@
 "use client";
 
-import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { Star } from "lucide-react";
-import { routes } from "@/config/routes";
 import { MotionSection } from "@/features/marketing/lib/motion-section";
 import { HeroEditableInvoice } from "@/features/marketing/components/hero-editable-invoice";
 
@@ -43,32 +40,6 @@ export function HeroSection() {
             Consolidate your clients, invoices, and payments into one integrated,
             easy-to-use platform.
           </motion.p>
-          <motion.div
-            className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row"
-            initial={reduceMotion ? false : { opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.15 }}
-          >
-            <a href="#try-invoice" className="bonsai-btn-primary">
-              Edit this invoice
-            </a>
-            <Link href={routes.features} className="bonsai-btn-secondary">
-              See product features
-            </Link>
-          </motion.div>
-          <motion.div
-            className="mt-6 flex items-center justify-center gap-2 text-sm text-[#6B7280]"
-            initial={reduceMotion ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.22 }}
-          >
-            <span className="bonsai-stars" aria-hidden>
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="h-3.5 w-3.5 fill-current" />
-              ))}
-            </span>
-            <span>Trusted by freelancers & growing teams</span>
-          </motion.div>
         </div>
 
         <motion.div

@@ -2,18 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ensureUserDocument } from "@/actions/onboarding.actions";
 import { useAuth } from "@/hooks/use-auth";
 import { routes } from "@/config/routes";
+import { getAuthErrorMessage } from "@/features/auth/lib/auth-errors";
 import { PageDescription, PageTitle } from "@/components/design-system/typography";
 
 export function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { signIn } = useAuth();
   const [email, setEmail] = useState("");
@@ -25,15 +24,17 @@ export function LoginForm() {
     setLoading(true);
 
     try {
-      await signIn(email, password);
-      await ensureUserDocument();
+      const redirectTo = await signIn(email, password);
       toast.success("Welcome back");
-      const redirect = searchParams.get("redirect") ?? routes.dashboard;
-      router.push(redirect);
-      router.refresh();
-    } catch {
-      toast.error("Invalid email or password");
-    } finally {
+      const requested = searchParams.get("redirect");
+      const destination =
+        requested && requested.startsWith("/")
+          ? requested
+          : (redirectTo ?? routes.dashboard);
+      // Full page load so the session cookie is sent on the next request
+      window.location.assign(destination);
+    } catch (error) {
+      toast.error(getAuthErrorMessage(error, "Invalid email or password"));
       setLoading(false);
     }
   }

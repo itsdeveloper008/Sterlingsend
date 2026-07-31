@@ -14,16 +14,13 @@ import type {
   BuilderInvoice,
   BuilderInvoiceAction,
 } from "@/features/invoice-builder/types";
-import type { CurrencyCode } from "@/types";
-import { siteConfig } from "@/config/site";
+import {
+  getCurrenciesForSelect,
+  getCurrencySymbol,
+  isCurrencyCode,
+} from "@/config/currencies";
 import { cn } from "@/lib/utils";
 import "@/features/invoice-builder/styles/invoice-builder.css";
-
-const CURRENCIES: { value: CurrencyCode; symbol: string }[] = [
-  { value: "GBP", symbol: "£" },
-  { value: "USD", symbol: "$" },
-  { value: "EUR", symbol: "€" },
-];
 
 /**
  * Clean editable invoice sheet - logo upload, company block, Billed To panel,
@@ -45,9 +42,8 @@ export function EditableInvoiceCard({
   const totals = calculateInvoiceTotals(calculatedItems);
   const vatRate = getDisplayVatRate(calculatedItems);
   const showPayment = hasPaymentDetails(invoice.payment);
-  const defaultVat = siteConfig.defaultVatRate;
-  const currencySymbol =
-    CURRENCIES.find((c) => c.value === invoice.currency)?.symbol ?? "£";
+  const currencySymbol = getCurrencySymbol(invoice.currency);
+  const currencies = getCurrenciesForSelect();
 
   return (
     <article
@@ -288,7 +284,7 @@ export function EditableInvoiceCard({
                 Discount (%)
               </th>
               <th scope="col" className="num">
-                VAT ({defaultVat}%)
+                VAT (%)
               </th>
               <th scope="col" className="num">
                 Total
@@ -301,7 +297,6 @@ export function EditableInvoiceCard({
           <tbody>
             {invoice.items.map((item, index) => {
               const calculated = calculatedItems[index];
-              const vatOn = (item.vatRate ?? 0) > 0;
 
               return (
                 <tr key={item.id}>
@@ -375,23 +370,27 @@ export function EditableInvoiceCard({
                     />
                   </td>
                   <td className="num">
-                    <label className="inline-flex items-center justify-end gap-1.5">
-                      <input
-                        type="checkbox"
-                        className="h-3.5 w-3.5 accent-[#14B8A6]"
-                        checked={vatOn}
-                        onChange={(event) =>
-                          dispatch({
-                            type: "patchItem",
-                            id: item.id,
-                            patch: {
-                              vatRate: event.target.checked ? defaultVat : 0,
-                            },
-                          })
-                        }
-                        aria-label={`Apply VAT ${defaultVat}%`}
-                      />
-                    </label>
+                    <input
+                      className="builder-field text-right"
+                      type="number"
+                      min={0}
+                      max={100}
+                      step="any"
+                      value={item.vatRate}
+                      onChange={(event) =>
+                        dispatch({
+                          type: "patchItem",
+                          id: item.id,
+                          patch: {
+                            vatRate: Math.min(
+                              100,
+                              Math.max(0, Number(event.target.value) || 0),
+                            ),
+                          },
+                        })
+                      }
+                      aria-label="VAT percent"
+                    />
                   </td>
                   <td className="num font-semibold tabular-nums">
                     {formatInvoiceCurrency(
@@ -453,19 +452,21 @@ export function EditableInvoiceCard({
           <div className="builder-total-final">
             <div className="flex items-center gap-2">
               <select
-                className="no-print rounded-md border border-[#99F6E4] bg-white px-2 py-1 text-sm font-semibold text-[#0F172A]"
+                className="no-print max-w-[11rem] rounded-md border border-[#99F6E4] bg-white px-2 py-1 text-sm font-semibold text-[#0F172A]"
                 value={invoice.currency}
-                onChange={(event) =>
+                onChange={(event) => {
+                  const next = event.target.value;
+                  if (!isCurrencyCode(next)) return;
                   dispatch({
                     type: "patch",
-                    patch: { currency: event.target.value as CurrencyCode },
-                  })
-                }
+                    patch: { currency: next },
+                  });
+                }}
                 aria-label="Currency"
               >
-                {CURRENCIES.map((c) => (
-                  <option key={c.value} value={c.value}>
-                    {c.symbol}
+                {currencies.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.code} ({getCurrencySymbol(c.code)})
                   </option>
                 ))}
               </select>

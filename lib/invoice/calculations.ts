@@ -1,4 +1,5 @@
 import type { InvoiceFormLineItem, InvoiceItem, InvoiceTotals } from "@/types";
+import { createId } from "@/lib/id";
 
 export function calculateLineItem(
   item: InvoiceFormLineItem | Omit<InvoiceItem, "lineSubtotal" | "lineVat" | "lineDiscount" | "lineTotal">,
@@ -50,7 +51,7 @@ export function generateInvoiceNumber(prefix: string, sequence: number) {
 
 export function createEmptyLineItem(vatRate = 20): InvoiceItem {
   return calculateLineItem({
-    id: crypto.randomUUID(),
+    id: createId(),
     description: "",
     quantity: 1,
     unitPrice: 0,
@@ -61,7 +62,7 @@ export function createEmptyLineItem(vatRate = 20): InvoiceItem {
 
 export function createEmptyFormLineItem(vatRate = 20): InvoiceFormLineItem {
   return {
-    id: crypto.randomUUID(),
+    id: createId(),
     description: "",
     quantity: 1,
     unitPrice: 0,
