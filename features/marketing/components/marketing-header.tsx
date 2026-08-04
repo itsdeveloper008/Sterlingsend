@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import { routes } from "@/config/routes";
 import { Logo } from "@/components/design-system/logo";
 
+const toolsLogin = `${routes.login}?redirect=${encodeURIComponent(routes.tools)}`;
+
 const productColumns = [
   {
     title: "Invoicing",
@@ -17,26 +19,26 @@ const productColumns = [
     ],
   },
   {
-    title: "Clients & payments",
+    title: "PDF Toolkit",
     items: [
-      { href: routes.features, label: "Customers", desc: "Save and reuse details" },
-      { href: routes.features, label: "Online payments", desc: "Stripe Checkout" },
-      { href: routes.pricing, label: "Pricing", desc: "Simple plans" },
+      { href: toolsLogin, label: "All PDF tools", desc: "Merge, split, compress, and more" },
+      { href: toolsLogin, label: "Organize & edit", desc: "Reorder, rotate, watermark" },
+      { href: toolsLogin, label: "Security", desc: "Protect, unlock, and redact" },
     ],
   },
   {
     title: "Business",
     items: [
-      { href: routes.features, label: "Branding", desc: "Logo on every invoice" },
-      { href: routes.features, label: "Bank details", desc: "Show payment info" },
-      { href: routes.signup, label: "Save invoices", desc: "Create a free account" },
+      { href: routes.features, label: "Customers", desc: "Save and reuse details" },
+      { href: routes.features, label: "Online payments", desc: "Stripe Checkout" },
+      { href: routes.signup, label: "Create account", desc: "Invoices + PDF tools" },
     ],
   },
 ];
 
 const nav = [
   { label: "Products", mega: true },
-  { href: routes.features, label: "Industries" },
+  { href: toolsLogin, label: "PDF Tools" },
   { href: routes.pricing, label: "Pricing" },
 ];
 

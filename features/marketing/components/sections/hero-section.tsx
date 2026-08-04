@@ -1,8 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
+import { routes } from "@/config/routes";
 import { MotionSection } from "@/features/marketing/lib/motion-section";
 import { HeroEditableInvoice } from "@/features/marketing/components/hero-editable-invoice";
+
+const toolsLogin = `${routes.login}?redirect=${encodeURIComponent(routes.tools)}`;
 
 export function HeroSection() {
   const reduceMotion = useReducedMotion();
@@ -20,7 +24,7 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            Welcome to SterlingSend
+            Invoicing + PDF toolkit
           </motion.p>
           <motion.h1
             className="bonsai-h1 mt-5"
@@ -28,8 +32,8 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.05 }}
           >
-            The unified platform
-            <br className="hidden sm:block" /> for service businesses
+            Invoices and every PDF tool
+            <br className="hidden sm:block" /> you need — in one place
           </motion.h1>
           <motion.p
             className="bonsai-lead mx-auto mt-5 max-w-2xl"
@@ -37,9 +41,22 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            Consolidate your clients, invoices, and payments into one integrated,
-            easy-to-use platform.
+            Create professional invoices, get paid faster, and use a full PDF
+            toolkit after login — merge, split, compress, protect, and more.
           </motion.p>
+          <motion.div
+            className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row"
+            initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.15 }}
+          >
+            <Link href={routes.createInvoice} className="bonsai-btn-primary">
+              Start invoicing
+            </Link>
+            <Link href={toolsLogin} className="bonsai-btn-secondary">
+              Explore PDF tools
+            </Link>
+          </motion.div>
         </div>
 
         <motion.div

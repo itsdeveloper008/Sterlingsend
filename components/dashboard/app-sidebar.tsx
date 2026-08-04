@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  FileStack,
   FileText,
   LayoutDashboard,
   Package,
@@ -17,6 +18,7 @@ const navItems = [
   { href: routes.dashboard, label: "Dashboard", icon: LayoutDashboard },
   { href: routes.customers, label: "Customers", icon: Users },
   { href: routes.invoices, label: "Invoices", icon: FileText },
+  { href: routes.tools, label: "PDF Tools", icon: FileStack },
   { href: routes.services, label: "Services", icon: Package },
   { href: routes.settings, label: "Settings", icon: Settings },
 ];
@@ -52,7 +54,7 @@ export function AppSidebar() {
       </nav>
       <div className="border-t border-border p-4">
         <p className="text-xs leading-relaxed text-muted-foreground">
-          Create, send, and get paid - faster.
+          Invoices, payments, and every PDF tool you need.
         </p>
       </div>
     </aside>

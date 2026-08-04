@@ -25,6 +25,8 @@ export const routes = {
   services: "/services",
   servicesNew: "/services/new",
   service: (id: string) => `/services/${id}`,
+  tools: "/tools",
+  tool: (slug: string) => `/tools/${slug}`,
   settings: "/settings",
   settingsBusiness: "/settings/business",
   settingsInvoices: "/settings/invoices",
@@ -60,6 +62,7 @@ export const protectedRoutes = [
   routes.customers,
   routes.invoices,
   routes.services,
+  routes.tools,
   routes.settings,
 ] as const;
 

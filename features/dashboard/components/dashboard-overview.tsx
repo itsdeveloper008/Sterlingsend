@@ -1,4 +1,10 @@
-import { AlertTriangle, ArrowRight, Clock, PoundSterling } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowRight,
+  Clock,
+  FileStack,
+  PoundSterling,
+} from "lucide-react";
 import { ButtonLink } from "@/components/ui/button-link";
 import {
   Card,
@@ -84,6 +90,27 @@ export function DashboardOverview({
           trend="Overdue invoices"
         />
       </div>
+
+      <Card className="border-primary/20 bg-primary/5">
+        <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
+          <div className="flex gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
+              <FileStack className="h-5 w-5" aria-hidden />
+            </span>
+            <div>
+              <CardTitle>PDF Tools</CardTitle>
+              <CardDescription>
+                Merge, split, compress, protect, convert images, and more —
+                available after login.
+              </CardDescription>
+            </div>
+          </div>
+          <ButtonLink href={routes.tools} size="sm" className="shrink-0">
+            Open tools
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </ButtonLink>
+        </CardHeader>
+      </Card>
 
       {!hasInvoices ? (
         <InvoiceEmptyState />

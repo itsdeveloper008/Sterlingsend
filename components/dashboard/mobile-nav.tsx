@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  FileStack,
   FileText,
   LayoutDashboard,
-  Package,
   Settings,
   Users,
 } from "lucide-react";
@@ -16,7 +16,7 @@ const items = [
   { href: routes.dashboard, label: "Home", icon: LayoutDashboard },
   { href: routes.customers, label: "Customers", icon: Users },
   { href: routes.invoices, label: "Invoices", icon: FileText },
-  { href: routes.services, label: "Services", icon: Package },
+  { href: routes.tools, label: "Tools", icon: FileStack },
   { href: routes.settings, label: "Settings", icon: Settings },
 ];
 

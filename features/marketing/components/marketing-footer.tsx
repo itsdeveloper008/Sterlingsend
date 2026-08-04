@@ -3,31 +3,33 @@ import { siteConfig } from "@/config/site";
 import { routes } from "@/config/routes";
 import { Logo } from "@/components/design-system/logo";
 
+const toolsLogin = `${routes.login}?redirect=${encodeURIComponent(routes.tools)}`;
+
 const columns = [
   {
     title: "Product",
     links: [
       { href: routes.createInvoice, label: "Create invoice" },
+      { href: toolsLogin, label: "PDF Tools" },
       { href: routes.features, label: "Features" },
       { href: routes.pricing, label: "Pricing" },
-      { href: routes.signup, label: "Sign up" },
     ],
   },
   {
-    title: "Solutions",
+    title: "PDF Toolkit",
     links: [
-      { href: routes.features, label: "Freelancers" },
-      { href: routes.features, label: "Agencies" },
-      { href: routes.features, label: "Consultants" },
-      { href: routes.features, label: "Trades" },
+      { href: toolsLogin, label: "Merge & split" },
+      { href: toolsLogin, label: "Compress & protect" },
+      { href: toolsLogin, label: "Convert images" },
+      { href: toolsLogin, label: "Watermark & redact" },
     ],
   },
   {
     title: "Resources",
     links: [
-      { href: routes.features, label: "Help centre" },
-      { href: routes.features, label: "Invoice templates" },
+      { href: routes.signup, label: "Sign up" },
       { href: routes.login, label: "Login" },
+      { href: routes.features, label: "Help centre" },
     ],
   },
   {
@@ -48,8 +50,8 @@ export function MarketingFooter() {
           <div className="space-y-4">
             <Logo href={routes.home} size={48} />
             <p className="max-w-xs text-sm text-[#6B7280]">
-              Consolidate invoicing, clients, and payments into one easy-to-use
-              platform for UK service businesses.
+              Invoicing, payments, and a full PDF toolkit — one account for
+              service businesses.
             </p>
             <Link href={routes.createInvoice} className="bonsai-btn-primary h-10 text-sm">
               Try SterlingSend for free
