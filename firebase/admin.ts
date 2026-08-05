@@ -12,10 +12,23 @@ import { getStorage, type Storage } from "firebase-admin/storage";
 import { getServerEnv } from "@/config/env";
 import { isAdminConfigured } from "./is-admin-configured";
 
-let adminApp: App | undefined;
-let adminAuth: Auth | undefined;
-let adminDb: Firestore | undefined;
-let adminStorage: Storage | undefined;
+/*
+ * Cached on globalThis: dev hot-reload swaps module instances while the
+ * underlying Firebase app survives, and Firestore.settings() may only be
+ * called once per instance.
+ */
+type AdminCache = {
+  app?: App;
+  auth?: Auth;
+  db?: Firestore;
+  storage?: Storage;
+};
+
+const globalForAdmin = globalThis as typeof globalThis & {
+  __sterlingsendAdmin?: AdminCache;
+};
+
+const cache: AdminCache = (globalForAdmin.__sterlingsendAdmin ??= {});
 
 function assertAdminConfigured() {
   if (!isAdminConfigured()) {
@@ -42,30 +55,29 @@ function createAdminApp(): App {
 }
 
 export function getAdminApp(): App {
-  if (!adminApp) {
-    adminApp = createAdminApp();
-  }
-  return adminApp;
+  cache.app ??= createAdminApp();
+  return cache.app;
 }
 
 export function getAdminAuth(): Auth {
-  if (!adminAuth) {
-    adminAuth = getAuth(getAdminApp());
-  }
-  return adminAuth;
+  cache.auth ??= getAuth(getAdminApp());
+  return cache.auth;
 }
 
 export function getAdminDb(): Firestore {
-  if (!adminDb) {
-    adminDb = getFirestore(getAdminApp());
-    adminDb.settings({ ignoreUndefinedProperties: true });
+  if (!cache.db) {
+    const db = getFirestore(getAdminApp());
+    try {
+      db.settings({ ignoreUndefinedProperties: true });
+    } catch {
+      // Already initialized by a previous module instance; existing settings apply.
+    }
+    cache.db = db;
   }
-  return adminDb;
+  return cache.db;
 }
 
 export function getAdminStorage(): Storage {
-  if (!adminStorage) {
-    adminStorage = getStorage(getAdminApp());
-  }
-  return adminStorage;
+  cache.storage ??= getStorage(getAdminApp());
+  return cache.storage;
 }

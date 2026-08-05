@@ -475,7 +475,7 @@ export function MascotCharacter({
             fill="rgba(23,23,27,0.10)"
           />
 
-          {/* PURPLE — bendy slab, face rides the bent top */}
+          {/* PURPLE - bendy slab, face rides the bent top */}
           <motion.g {...entrance(0.05, { y: -240, rotate: -24, scale: 0.7 })}>
             <g transform={`translate(${P.x} ${BASE_Y})`}>
               <AttrPath d={purpleD} fill={C.purple} />
@@ -528,7 +528,7 @@ export function MascotCharacter({
             </g>
           </motion.g>
 
-          {/* BLACK — leans, ducks during password, googly eyes slide */}
+          {/* BLACK - leans, ducks during password, googly eyes slide */}
           <motion.g {...entrance(0.15, { y: -190, rotate: 22 })}>
             <g transform={`translate(${B.x} ${BASE_Y})`}>
               <AttrGroup transform={blackT}>
@@ -574,7 +574,7 @@ export function MascotCharacter({
             </g>
           </motion.g>
 
-          {/* ORANGE — dome; face slides around it */}
+          {/* ORANGE - dome; face slides around it */}
           <motion.g {...entrance(0.22, { y: 60, scale: 0.3 })}>
             <g transform={`translate(${O.x} ${BASE_Y})`}>
               <path
@@ -627,7 +627,7 @@ export function MascotCharacter({
             </g>
           </motion.g>
 
-          {/* YELLOW — arch; eye + beak-line swing to the side it faces */}
+          {/* YELLOW - arch; eye + beak-line swing to the side it faces */}
           <motion.g {...entrance(0.3, { x: 120, rotate: 26 })}>
             <g transform={`translate(${Y.x} ${BASE_Y})`}>
               <AttrGroup transform={yellowT}>

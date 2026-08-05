@@ -219,5 +219,5 @@ export function getCurrencyLabel(code: string): string {
   const entry = WORLD_CURRENCIES.find((c) => c.code === code);
   const symbol = getCurrencySymbol(code);
   if (!entry) return `${code} (${symbol})`;
-  return `${entry.code} (${symbol}) – ${entry.name}`;
+  return `${entry.code} (${symbol}) - ${entry.name}`;
 }

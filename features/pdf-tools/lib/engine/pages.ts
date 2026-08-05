@@ -20,7 +20,7 @@ export function parsePageSpec(spec: string, pageCount: number): number[] {
     } else {
       const p = Number.parseInt(token, 10);
       if (!Number.isFinite(p) || p < 1 || p > pageCount) {
-        throw new Error(`Page ${token} is out of range (1–${pageCount}).`);
+        throw new Error(`Page ${token} is out of range (1-${pageCount}).`);
       }
       set.add(p - 1);
     }

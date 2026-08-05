@@ -66,7 +66,7 @@ export function LoginForm() {
   const errorClearTimer = useRef<number | null>(null);
 
   /**
-   * Single active state — priority:
+   * Single active state - priority:
    * success > password-error > password focus/visible > email-focus > idle
    */
   const mascotState: MascotState = useMemo(() => {
@@ -124,16 +124,19 @@ export function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center bg-[#0f172a] px-4 py-8 sm:px-6">
-      <div className="grid w-full max-w-5xl overflow-hidden rounded-[24px] bg-white shadow-[0_30px_80px_rgba(2,6,23,0.5)] lg:grid-cols-2 lg:min-h-[640px]">
-        <aside className="relative hidden min-h-[420px] bg-[#f1f5f9] lg:block">
+    <div className="min-h-[100dvh] w-full bg-white">
+      <div className="grid min-h-[100dvh] w-full lg:grid-cols-2">
+        <aside className="relative hidden bg-[#f1f5f9] lg:block">
           <MascotCharacter state={mascotState} className="absolute inset-0" />
         </aside>
 
-        <section className="flex flex-col justify-center bg-white px-8 py-10 sm:px-12 lg:px-14">
-          <div className="mx-auto w-full max-w-[340px]">
+        <section className="flex flex-col justify-center bg-white px-6 py-12 sm:px-12 lg:px-16">
+          <div className="mx-auto w-full max-w-[380px]">
             <div className="flex flex-col items-center text-center">
-              <CompassMark className="h-7 w-7 text-primary" />
+              <CompassMark className="h-8 w-8 text-primary" />
+              <h1 className="mt-5 text-2xl font-semibold tracking-tight text-foreground sm:text-[1.75rem]">
+                Welcome back to SterlingSend
+              </h1>
             </div>
 
             <div className="relative mx-auto mt-6 h-28 w-full max-w-[220px] lg:hidden">

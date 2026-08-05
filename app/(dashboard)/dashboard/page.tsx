@@ -8,7 +8,7 @@ import {
 import { serializeInvoices } from "@/features/invoices/lib/serialize";
 import { invoiceService } from "@/services/invoice.service";
 
-/** Cap for dashboard aggregation — same scan size as invoice search. */
+/** Cap for dashboard aggregation - same scan size as invoice search. */
 const DASHBOARD_INVOICE_LIMIT = 500;
 
 export default async function DashboardPage() {

@@ -6,7 +6,7 @@ export default function ToolsPage() {
     <PageShell>
       <PageHeader
         title="PDF Tools"
-        description="Merge, split, compress, convert, protect, and more — right in your browser."
+        description="All 29 tools run in your browser: merge, convert, OCR, sign, translate, and more."
       />
       <ToolsCatalog />
     </PageShell>

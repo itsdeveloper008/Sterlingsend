@@ -50,7 +50,7 @@ export function MarketingFooter() {
           <div className="space-y-4">
             <Logo href={routes.home} size={48} />
             <p className="max-w-xs text-sm text-[#6B7280]">
-              Invoicing, payments, and a full PDF toolkit — one account for
+              Invoicing, payments, and a full PDF toolkit, one account for
               service businesses.
             </p>
             <Link href={routes.createInvoice} className="bonsai-btn-primary h-10 text-sm">

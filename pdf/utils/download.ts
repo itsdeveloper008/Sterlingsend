@@ -107,7 +107,7 @@ function prepareElementForCanvas(source: HTMLElement): {
     ) {
       if (dstEl instanceof HTMLInputElement && dstEl.type === "checkbox") {
         const mark = document.createElement("span");
-        mark.textContent = dstEl.checked ? "✓" : "–";
+        mark.textContent = dstEl.checked ? "✓" : "-";
         mark.style.cssText =
           "display:inline-block;width:100%;text-align:center;font-weight:700;color:#0f172a;";
         dstEl.replaceWith(mark);
@@ -120,16 +120,39 @@ function prepareElementForCanvas(source: HTMLElement): {
           ? dstEl.options[dstEl.selectedIndex]?.text || dstEl.value
           : dstEl.value;
       text.textContent = value || "";
+
+      // Keep layout/type styles from the original field so PDF spacing
+      // (e.g. invoice number under INVOICE) stays accurate.
+      const color =
+        typeof computed.color === "string" && computed.color
+          ? computed.color
+          : "#0f172a";
       text.style.cssText = [
+        "display:block",
+        "width:100%",
+        "box-sizing:border-box",
         "white-space:pre-wrap",
         "word-break:break-word",
-        "color:#0f172a",
-        "font:inherit",
-        "line-height:1.45",
+        `color:${color}`,
+        `font-family:${computed.fontFamily}`,
+        `font-size:${computed.fontSize}`,
+        `font-weight:${computed.fontWeight}`,
+        `font-style:${computed.fontStyle}`,
+        `letter-spacing:${computed.letterSpacing}`,
+        `line-height:${computed.lineHeight === "normal" ? "1.45" : computed.lineHeight}`,
+        `text-align:${computed.textAlign}`,
+        `margin:${computed.marginTop} ${computed.marginRight} ${computed.marginBottom} ${computed.marginLeft}`,
+        `padding:${computed.paddingTop} ${computed.paddingRight} ${computed.paddingBottom} ${computed.paddingLeft}`,
+        "border:0",
+        "box-shadow:none",
+        "background:transparent",
+        "text-decoration:none",
       ].join(";");
+
       if (dstEl instanceof HTMLTextAreaElement || dstEl.tagName === "TEXTAREA") {
         text.style.minHeight = "1.5em";
       }
+
       dstEl.replaceWith(text);
     }
   }

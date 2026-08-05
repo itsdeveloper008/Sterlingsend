@@ -33,7 +33,7 @@ export function HeroSection() {
             transition={{ duration: 0.5, delay: 0.05 }}
           >
             Invoices and every PDF tool
-            <br className="hidden sm:block" /> you need — in one place
+            <br className="hidden sm:block" /> you need, in one place
           </motion.h1>
           <motion.p
             className="bonsai-lead mx-auto mt-5 max-w-2xl"
@@ -42,7 +42,7 @@ export function HeroSection() {
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             Create professional invoices, get paid faster, and use a full PDF
-            toolkit after login — merge, split, compress, protect, and more.
+            toolkit after login: merge, split, compress, protect, and more.
           </motion.p>
           <motion.div
             className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row"

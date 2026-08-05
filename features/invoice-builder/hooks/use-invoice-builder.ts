@@ -60,7 +60,7 @@ function reducer(state: BuilderInvoice, action: BuilderInvoiceAction): BuilderIn
 
 /**
  * Guest/landing invoice state lives in React only.
- * Refresh always starts clean — no localStorage restore.
+ * Refresh always starts clean - no localStorage restore.
  */
 export function useInvoiceBuilder(options?: { seed?: "empty" | "demo" }) {
   const seed = options?.seed ?? "empty";

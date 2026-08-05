@@ -100,8 +100,8 @@ export function DashboardOverview({
             <div>
               <CardTitle>PDF Tools</CardTitle>
               <CardDescription>
-                Merge, split, compress, protect, convert images, and more —
-                available after login.
+                29 ready tools: merge, convert, OCR, sign, translate, protect,
+                and more, all in your browser.
               </CardDescription>
             </div>
           </div>

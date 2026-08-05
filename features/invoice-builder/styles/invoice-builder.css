@@ -1,4 +1,4 @@
-/* Editable invoice card — clean modern sheet (landing + /create-invoice) */
+/* Editable invoice card - clean modern sheet (landing + /create-invoice) */
 
 .builder-page {
   min-height: 100vh;
@@ -134,17 +134,20 @@ button:has(.builder-logo-preview):focus-visible {
 
 .builder-title {
   margin-top: 18px;
+  margin-bottom: 0;
   font-size: clamp(2.25rem, 4.5vw, 2.85rem);
   font-weight: 800;
   letter-spacing: 0.02em;
-  line-height: 1;
+  line-height: 1.1;
   color: #0f172a;
 }
 
 .builder-invoice-no {
-  margin-top: 6px;
+  display: block;
+  margin-top: 10px;
   font-size: 0.9375rem;
   font-weight: 600;
+  line-height: 1.4;
   color: #0f172a;
 }
 
@@ -315,12 +318,15 @@ tr:hover .builder-row-remove {
 
 .builder-footer-meta .builder-label {
   display: block;
+  margin-bottom: 6px;
 }
 
 .builder-footer-no {
   margin-top: 4px;
-  font-size: 1rem;
+  font-size: 1.0625rem;
   font-weight: 800;
+  letter-spacing: 0.03em;
+  line-height: 1.35;
   color: #0d9488;
 }
 

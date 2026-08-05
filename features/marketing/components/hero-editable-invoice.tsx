@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EditableInvoiceCard } from "@/features/invoice-builder/components/editable-invoice-card";
 import { useInvoiceBuilder } from "@/features/invoice-builder/hooks/use-invoice-builder";
-import { downloadInvoicePdf } from "@/pdf/utils/download";
+import { downloadBuilderInvoicePdf } from "@/pdf/utils/builder-invoice-pdf";
 import { routes } from "@/config/routes";
 import "@/features/invoice-builder/styles/invoice-builder.css";
 
@@ -20,26 +20,15 @@ export function HeroEditableInvoice() {
   const [busy, setBusy] = useState(false);
 
   async function handleDownloadPdf() {
-    const card = cardRef.current?.querySelector(
-      "[data-invoice-builder-card]",
-    ) as HTMLElement | null;
-
-    if (!card) {
-      toast.error("Invoice card not ready");
-      return;
-    }
-
     try {
       setBusy(true);
-      document.body.classList.add("builder-pdf-export");
-      await downloadInvoicePdf(card, invoice.invoiceNumber || "invoice");
+      await downloadBuilderInvoicePdf(invoice);
       toast.success("PDF downloaded");
       resetInvoice();
     } catch (error) {
       console.error("[hero-pdf]", error);
       toast.error("Failed to generate PDF");
     } finally {
-      document.body.classList.remove("builder-pdf-export");
       setBusy(false);
     }
   }

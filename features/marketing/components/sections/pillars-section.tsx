@@ -32,7 +32,7 @@ export function PillarsSection() {
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="bonsai-h2">Invoicing that stays simple</h2>
           <p className="bonsai-lead mt-4">
-            Clients, invoices, and payments in one place — then jump into PDF
+            Clients, invoices, and payments in one place, then jump into PDF
             tools whenever you need them.
           </p>
         </div>

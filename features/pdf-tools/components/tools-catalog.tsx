@@ -147,10 +147,10 @@ export function ToolsCatalog() {
                     href={routes.tool(tool.slug)}
                     className={cn(
                       "group flex gap-3 rounded-xl border border-border bg-card p-4 shadow-xs",
-                      "transition hover:border-primary/40 hover:shadow-sm",
+                      "transition duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md",
                     )}
                   >
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 text-primary transition group-hover:from-primary/25 group-hover:to-primary/10">
                       <Icon className="h-5 w-5" aria-hidden />
                     </span>
                     <span className="min-w-0 flex-1">
@@ -158,15 +158,9 @@ export function ToolsCatalog() {
                         <span className="truncate font-medium text-foreground group-hover:text-primary">
                           {tool.title}
                         </span>
-                        {tool.status === "soon" ? (
-                          <Badge variant="secondary" className="shrink-0 text-[10px]">
-                            Soon
-                          </Badge>
-                        ) : (
-                          <Badge className="shrink-0 bg-primary/15 text-[10px] text-primary hover:bg-primary/15">
-                            Ready
-                          </Badge>
-                        )}
+                        <Badge className="shrink-0 bg-primary/15 text-[10px] text-primary hover:bg-primary/15">
+                          Ready
+                        </Badge>
                       </span>
                       <span className="mt-1 line-clamp-2 block text-sm text-muted-foreground">
                         {tool.description}

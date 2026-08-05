@@ -8,6 +8,23 @@ import {
 import JSZip from "jszip";
 import { stemName } from "@/features/pdf-tools/lib/download";
 import { parsePageSpec } from "@/features/pdf-tools/lib/engine/pages";
+import {
+  comparePdf,
+  compressPdfStrong,
+  editPdf,
+  htmlToPdf,
+  ocrPdf,
+  pdfForms,
+  pdfToExcel,
+  pdfToMarkdown,
+  pdfToPdfa,
+  pdfToPowerpoint,
+  pdfToWord,
+  repairPdf,
+  signPdf,
+  translatePdf,
+  wordToPdf,
+} from "@/features/pdf-tools/lib/engine/soon-tools";
 import type {
   ProcessInput,
   ProcessResult,
@@ -285,23 +302,28 @@ async function unlockPdf(file: File, options: ToolOptions): Promise<ProcessResul
 }
 
 async function compressPdf(file: File): Promise<ProcessResult> {
-  const doc = await loadPdf(file);
-  doc.setTitle("");
-  doc.setAuthor("");
-  doc.setSubject("");
-  doc.setKeywords([]);
-  doc.setProducer("SterlingSend");
-  doc.setCreator("SterlingSend");
-  const bytes = await doc.save({ useObjectStreams: true });
-  return {
-    files: [
-      {
-        name: `${stemName(file)}-compressed.pdf`,
-        bytes,
-        mime: "application/pdf",
-      },
-    ],
-  };
+  // Re-render pages as optimized JPEGs for a meaningful size reduction.
+  try {
+    return await compressPdfStrong(file);
+  } catch {
+    const doc = await loadPdf(file);
+    doc.setTitle("");
+    doc.setAuthor("");
+    doc.setSubject("");
+    doc.setKeywords([]);
+    doc.setProducer("SterlingSend");
+    doc.setCreator("SterlingSend");
+    const bytes = await doc.save({ useObjectStreams: true });
+    return {
+      files: [
+        {
+          name: `${stemName(file)}-compressed.pdf`,
+          bytes,
+          mime: "application/pdf",
+        },
+      ],
+    };
+  }
 }
 
 async function redactPdf(file: File, options: ToolOptions): Promise<ProcessResult> {
@@ -401,6 +423,12 @@ async function pdfToJpg(file: File): Promise<ProcessResult> {
 
 export async function processTool(input: ProcessInput): Promise<ProcessResult> {
   const { slug, files, options } = input;
+
+  // html-to-pdf can run from pasted HTML with no file
+  if (slug === "html-to-pdf") {
+    return htmlToPdf(files[0] ?? null, options);
+  }
+
   if (!files.length) throw new Error("Add at least one file.");
 
   switch (slug) {
@@ -434,6 +462,32 @@ export async function processTool(input: ProcessInput): Promise<ProcessResult> {
       return jpgToPdf(files);
     case "pdf-to-jpg":
       return pdfToJpg(files[0]);
+    case "repair-pdf":
+      return repairPdf(files[0]);
+    case "ocr-pdf":
+      return ocrPdf(files[0], options);
+    case "pdf-to-word":
+      return pdfToWord(files[0]);
+    case "pdf-to-powerpoint":
+      return pdfToPowerpoint(files[0]);
+    case "pdf-to-excel":
+      return pdfToExcel(files[0]);
+    case "word-to-pdf":
+      return wordToPdf(files);
+    case "pdf-to-pdfa":
+      return pdfToPdfa(files[0]);
+    case "pdf-to-markdown":
+      return pdfToMarkdown(files[0]);
+    case "edit-pdf":
+      return editPdf(files[0], options);
+    case "pdf-forms":
+      return pdfForms(files[0], options);
+    case "sign-pdf":
+      return signPdf(files[0], options);
+    case "compare-pdf":
+      return comparePdf(files);
+    case "translate-pdf":
+      return translatePdf(files[0], options);
     default:
       throw new Error("This tool is not available for processing yet.");
   }

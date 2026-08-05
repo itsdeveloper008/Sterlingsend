@@ -69,7 +69,7 @@ export function PdfToolsPromoSection() {
             PDF Toolkit
           </p>
           <h2 className="bonsai-h2 mt-3">
-            Every PDF tool you need — after login
+            Every PDF tool you need, after login
           </h2>
           <p className="bonsai-lead mt-4">
             An iLovePDF-style toolkit built into SterlingSend. Ready tools run in

@@ -8,7 +8,6 @@ import {
 } from "@/lib/validations/customer";
 import { customerService } from "@/services/customer.service";
 import { routes } from "@/config/routes";
-import type { Customer } from "@/types";
 import {
   serializeCustomer,
   serializeCustomers,
@@ -35,7 +34,13 @@ function revalidateCustomerPaths(customerId?: string) {
 export async function getCustomersAction(options?: {
   cursor?: string | null;
   limit?: number;
-}): Promise<CustomerActionResult<{ customers: Customer[]; nextCursor: string | null; hasMore: boolean }>> {
+}): Promise<
+  CustomerActionResult<{
+    customers: SerializedCustomer[];
+    nextCursor: string | null;
+    hasMore: boolean;
+  }>
+> {
   try {
     const businessId = await getBusinessId();
     const result = await customerService.getCustomers({
@@ -43,7 +48,14 @@ export async function getCustomersAction(options?: {
       cursor: options?.cursor,
       limit: options?.limit,
     });
-    return { success: true, data: result };
+    return {
+      success: true,
+      data: {
+        customers: serializeCustomers(result.customers),
+        nextCursor: result.nextCursor,
+        hasMore: result.hasMore,
+      },
+    };
   } catch (error) {
     console.error("[getCustomersAction]", error);
     return { success: false, error: "Failed to load customers" };
@@ -68,14 +80,14 @@ export async function searchCustomersAction(
 
 export async function getCustomerAction(
   customerId: string,
-): Promise<CustomerActionResult<Customer>> {
+): Promise<CustomerActionResult<SerializedCustomer>> {
   try {
     const businessId = await getBusinessId();
     const customer = await customerService.getCustomer(customerId, businessId);
     if (!customer) {
       return { success: false, error: "Customer not found" };
     }
-    return { success: true, data: customer };
+    return { success: true, data: serializeCustomer(customer) };
   } catch (error) {
     console.error("[getCustomerAction]", error);
     return { success: false, error: "Failed to load customer" };
@@ -84,7 +96,7 @@ export async function getCustomerAction(
 
 export async function createCustomerAction(
   data: CustomerFormData,
-): Promise<CustomerActionResult<Customer>> {
+): Promise<CustomerActionResult<SerializedCustomer>> {
   const parsed = customerFormSchema.safeParse(data);
   if (!parsed.success) {
     return {
@@ -101,7 +113,7 @@ export async function createCustomerAction(
       ...parsed.data,
     });
     revalidateCustomerPaths(customer.id);
-    return { success: true, data: customer };
+    return { success: true, data: serializeCustomer(customer) };
   } catch (error) {
     console.error("[createCustomerAction]", error);
     return { success: false, error: "Failed to create customer" };
@@ -111,7 +123,7 @@ export async function createCustomerAction(
 export async function updateCustomerAction(
   customerId: string,
   data: CustomerFormData,
-): Promise<CustomerActionResult<Customer>> {
+): Promise<CustomerActionResult<SerializedCustomer>> {
   const parsed = customerFormSchema.safeParse(data);
   if (!parsed.success) {
     return {
@@ -129,7 +141,7 @@ export async function updateCustomerAction(
       return { success: false, error: "Customer not found after update" };
     }
     revalidateCustomerPaths(customerId);
-    return { success: true, data: customer };
+    return { success: true, data: serializeCustomer(customer) };
   } catch (error) {
     console.error("[updateCustomerAction]", error);
     return { success: false, error: "Failed to update customer" };

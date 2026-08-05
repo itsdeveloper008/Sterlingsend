@@ -44,7 +44,7 @@ export function InvoiceTable({
   currency: string;
   onDelete?: (invoice: SerializedInvoice) => void;
   onDuplicate?: (invoice: SerializedInvoice) => void;
-  /** Hide row actions — used on the dashboard needs-attention / recent list. */
+  /** Hide row actions - used on the dashboard needs-attention / recent list. */
   readOnly?: boolean;
 }) {
   return (
