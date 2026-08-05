@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -14,9 +14,9 @@ import {
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 import { routes } from "@/config/routes";
 import type { PdfTool } from "@/features/pdf-tools/catalog";
+import { FilePreview } from "@/features/pdf-tools/components/file-preview";
 import { SignaturePad } from "@/features/pdf-tools/components/signature-pad";
 import { downloadBytes } from "@/features/pdf-tools/lib/download";
 import { processTool } from "@/features/pdf-tools/lib/engine/process";
@@ -85,7 +85,6 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState("");
-  const [dragOver, setDragOver] = useState(false);
   const [doneName, setDoneName] = useState("");
 
   const [password, setPassword] = useState("");
@@ -113,6 +112,7 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
   const [signatureDataUrl, setSignatureDataUrl] = useState("");
   const [signerName, setSignerName] = useState("");
   const [signPage, setSignPage] = useState(1);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const htmlReady = tool.slug === "html-to-pdf" && htmlContent.trim().length > 0;
   const canRun =
@@ -283,27 +283,6 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
         </Badge>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        {[
-          { step: "1", title: "Add files", copy: acceptHint(tool) },
-          { step: "2", title: "Tune options", copy: "Set pages, text, language…" },
-          { step: "3", title: "Download", copy: "Runs privately in your browser" },
-        ].map((item) => (
-          <div
-            key={item.step}
-            className="rounded-xl border border-border/80 bg-gradient-to-br from-card to-muted/30 px-4 py-3"
-          >
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-primary">
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-[11px]">
-                {item.step}
-              </span>
-              {item.title}
-            </div>
-            <p className="mt-1.5 text-sm text-muted-foreground">{item.copy}</p>
-          </div>
-        ))}
-      </div>
-
       <Card className="overflow-hidden border-border/80 shadow-sm">
         <CardHeader className="border-b border-border/60 bg-muted/20">
           <CardTitle className="text-base">Files</CardTitle>
@@ -312,47 +291,21 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
               ? "Upload an HTML file, or paste markup in Options below."
               : tool.minFiles > 1
                 ? `Add at least ${tool.minFiles} files (${acceptHint(tool)}).`
-                : `Drop a ${acceptHint(tool)} file or browse from your device.`}
+                : `Select a ${acceptHint(tool)} file from your device.`}
             {tool.maxFiles > 1 ? ` Up to ${tool.maxFiles} files.` : null}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 pt-5">
-          <label
-            onDragEnter={(e) => {
-              e.preventDefault();
-              setDragOver(true);
-            }}
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragOver(true);
-            }}
-            onDragLeave={(e) => {
-              e.preventDefault();
-              setDragOver(false);
-            }}
-            onDrop={(e) => {
-              e.preventDefault();
-              setDragOver(false);
-              onFiles(e.dataTransfer.files);
-            }}
-            className={cn(
-              "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-6 py-14 text-center transition",
-              dragOver
-                ? "border-primary bg-primary/10"
-                : "border-border bg-muted/30 hover:border-primary/50 hover:bg-primary/5",
-            )}
-          >
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-              <FileUp className="h-6 w-6" />
-            </span>
-            <span className="text-sm font-medium text-foreground">
-              Drop files here or click to browse
-            </span>
-            <span className="max-w-sm text-xs text-muted-foreground">
-              Your files stay on this device. Nothing is uploaded to our servers
-              for these tools.
-            </span>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <FileUp className="mr-2 h-4 w-4" />
+              {files.length > 0 ? "Add more files" : "Select files"}
+            </Button>
             <input
+              ref={fileInputRef}
               type="file"
               className="sr-only"
               accept={acceptAttr(tool)}
@@ -362,57 +315,54 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
                 e.target.value = "";
               }}
             />
-          </label>
+            <p className="text-xs text-muted-foreground">
+              Files stay on this device. Nothing is uploaded.
+            </p>
+          </div>
 
           {files.length > 0 ? (
-            <ul className="space-y-2">
+            <ul className="space-y-5">
               {files.map((file, index) => (
                 <li
                   key={`${file.name}-${file.size}-${index}`}
-                  className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2.5 text-sm"
+                  className="rounded-2xl border border-border bg-background p-3 sm:p-4"
                 >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">
-                    {index + 1}
-                  </span>
-                  <span className="min-w-0 flex-1 truncate font-medium">
-                    {file.name}
-                  </span>
-                  <span className="shrink-0 text-xs text-muted-foreground">
-                    {(file.size / 1024).toFixed(0)} KB
-                  </span>
-                  {tool.slug === "merge-pdf" ||
-                  tool.slug === "jpg-to-pdf" ||
-                  tool.slug === "compare-pdf" ||
-                  tool.slug === "word-to-pdf" ? (
-                    <>
-                      <button
-                        type="button"
-                        className="rounded p-1 text-muted-foreground hover:text-foreground"
-                        onClick={() => moveFile(index, -1)}
-                        aria-label="Move up"
-                      >
-                        <ArrowUp className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        className="rounded p-1 text-muted-foreground hover:text-foreground"
-                        onClick={() => moveFile(index, 1)}
-                        aria-label="Move down"
-                      >
-                        <ArrowDown className="h-3.5 w-3.5" />
-                      </button>
-                    </>
-                  ) : null}
-                  <button
-                    type="button"
-                    className="rounded p-1 text-muted-foreground hover:text-destructive"
-                    onClick={() =>
-                      setFiles((prev) => prev.filter((_, i) => i !== index))
-                    }
-                    aria-label="Remove file"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
+                  <div className="mb-3 flex items-center justify-end gap-1">
+                    {tool.slug === "merge-pdf" ||
+                    tool.slug === "jpg-to-pdf" ||
+                    tool.slug === "compare-pdf" ||
+                    tool.slug === "word-to-pdf" ? (
+                      <>
+                        <button
+                          type="button"
+                          className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                          onClick={() => moveFile(index, -1)}
+                          aria-label="Move up"
+                        >
+                          <ArrowUp className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                          onClick={() => moveFile(index, 1)}
+                          aria-label="Move down"
+                        >
+                          <ArrowDown className="h-3.5 w-3.5" />
+                        </button>
+                      </>
+                    ) : null}
+                    <button
+                      type="button"
+                      className="rounded-lg p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      onClick={() =>
+                        setFiles((prev) => prev.filter((_, i) => i !== index))
+                      }
+                      aria-label="Remove file"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  <FilePreview file={file} index={index} />
                 </li>
               ))}
             </ul>

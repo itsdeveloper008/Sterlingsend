@@ -34,11 +34,11 @@ export function HeroEditableInvoice() {
   }
 
   if (!hydrated) {
-    return <Skeleton className="mx-auto h-[720px] w-full max-w-6xl rounded-xl" />;
+    return <Skeleton className="mx-auto h-[560px] w-full max-w-3xl rounded-xl" />;
   }
 
   return (
-    <div id="try-invoice" className="mx-auto w-full max-w-6xl" ref={cardRef}>
+    <div id="try-invoice" className="mx-auto w-full max-w-3xl" ref={cardRef}>
       <EditableInvoiceCard
         invoice={invoice}
         dispatch={dispatch}
