@@ -16,6 +16,10 @@ import {
 import { toast } from "sonner";
 import { routes } from "@/config/routes";
 import type { PdfTool } from "@/features/pdf-tools/catalog";
+import {
+  EditPdfEditor,
+  type EditPdfHandle,
+} from "@/features/pdf-tools/components/edit-pdf-editor";
 import { FilePreview } from "@/features/pdf-tools/components/file-preview";
 import { SignaturePad } from "@/features/pdf-tools/components/signature-pad";
 import { downloadBytes } from "@/features/pdf-tools/lib/download";
@@ -112,12 +116,17 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
   const [signatureDataUrl, setSignatureDataUrl] = useState("");
   const [signerName, setSignerName] = useState("");
   const [signPage, setSignPage] = useState(1);
+  const [editReady, setEditReady] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const editRef = useRef<EditPdfHandle>(null);
 
   const htmlReady = tool.slug === "html-to-pdf" && htmlContent.trim().length > 0;
   const canRun =
     !busy &&
-    (files.length >= tool.minFiles || (tool.slug === "html-to-pdf" && htmlReady));
+    (tool.slug === "edit-pdf"
+      ? files.length >= 1 && editReady
+      : files.length >= tool.minFiles ||
+        (tool.slug === "html-to-pdf" && htmlReady));
 
   const options: ToolOptions = useMemo(
     () => ({
@@ -233,7 +242,17 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
       else if (tool.slug === "translate-pdf") setProgress("Translating pages…");
       else if (tool.slug === "compare-pdf") setProgress("Comparing documents…");
       else if (tool.slug === "compress-pdf") setProgress("Compressing pages…");
+      else if (tool.slug === "edit-pdf") setProgress("Saving your edits…");
       else setProgress("Processing in your browser…");
+
+      if (tool.slug === "edit-pdf") {
+        const exported = await editRef.current?.exportEdited();
+        if (!exported) throw new Error("Edit preview is still loading.");
+        downloadBytes(exported.bytes, exported.name, exported.mime);
+        setDoneName(exported.name);
+        toast.success(`Downloaded ${exported.name}`);
+        return;
+      }
 
       const result = await processTool({
         slug: tool.slug,
@@ -289,6 +308,8 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
           <CardDescription>
             {tool.slug === "html-to-pdf"
               ? "Upload an HTML file, or paste markup in Options below."
+              : tool.slug === "edit-pdf"
+                ? "Select a PDF, then click any text on the page to edit it."
               : tool.minFiles > 1
                 ? `Add at least ${tool.minFiles} files (${acceptHint(tool)}).`
                 : `Select a ${acceptHint(tool)} file from your device.`}
@@ -327,42 +348,61 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
                   key={`${file.name}-${file.size}-${index}`}
                   className="rounded-2xl border border-border bg-background p-3 sm:p-4"
                 >
-                  <div className="mb-3 flex items-center justify-end gap-1">
-                    {tool.slug === "merge-pdf" ||
-                    tool.slug === "jpg-to-pdf" ||
-                    tool.slug === "compare-pdf" ||
-                    tool.slug === "word-to-pdf" ? (
-                      <>
-                        <button
-                          type="button"
-                          className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-                          onClick={() => moveFile(index, -1)}
-                          aria-label="Move up"
-                        >
-                          <ArrowUp className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-                          onClick={() => moveFile(index, 1)}
-                          aria-label="Move down"
-                        >
-                          <ArrowDown className="h-3.5 w-3.5" />
-                        </button>
-                      </>
-                    ) : null}
-                    <button
-                      type="button"
-                      className="rounded-lg p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                      onClick={() =>
-                        setFiles((prev) => prev.filter((_, i) => i !== index))
-                      }
-                      aria-label="Remove file"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                  <div className="mb-3 flex items-center justify-between gap-2">
+                    <div className="min-w-0 text-xs text-muted-foreground">
+                      <span className="font-medium text-foreground">
+                        {file.name}
+                      </span>
+                      <span className="ml-2">
+                        {(file.size / 1024).toFixed(0)} KB
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {tool.slug === "merge-pdf" ||
+                      tool.slug === "jpg-to-pdf" ||
+                      tool.slug === "compare-pdf" ||
+                      tool.slug === "word-to-pdf" ? (
+                        <>
+                          <button
+                            type="button"
+                            className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                            onClick={() => moveFile(index, -1)}
+                            aria-label="Move up"
+                          >
+                            <ArrowUp className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                            onClick={() => moveFile(index, 1)}
+                            aria-label="Move down"
+                          >
+                            <ArrowDown className="h-3.5 w-3.5" />
+                          </button>
+                        </>
+                      ) : null}
+                      <button
+                        type="button"
+                        className="rounded-lg p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                        onClick={() => {
+                          setFiles((prev) => prev.filter((_, i) => i !== index));
+                          if (tool.slug === "edit-pdf") setEditReady(false);
+                        }}
+                        aria-label="Remove file"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   </div>
-                  <FilePreview file={file} index={index} />
+                  {tool.slug === "edit-pdf" && index === 0 ? (
+                    <EditPdfEditor
+                      ref={editRef}
+                      file={file}
+                      onReadyChange={setEditReady}
+                    />
+                  ) : (
+                    <FilePreview file={file} index={index} />
+                  )}
                 </li>
               ))}
             </ul>
@@ -433,6 +473,8 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
                 ? "OCR runs locally and may take longer on multi-page scans."
                 : tool.slug === "translate-pdf"
                   ? "Translation uses a free public API for short passages."
+                  : tool.slug === "edit-pdf"
+                    ? "Edit text on the page, then download your updated PDF."
                   : "Private browser processing. No account needed to download."}
             </p>
           </div>
@@ -445,6 +487,7 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
                   setFiles([]);
                   setPageOrder([]);
                   setDoneName("");
+                  setEditReady(false);
                   if (tool.slug === "html-to-pdf") setHtmlContent("");
                 }}
               >
@@ -717,58 +760,11 @@ function ToolOptionsPanel(props: {
         ) : null}
 
         {showEdit ? (
-          <>
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="edit-text">Text to add</Label>
-              <Input
-                id="edit-text"
-                value={props.editText}
-                onChange={(e) => props.setEditText(e.target.value)}
-                placeholder="Approved"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-page">Page</Label>
-              <Input
-                id="edit-page"
-                type="number"
-                min={1}
-                value={props.editPage}
-                onChange={(e) => props.setEditPage(Number(e.target.value) || 1)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-size">Font size</Label>
-              <Input
-                id="edit-size"
-                type="number"
-                min={8}
-                max={48}
-                value={props.editFontSize}
-                onChange={(e) =>
-                  props.setEditFontSize(Number(e.target.value) || 14)
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-x">X from left (pts)</Label>
-              <Input
-                id="edit-x"
-                type="number"
-                value={props.editX}
-                onChange={(e) => props.setEditX(Number(e.target.value) || 0)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-y">Y from top (pts)</Label>
-              <Input
-                id="edit-y"
-                type="number"
-                value={props.editY}
-                onChange={(e) => props.setEditY(Number(e.target.value) || 0)}
-              />
-            </div>
-          </>
+          <div className="space-y-2 sm:col-span-2 rounded-xl border border-border/70 bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
+            Click any text line in the preview above to edit it. Use{" "}
+            <span className="font-medium text-foreground">Add text</span> to
+            place a new line, then download when you are done.
+          </div>
         ) : null}
 
         {showForms ? (

@@ -244,7 +244,7 @@ export const PDF_TOOLS: PdfTool[] = [
   {
     slug: "edit-pdf",
     title: "Edit PDF",
-    description: "Add text overlays to any page of your PDF.",
+    description: "Click text on the PDF and edit words directly on the page.",
     category: "edit",
     status: "ready",
     accept: "pdf",
