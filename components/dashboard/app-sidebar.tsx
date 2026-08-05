@@ -54,7 +54,8 @@ export function AppSidebar() {
       </nav>
       <div className="border-t border-border p-4">
         <p className="text-xs leading-relaxed text-muted-foreground">
-          Invoices, payments, and every PDF tool you need.
+          Tools stay free for everyone. This workspace is for saving invoices,
+          customers, and settings.
         </p>
       </div>
     </aside>

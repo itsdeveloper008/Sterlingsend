@@ -483,7 +483,7 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
                 ? "OCR runs locally and may take longer on multi-page scans."
                 : tool.slug === "translate-pdf"
                   ? "Translation uses a free public API for short passages."
-                  : "Private browser processing. Download starts automatically."}
+                  : "Private browser processing. No account needed to download."}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -522,6 +522,18 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
           </div>
         </CardContent>
       </Card>
+
+      <p className="text-center text-sm text-muted-foreground">
+        Want to save invoices and reuse client details later?{" "}
+        <Link href={routes.login} className="font-semibold text-primary hover:underline">
+          Log in
+        </Link>{" "}
+        or{" "}
+        <Link href={routes.signup} className="font-semibold text-primary hover:underline">
+          create a free account
+        </Link>
+        .
+      </p>
     </div>
   );
 }

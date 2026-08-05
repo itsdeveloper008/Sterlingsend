@@ -6,8 +6,6 @@ import { routes } from "@/config/routes";
 import { MotionSection } from "@/features/marketing/lib/motion-section";
 import { HeroEditableInvoice } from "@/features/marketing/components/hero-editable-invoice";
 
-const toolsLogin = `${routes.login}?redirect=${encodeURIComponent(routes.tools)}`;
-
 export function HeroSection() {
   const reduceMotion = useReducedMotion();
 
@@ -41,8 +39,9 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            Create professional invoices, get paid faster, and use a full PDF
-            toolkit after login: merge, split, compress, protect, and more.
+            Create professional invoices and use every PDF tool right away, no
+            account required. Log in only when you want to save customers,
+            invoices, and payment history.
           </motion.p>
           <motion.div
             className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row"
@@ -53,7 +52,7 @@ export function HeroSection() {
             <Link href={routes.createInvoice} className="bonsai-btn-primary">
               Start invoicing
             </Link>
-            <Link href={toolsLogin} className="bonsai-btn-secondary">
+            <Link href={routes.tools} className="bonsai-btn-secondary">
               Explore PDF tools
             </Link>
           </motion.div>

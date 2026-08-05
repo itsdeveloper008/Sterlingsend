@@ -15,8 +15,8 @@ export default function FeaturesPage() {
             Everything you need to invoice & get paid
           </h1>
           <p className="bonsai-lead mx-auto mt-5 max-w-2xl">
-            Explore client management, invoicing, and payments - the same
-            Bonsai-style product layout, built for SterlingSend.
+            Invoicing, PDF tools, and payments, free to use without an account.
+            Log in when you want saved clients and invoice history.
           </p>
         </div>
       </section>

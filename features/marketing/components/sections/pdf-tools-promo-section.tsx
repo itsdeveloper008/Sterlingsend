@@ -17,8 +17,6 @@ import { routes } from "@/config/routes";
 import { MotionReveal } from "@/features/marketing/lib/motion-reveal";
 import { MotionSection } from "@/features/marketing/lib/motion-section";
 
-const loginTools = `${routes.login}?redirect=${encodeURIComponent(routes.tools)}`;
-
 const categories = [
   {
     title: "Optimize",
@@ -69,11 +67,12 @@ export function PdfToolsPromoSection() {
             PDF Toolkit
           </p>
           <h2 className="bonsai-h2 mt-3">
-            Every PDF tool you need, after login
+            Every PDF tool you need, free to use
           </h2>
           <p className="bonsai-lead mt-4">
             An iLovePDF-style toolkit built into SterlingSend. Convert, OCR,
-            sign, organize, and secure documents directly in your browser.
+            sign, organize, and secure documents in your browser, no account
+            required.
           </p>
         </div>
 
@@ -113,11 +112,12 @@ export function PdfToolsPromoSection() {
         </div>
 
         <div className="mt-10 text-center">
-          <Link href={loginTools} className="bonsai-btn-primary">
+          <Link href={routes.tools} className="bonsai-btn-primary">
             Open PDF Tools
           </Link>
           <p className="mt-3 text-xs text-[#94A3B8]">
-            Sign in to access the full toolkit in your dashboard.
+            Free forever for guest use. Log in only if you want to save invoices
+            and client details.
           </p>
         </div>
       </div>

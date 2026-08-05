@@ -3,14 +3,12 @@ import { siteConfig } from "@/config/site";
 import { routes } from "@/config/routes";
 import { Logo } from "@/components/design-system/logo";
 
-const toolsLogin = `${routes.login}?redirect=${encodeURIComponent(routes.tools)}`;
-
 const columns = [
   {
     title: "Product",
     links: [
       { href: routes.createInvoice, label: "Create invoice" },
-      { href: toolsLogin, label: "PDF Tools" },
+      { href: routes.tools, label: "PDF Tools" },
       { href: routes.features, label: "Features" },
       { href: routes.pricing, label: "Pricing" },
     ],
@@ -18,16 +16,16 @@ const columns = [
   {
     title: "PDF Toolkit",
     links: [
-      { href: toolsLogin, label: "Merge & split" },
-      { href: toolsLogin, label: "Compress & protect" },
-      { href: toolsLogin, label: "Convert images" },
-      { href: toolsLogin, label: "Watermark & redact" },
+      { href: routes.tools, label: "Merge & split" },
+      { href: routes.tools, label: "Compress & protect" },
+      { href: routes.tools, label: "Convert images" },
+      { href: routes.tools, label: "Watermark & redact" },
     ],
   },
   {
-    title: "Resources",
+    title: "Account",
     links: [
-      { href: routes.signup, label: "Sign up" },
+      { href: routes.signup, label: "Save my data" },
       { href: routes.login, label: "Login" },
       { href: routes.features, label: "Help centre" },
     ],
@@ -50,8 +48,8 @@ export function MarketingFooter() {
           <div className="space-y-4">
             <Logo href={routes.home} size={48} />
             <p className="max-w-xs text-sm text-[#6B7280]">
-              Invoicing, payments, and a full PDF toolkit, one account for
-              service businesses.
+              Invoicing and a full PDF toolkit, free without login. Create an
+              account only when you want to save your data.
             </p>
             <Link href={routes.createInvoice} className="bonsai-btn-primary h-10 text-sm">
               Try SterlingSend for free

@@ -37,8 +37,12 @@ export function SignupForm() {
   return (
     <div className="space-y-6">
       <div className="space-y-2 text-center lg:text-left">
-        <PageTitle>Create your account</PageTitle>
-        <PageDescription>Start sending invoices in under 10 minutes.</PageDescription>
+        <PageTitle>Save your work</PageTitle>
+        <PageDescription>
+          Create an account only when you want saved invoices, customers, and
+          payment history. PDF tools and invoice creation already work without
+          login.
+        </PageDescription>
       </div>
       <form onSubmit={onSubmit} className="space-y-4">
         <div className="space-y-2">

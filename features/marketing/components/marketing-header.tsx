@@ -7,38 +7,36 @@ import { cn } from "@/lib/utils";
 import { routes } from "@/config/routes";
 import { Logo } from "@/components/design-system/logo";
 
-const toolsLogin = `${routes.login}?redirect=${encodeURIComponent(routes.tools)}`;
-
 const productColumns = [
   {
     title: "Invoicing",
     items: [
-      { href: routes.createInvoice, label: "Create invoice", desc: "Start in Guest Mode" },
+      { href: routes.createInvoice, label: "Create invoice", desc: "Free · no account needed" },
       { href: routes.features, label: "PDF export", desc: "Print-ready SterlingSend Classic" },
-      { href: routes.features, label: "Invoice tracking", desc: "Sent, viewed, paid" },
+      { href: routes.signup, label: "Save & track", desc: "Log in only to keep history" },
     ],
   },
   {
     title: "PDF Toolkit",
     items: [
-      { href: toolsLogin, label: "All PDF tools", desc: "Merge, split, compress, and more" },
-      { href: toolsLogin, label: "Organize & edit", desc: "Reorder, rotate, watermark" },
-      { href: toolsLogin, label: "Security", desc: "Protect, unlock, and redact" },
+      { href: routes.tools, label: "All PDF tools", desc: "Merge, split, compress, and more" },
+      { href: routes.tools, label: "Organize & edit", desc: "Reorder, rotate, watermark" },
+      { href: routes.tools, label: "Security", desc: "Protect, unlock, and redact" },
     ],
   },
   {
-    title: "Business",
+    title: "Account",
     items: [
-      { href: routes.features, label: "Customers", desc: "Save and reuse details" },
+      { href: routes.signup, label: "Create account", desc: "Only needed to save your data" },
+      { href: routes.features, label: "Saved customers", desc: "Reuse details on every invoice" },
       { href: routes.features, label: "Online payments", desc: "Stripe Checkout" },
-      { href: routes.signup, label: "Create account", desc: "Invoices + PDF tools" },
     ],
   },
 ];
 
 const nav = [
   { label: "Products", mega: true },
-  { href: toolsLogin, label: "PDF Tools" },
+  { href: routes.tools, label: "PDF Tools" },
   { href: routes.pricing, label: "Pricing" },
 ];
 

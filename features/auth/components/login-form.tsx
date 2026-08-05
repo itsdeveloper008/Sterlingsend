@@ -137,6 +137,10 @@ export function LoginForm() {
               <h1 className="mt-5 text-2xl font-semibold tracking-tight text-foreground sm:text-[1.75rem]">
                 Welcome back to SterlingSend
               </h1>
+              <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+                Log in to save invoices, customers, and payment history. Tools and
+                invoice creation stay free without an account.
+              </p>
             </div>
 
             <div className="relative mx-auto mt-6 h-28 w-full max-w-[220px] lg:hidden">

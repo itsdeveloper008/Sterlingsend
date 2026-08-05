@@ -100,8 +100,8 @@ export function DashboardOverview({
             <div>
               <CardTitle>PDF Tools</CardTitle>
               <CardDescription>
-                29 ready tools: merge, convert, OCR, sign, translate, protect,
-                and more, all in your browser.
+                Free for everyone, no login required. Open the toolkit anytime
+                from here or the public /tools page.
               </CardDescription>
             </div>
           </div>

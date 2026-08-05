@@ -45,6 +45,7 @@ export const publicRoutes = [
   routes.privacy,
   routes.terms,
   routes.cookies,
+  routes.tools,
   routes.login,
   routes.signup,
   routes.forgotPassword,
@@ -56,13 +57,13 @@ export const authRoutes = [
   routes.forgotPassword,
 ] as const;
 
+/** Account-only surfaces for saving invoices, customers, and settings. */
 export const protectedRoutes = [
   routes.dashboard,
   routes.onboarding,
   routes.customers,
   routes.invoices,
   routes.services,
-  routes.tools,
   routes.settings,
 ] as const;
 

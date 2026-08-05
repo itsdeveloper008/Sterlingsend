@@ -9,28 +9,28 @@ import { MotionSection } from "@/features/marketing/lib/motion-section";
 
 const faqs = [
   {
-    q: "Do I need an account to create an invoice?",
-    a: "No. Guest Mode lets you create, preview, download, and print invoices at /create-invoice without signing up. Your draft is stored in your browser via localStorage. Create a free account when you are ready to save invoices, customers, and accept online payments.",
+    q: "Do I need an account?",
+    a: "No. Create invoices and use every PDF tool free without signing up. Create an account only when you want to save invoices, customers, and payment history.",
   },
   {
-    q: "How does Guest Mode work?",
-    a: "Open Create Invoice, add your business and client details, then preview and export a PDF at /invoice-preview. You can download or print immediately. If you sign up later, your guest invoice can be carried into onboarding automatically.",
+    q: "Are PDF tools free without login?",
+    a: "Yes. Open /tools and use merge, split, compress, convert, OCR, sign, protect, and more in your browser. Files stay on your device. Login is optional and only for saving account data.",
+  },
+  {
+    q: "How does guest invoicing work?",
+    a: "Open Create Invoice, add your business and client details, then download or print a PDF immediately. Sign up later if you want saved customers and tracked invoices.",
   },
   {
     q: "Can my clients pay online?",
-    a: "Yes. When you send an invoice from your account, clients open a public link at /i/[token] and pay securely via Stripe Checkout. They do not need a SterlingSend account. Payments are processed in Stripe test mode during development.",
+    a: "Yes. When you send an invoice from a saved account, clients open a public link and pay securely via Stripe Checkout. They do not need a SterlingSend account.",
   },
   {
     q: "Is SterlingSend accounting software?",
-    a: "No. SterlingSend is lightweight invoicing software focused on creating professional PDFs, managing customers, and getting paid. It is not an ERP, CRM, payroll, or inventory system.",
+    a: "No. SterlingSend is lightweight invoicing and PDF tooling focused on creating professional documents and getting paid. It is not an ERP, CRM, payroll, or inventory system.",
   },
   {
     q: "Is it suitable for UK businesses?",
     a: "Yes. SterlingSend is built for UK freelancers, consultants, agencies, and small businesses. Invoices use GBP, en-GB formatting, 20% VAT by default, and Net 30 payment terms.",
-  },
-  {
-    q: "What happens to my guest invoice if I sign up?",
-    a: "After downloading your PDF, create a free account. Your guest invoice data can seed onboarding so you do not have to re-enter business details. Guest validation and PDF rate limits apply on public routes.",
   },
 ];
 

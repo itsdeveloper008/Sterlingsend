@@ -11,7 +11,7 @@ const products = [
     icon: FileText,
     title: "Invoicing",
     description:
-      "Create branded invoices, track status, and get paid with Stripe or bank details.",
+      "Create branded invoices free. Log in later if you want saved customers, status tracking, and payments.",
     href: routes.createInvoice,
     cta: "Start invoicing",
   },
@@ -19,8 +19,8 @@ const products = [
     icon: FileStack,
     title: "PDF Toolkit",
     description:
-      "Merge, split, compress, protect, convert images, watermark, and more after login.",
-    href: `${routes.login}?redirect=${encodeURIComponent(routes.tools)}`,
+      "Merge, split, compress, protect, convert, OCR, sign, and more, free in your browser with no login.",
+    href: routes.tools,
     cta: "Explore PDF tools",
   },
 ];
@@ -30,7 +30,7 @@ export function ProductSwitcherSection() {
     <MotionSection className="border-y border-[#E5E7EB] bg-[#F8FAFC] py-14 sm:py-16">
       <div className="bonsai-container">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="bonsai-eyebrow">Two products. One account.</p>
+          <p className="bonsai-eyebrow">Two products. Login optional.</p>
           <h2 className="bonsai-h2 mt-3">Pick your workflow</h2>
         </div>
         <div className="mt-10 grid gap-4 md:grid-cols-2">
