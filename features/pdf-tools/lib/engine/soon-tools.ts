@@ -1,11 +1,9 @@
 "use client";
 
 import { PDFDocument, StandardFonts, rgb, PDFTextField } from "@cantoo/pdf-lib";
-import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
-import * as XLSX from "xlsx";
-import mammoth from "mammoth";
 import { jsPDF } from "jspdf";
 import { stemName } from "@/features/pdf-tools/lib/download";
+import { buildDocx, type DocxBlock } from "@/features/pdf-tools/lib/engine/docx-writer";
 import {
   canvasToJpegBytes,
   extractAllText,
@@ -246,39 +244,21 @@ export async function ocrPdf(file: File, options: ToolOptions): Promise<ProcessR
 
 export async function pdfToWord(file: File): Promise<ProcessResult> {
   const { pages } = await extractAllText(await readBytes(file));
-  const children: Paragraph[] = [
-    new Paragraph({
-      text: stemName(file),
-      heading: HeadingLevel.HEADING_1,
-    }),
-  ];
+  const blocks: DocxBlock[] = [{ text: stemName(file), level: 1 }];
 
   pages.forEach((text, index) => {
-    children.push(
-      new Paragraph({
-        text: `Page ${index + 1}`,
-        heading: HeadingLevel.HEADING_2,
-        spacing: { before: 240, after: 120 },
-      }),
-    );
+    blocks.push({ text: `Page ${index + 1}`, level: 2 });
     const lines = text ? text.split(/\n/) : ["(No extractable text on this page)"];
     for (const line of lines) {
-      children.push(
-        new Paragraph({
-          children: [new TextRun({ text: line || " ", size: 22 })],
-          spacing: { after: 80 },
-        }),
-      );
+      blocks.push({ text: line });
     }
   });
 
-  const doc = new Document({ sections: [{ children }] });
-  const buffer = await Packer.toArrayBuffer(doc);
   return {
     files: [
       {
         name: `${stemName(file)}.docx`,
-        bytes: new Uint8Array(buffer),
+        bytes: await buildDocx(blocks),
         mime: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       },
     ],
@@ -324,6 +304,7 @@ export async function pdfToPowerpoint(file: File): Promise<ProcessResult> {
 
 export async function pdfToExcel(file: File): Promise<ProcessResult> {
   const { pages } = await extractAllText(await readBytes(file));
+  const XLSX = await import("xlsx");
   const workbook = XLSX.utils.book_new();
 
   pages.forEach((text, index) => {
@@ -403,6 +384,7 @@ export async function pdfToMarkdown(file: File): Promise<ProcessResult> {
 
 export async function wordToPdf(files: File[]): Promise<ProcessResult> {
   const results: ProcessResult["files"] = [];
+  const mammoth = (await import("mammoth")).default;
 
   for (const file of files) {
     if (!/\.docx$/i.test(file.name)) {
