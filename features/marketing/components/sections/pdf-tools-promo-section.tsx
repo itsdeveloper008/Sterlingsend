@@ -72,8 +72,8 @@ export function PdfToolsPromoSection() {
             Every PDF tool you need, after login
           </h2>
           <p className="bonsai-lead mt-4">
-            An iLovePDF-style toolkit built into SterlingSend. Ready tools run in
-            your browser; advanced convert / OCR / sign ship next.
+            An iLovePDF-style toolkit built into SterlingSend. Convert, OCR,
+            sign, organize, and secure documents directly in your browser.
           </p>
         </div>
 
