@@ -210,6 +210,14 @@
   padding: 1.5rem;
   box-shadow: 0 24px 64px rgba(15, 23, 42, 0.12);
   animation: bonsai-mega-in 0.22s ease;
+  z-index: 50;
+}
+
+.bonsai-mega--tools {
+  left: 50%;
+  width: min(1080px, calc(100vw - 2rem));
+  max-height: min(70vh, 640px);
+  overflow-y: auto;
 }
 
 @keyframes bonsai-mega-in {
@@ -239,6 +247,10 @@
   transition: background 0.15s ease;
 }
 
+.bonsai-mega-item--compact {
+  padding: 0.4rem 0.6rem;
+}
+
 .bonsai-mega-item:hover {
   background: var(--m-surface);
 }
@@ -248,6 +260,11 @@
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--m-text);
+}
+
+.bonsai-mega-item--compact strong {
+  font-size: 0.8125rem;
+  font-weight: 600;
 }
 
 .bonsai-mega-item span {

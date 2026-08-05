@@ -6,45 +6,92 @@ import { ChevronDown, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { routes } from "@/config/routes";
 import { Logo } from "@/components/design-system/logo";
+import {
+  CATEGORY_META,
+  CATEGORY_ORDER,
+  toolsByCategory,
+} from "@/features/pdf-tools/catalog";
 
 const productColumns = [
   {
     title: "Invoicing",
     items: [
-      { href: routes.createInvoice, label: "Create invoice", desc: "Free · no account needed" },
-      { href: routes.features, label: "PDF export", desc: "Print-ready SterlingSend Classic" },
-      { href: routes.signup, label: "Save & track", desc: "Log in only to keep history" },
+      {
+        href: routes.createInvoice,
+        label: "Create invoice",
+        desc: "Free · no account needed",
+      },
+      {
+        href: routes.features,
+        label: "PDF export",
+        desc: "Print-ready SterlingSend Classic",
+      },
+      {
+        href: routes.signup,
+        label: "Save & track",
+        desc: "Log in only to keep history",
+      },
     ],
   },
   {
     title: "PDF Toolkit",
     items: [
-      { href: routes.tools, label: "All PDF tools", desc: "Merge, split, compress, and more" },
-      { href: routes.tools, label: "Organize & edit", desc: "Reorder, rotate, watermark" },
-      { href: routes.tools, label: "Security", desc: "Protect, unlock, and redact" },
+      {
+        href: routes.tools,
+        label: "All PDF tools",
+        desc: "Merge, split, compress, and more",
+      },
+      {
+        href: routes.tools,
+        label: "Organize & edit",
+        desc: "Reorder, rotate, watermark",
+      },
+      {
+        href: routes.tools,
+        label: "Security",
+        desc: "Protect, unlock, and redact",
+      },
     ],
   },
   {
     title: "Account",
     items: [
-      { href: routes.signup, label: "Create account", desc: "Only needed to save your data" },
-      { href: routes.features, label: "Saved customers", desc: "Reuse details on every invoice" },
-      { href: routes.features, label: "Online payments", desc: "Stripe Checkout" },
+      {
+        href: routes.signup,
+        label: "Create account",
+        desc: "Only needed to save your data",
+      },
+      {
+        href: routes.features,
+        label: "Saved customers",
+        desc: "Reuse details on every invoice",
+      },
+      {
+        href: routes.features,
+        label: "Online payments",
+        desc: "Stripe Checkout",
+      },
     ],
   },
 ];
 
-const nav = [
-  { label: "Products", mega: true },
-  { href: routes.tools, label: "PDF Tools" },
-  { href: routes.pricing, label: "Pricing" },
-];
+const pdfToolColumns = CATEGORY_ORDER.map((category) => ({
+  key: category,
+  title: CATEGORY_META[category].title,
+  items: toolsByCategory(category).map((tool) => ({
+    href: routes.tool(tool.slug),
+    label: tool.title,
+    desc: tool.description,
+  })),
+}));
+
+type OpenMenu = null | "products" | "tools";
 
 export function MarketingHeader() {
   const [scrolled, setScrolled] = useState(false);
-  const [megaOpen, setMegaOpen] = useState(false);
+  const [openMenu, setOpenMenu] = useState<OpenMenu>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const megaRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -55,13 +102,13 @@ export function MarketingHeader() {
 
   useEffect(() => {
     function onPointer(event: MouseEvent) {
-      if (megaRef.current && !megaRef.current.contains(event.target as Node)) {
-        setMegaOpen(false);
+      if (navRef.current && !navRef.current.contains(event.target as Node)) {
+        setOpenMenu(null);
       }
     }
     function onEscape(event: KeyboardEvent) {
       if (event.key === "Escape") {
-        setMegaOpen(false);
+        setOpenMenu(null);
         setMobileOpen(false);
       }
     }
@@ -80,6 +127,10 @@ export function MarketingHeader() {
     };
   }, [mobileOpen]);
 
+  function toggleMenu(menu: Exclude<OpenMenu, null>) {
+    setOpenMenu((current) => (current === menu ? null : menu));
+  }
+
   return (
     <header
       className={cn("bonsai-header", scrolled && "bonsai-header--scrolled")}
@@ -87,62 +138,118 @@ export function MarketingHeader() {
       <div className="bonsai-container flex h-[5.5rem] items-center justify-between gap-4">
         <Logo href={routes.home} size={84} />
 
-        <nav className="relative hidden items-center gap-7 lg:flex" aria-label="Main">
-          {nav.map((item) =>
-            item.mega ? (
-              <div key={item.label} className="relative" ref={megaRef}>
-                <button
-                  type="button"
-                  className="bonsai-nav-link inline-flex items-center gap-1"
-                  aria-expanded={megaOpen}
-                  onClick={() => setMegaOpen((v) => !v)}
-                >
-                  {item.label}
-                  <ChevronDown
-                    className={cn(
-                      "h-4 w-4 transition-transform duration-200",
-                      megaOpen && "rotate-180",
-                    )}
-                  />
-                </button>
-                {megaOpen ? (
-                  <div className="bonsai-mega">
-                    <div className="grid gap-6 sm:grid-cols-3">
-                      {productColumns.map((col) => (
-                        <div key={col.title}>
-                          <p className="bonsai-mega-col-title">{col.title}</p>
-                          <div className="space-y-1">
-                            {col.items.map((link) => (
-                              <Link
-                                key={link.label}
-                                href={link.href}
-                                className="bonsai-mega-item"
-                                onClick={() => setMegaOpen(false)}
-                              >
-                                <strong>{link.label}</strong>
-                                <span>{link.desc}</span>
-                              </Link>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
+        <nav
+          ref={navRef}
+          className="relative hidden items-center gap-7 lg:flex"
+          aria-label="Main"
+        >
+          <div className="relative">
+            <button
+              type="button"
+              className="bonsai-nav-link inline-flex items-center gap-1"
+              aria-expanded={openMenu === "products"}
+              onClick={() => toggleMenu("products")}
+            >
+              Products
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 transition-transform duration-200",
+                  openMenu === "products" && "rotate-180",
+                )}
+              />
+            </button>
+            {openMenu === "products" ? (
+              <div className="bonsai-mega">
+                <div className="grid gap-6 sm:grid-cols-3">
+                  {productColumns.map((col) => (
+                    <div key={col.title}>
+                      <p className="bonsai-mega-col-title">{col.title}</p>
+                      <div className="space-y-1">
+                        {col.items.map((link) => (
+                          <Link
+                            key={link.label}
+                            href={link.href}
+                            className="bonsai-mega-item"
+                            onClick={() => setOpenMenu(null)}
+                          >
+                            <strong>{link.label}</strong>
+                            <span>{link.desc}</span>
+                          </Link>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ) : null}
+                  ))}
+                </div>
               </div>
-            ) : (
-              <Link key={item.label} href={item.href!} className="bonsai-nav-link">
-                {item.label}
-              </Link>
-            ),
-          )}
+            ) : null}
+          </div>
+
+          <div className="relative">
+            <button
+              type="button"
+              className="bonsai-nav-link inline-flex items-center gap-1"
+              aria-expanded={openMenu === "tools"}
+              onClick={() => toggleMenu("tools")}
+            >
+              PDF Tools
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 transition-transform duration-200",
+                  openMenu === "tools" && "rotate-180",
+                )}
+              />
+            </button>
+            {openMenu === "tools" ? (
+              <div className="bonsai-mega bonsai-mega--tools">
+                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-5">
+                  {pdfToolColumns.map((col) => (
+                    <div key={col.key}>
+                      <p className="bonsai-mega-col-title">{col.title}</p>
+                      <div className="space-y-0.5">
+                        {col.items.map((link) => (
+                          <Link
+                            key={link.href}
+                            href={link.href}
+                            className="bonsai-mega-item bonsai-mega-item--compact"
+                            title={link.desc}
+                            onClick={() => setOpenMenu(null)}
+                          >
+                            <strong>{link.label}</strong>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 flex items-center justify-between gap-3 border-t border-[#E5E7EB] pt-3">
+                  <p className="text-xs text-muted-foreground">
+                    Free in your browser. No login required.
+                  </p>
+                  <Link
+                    href={routes.tools}
+                    className="text-sm font-semibold text-primary hover:underline"
+                    onClick={() => setOpenMenu(null)}
+                  >
+                    View all PDF tools
+                  </Link>
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          <Link href={routes.pricing} className="bonsai-nav-link">
+            Pricing
+          </Link>
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
           <Link href={routes.login} className="bonsai-nav-link px-2">
             Login
           </Link>
-          <Link href={routes.createInvoice} className="bonsai-btn-primary h-10 text-sm">
+          <Link
+            href={routes.createInvoice}
+            className="bonsai-btn-primary h-10 text-sm"
+          >
             Get started
           </Link>
         </div>
@@ -179,6 +286,41 @@ export function MarketingHeader() {
                 </div>
               </div>
             ))}
+
+            <div className="border-t border-[#E5E7EB] pt-4">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <p className="bonsai-mega-col-title mb-0">PDF Tools</p>
+                <Link
+                  href={routes.tools}
+                  className="text-xs font-semibold text-primary"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  View all
+                </Link>
+              </div>
+              <div className="space-y-4">
+                {pdfToolColumns.map((col) => (
+                  <div key={col.key}>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-[#6B7280]">
+                      {col.title}
+                    </p>
+                    <div className="mt-1 space-y-0.5">
+                      {col.items.map((link) => (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          className="bonsai-mega-item bonsai-mega-item--compact"
+                          onClick={() => setMobileOpen(false)}
+                        >
+                          <strong>{link.label}</strong>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="flex flex-col gap-2 border-t border-[#E5E7EB] pt-4">
               <Link
                 href={routes.login}
