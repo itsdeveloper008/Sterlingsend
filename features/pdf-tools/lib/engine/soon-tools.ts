@@ -2,7 +2,6 @@
 
 import { PDFDocument, StandardFonts, rgb, PDFTextField } from "@cantoo/pdf-lib";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
-import PptxGenJS from "pptxgenjs";
 import * as XLSX from "xlsx";
 import mammoth from "mammoth";
 import { jsPDF } from "jspdf";
@@ -15,6 +14,55 @@ import {
   renderPageToCanvas,
 } from "@/features/pdf-tools/lib/engine/pdfjs-helpers";
 import type { ProcessResult, ToolOptions } from "@/features/pdf-tools/lib/engine/types";
+
+type PptxSlide = {
+  addImage: (options: {
+    data: string;
+    x: number;
+    y: number;
+    w: string;
+    h: string;
+  }) => void;
+  addNotes: (notes: string) => void;
+};
+
+type PptxInstance = {
+  author: string;
+  title: string;
+  addSlide: () => PptxSlide;
+  write: (options: { outputType: "arraybuffer" }) => Promise<ArrayBuffer>;
+};
+
+type PptxConstructor = new () => PptxInstance;
+
+declare global {
+  interface Window {
+    PptxGenJS?: PptxConstructor;
+  }
+}
+
+let pptxLoader: Promise<PptxConstructor> | null = null;
+
+function loadPptxGenJs() {
+  if (window.PptxGenJS) return Promise.resolve(window.PptxGenJS);
+  if (pptxLoader) return pptxLoader;
+
+  pptxLoader = new Promise<PptxConstructor>((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src =
+      "https://unpkg.com/pptxgenjs@4.0.1/dist/pptxgen.bundle.js";
+    script.async = true;
+    script.onload = () => {
+      if (window.PptxGenJS) resolve(window.PptxGenJS);
+      else reject(new Error("PowerPoint converter failed to initialize."));
+    };
+    script.onerror = () =>
+      reject(new Error("Could not load the PowerPoint converter."));
+    document.head.appendChild(script);
+  });
+
+  return pptxLoader;
+}
 
 async function readBytes(file: File) {
   return new Uint8Array(await file.arrayBuffer());
@@ -240,6 +288,7 @@ export async function pdfToWord(file: File): Promise<ProcessResult> {
 export async function pdfToPowerpoint(file: File): Promise<ProcessResult> {
   const bytes = await readBytes(file);
   const pdf = await openPdfDocument(bytes);
+  const PptxGenJS = await loadPptxGenJs();
   const pptx = new PptxGenJS();
   pptx.author = "SterlingSend";
   pptx.title = stemName(file);
