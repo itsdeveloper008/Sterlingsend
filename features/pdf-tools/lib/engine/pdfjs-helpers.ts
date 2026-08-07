@@ -25,18 +25,51 @@ export async function extractPageText(
   const lines: string[] = [];
   let current = "";
   let lastY: number | null = null;
+  let lastXEnd: number | null = null;
 
   for (const item of content.items) {
     if (!("str" in item) || typeof item.str !== "string") continue;
-    const y = "transform" in item && Array.isArray(item.transform)
-      ? Number(item.transform[5] ?? 0)
-      : 0;
-    if (lastY !== null && Math.abs(y - lastY) > 6 && current.trim()) {
-      lines.push(current.trimEnd());
+    const transform =
+      "transform" in item && Array.isArray(item.transform)
+        ? item.transform
+        : null;
+    const y = transform ? Number(transform[5] ?? 0) : 0;
+    const x = transform ? Number(transform[4] ?? 0) : 0;
+    const fontSize = transform
+      ? Math.abs(Number(transform[0] ?? transform[3] ?? 12)) || 12
+      : 12;
+    const width =
+      "width" in item && typeof item.width === "number"
+        ? item.width
+        : item.str.length * fontSize * 0.5;
+    const hasEOL =
+      "hasEOL" in item && typeof item.hasEOL === "boolean" && item.hasEOL;
+
+    if (lastY !== null && Math.abs(y - lastY) > Math.max(6, fontSize * 0.45)) {
+      if (current.trim()) lines.push(current.trimEnd());
       current = "";
+      lastXEnd = null;
     }
-    current += (current && !current.endsWith(" ") ? " " : "") + item.str;
+
+    // Only insert a space when there is a real horizontal gap.
+    // Glyph-per-item PDFs would otherwise become "D a t e r a n g e".
+    const gap = lastXEnd === null ? 0 : x - lastXEnd;
+    const needsSpace =
+      current.length > 0 &&
+      !current.endsWith(" ") &&
+      !current.endsWith("\n") &&
+      !item.str.startsWith(" ") &&
+      gap > fontSize * 0.28;
+
+    current += (needsSpace ? " " : "") + item.str;
+    lastXEnd = x + width;
     lastY = y;
+
+    if (hasEOL) {
+      if (current.trim()) lines.push(current.trimEnd());
+      current = "";
+      lastXEnd = null;
+    }
   }
   if (current.trim()) lines.push(current.trimEnd());
   return lines.join("\n").trim();

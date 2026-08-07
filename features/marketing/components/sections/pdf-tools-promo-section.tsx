@@ -78,11 +78,8 @@ export function PdfToolsPromoSection() {
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-2">
           {readyIcons.map(({ icon: Icon, label }) => (
-            <span
-              key={label}
-              className="inline-flex items-center gap-1.5 rounded-full border border-[#E2E8F0] bg-white px-3 py-1.5 text-xs font-medium text-[#334155]"
-            >
-              <Icon className="h-3.5 w-3.5 text-primary" aria-hidden />
+            <span key={label} className="bonsai-chip pointer-events-none">
+              <Icon className="mr-1.5 inline h-3.5 w-3.5 text-teal-600" aria-hidden />
               {label}
             </span>
           ))}
@@ -91,17 +88,15 @@ export function PdfToolsPromoSection() {
         <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {categories.map((cat, index) => (
             <MotionReveal key={cat.title} delay={index * 0.05}>
-              <article className="flex h-full flex-col rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
-                <h3 className="text-base font-semibold text-[#0F172A]">
-                  {cat.title}
-                </h3>
+              <article className="bonsai-pillar">
+                <h3 className="bonsai-h3 text-base">{cat.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-[#64748B]">
                   {cat.description}
                 </p>
                 <ul className="mt-4 space-y-1.5 text-sm text-[#475569]">
                   {cat.tools.map((t) => (
                     <li key={t} className="flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
                       {t}
                     </li>
                   ))}

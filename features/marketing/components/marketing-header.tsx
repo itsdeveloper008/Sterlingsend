@@ -131,142 +131,177 @@ export function MarketingHeader() {
     setOpenMenu((current) => (current === menu ? null : menu));
   }
 
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function openOnHover(menu: Exclude<OpenMenu, null>) {
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+    setOpenMenu(menu);
+  }
+
+  function closeOnLeave() {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => setOpenMenu(null), 120);
+  }
+
+  useEffect(() => {
+    return () => {
+      if (closeTimer.current) clearTimeout(closeTimer.current);
+    };
+  }, []);
+
   return (
     <header
       className={cn("bonsai-header", scrolled && "bonsai-header--scrolled")}
     >
-      <div className="bonsai-container flex h-[5.5rem] items-center justify-between gap-4">
-        <Logo href={routes.home} size={84} />
+      <div className="bonsai-container">
+        <div className="bonsai-header-shell">
+          <Logo href={routes.home} size={64} />
 
-        <nav
-          ref={navRef}
-          className="relative hidden items-center gap-7 lg:flex"
-          aria-label="Main"
-        >
-          <div className="relative">
-            <button
-              type="button"
-              className="bonsai-nav-link inline-flex items-center gap-1"
-              aria-expanded={openMenu === "products"}
-              onClick={() => toggleMenu("products")}
-            >
-              Products
-              <ChevronDown
-                className={cn(
-                  "h-4 w-4 transition-transform duration-200",
-                  openMenu === "products" && "rotate-180",
-                )}
-              />
-            </button>
-            {openMenu === "products" ? (
-              <div className="bonsai-mega">
-                <div className="grid gap-6 sm:grid-cols-3">
-                  {productColumns.map((col) => (
-                    <div key={col.title}>
-                      <p className="bonsai-mega-col-title">{col.title}</p>
-                      <div className="space-y-1">
-                        {col.items.map((link) => (
-                          <Link
-                            key={link.label}
-                            href={link.href}
-                            className="bonsai-mega-item"
-                            onClick={() => setOpenMenu(null)}
-                          >
-                            <strong>{link.label}</strong>
-                            <span>{link.desc}</span>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-          </div>
-
-          <div className="relative">
-            <button
-              type="button"
-              className="bonsai-nav-link inline-flex items-center gap-1"
-              aria-expanded={openMenu === "tools"}
-              onClick={() => toggleMenu("tools")}
-            >
-              PDF Tools
-              <ChevronDown
-                className={cn(
-                  "h-4 w-4 transition-transform duration-200",
-                  openMenu === "tools" && "rotate-180",
-                )}
-              />
-            </button>
-            {openMenu === "tools" ? (
-              <div className="bonsai-mega bonsai-mega--tools">
-                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-5">
-                  {pdfToolColumns.map((col) => (
-                    <div key={col.key}>
-                      <p className="bonsai-mega-col-title">{col.title}</p>
-                      <div className="space-y-0.5">
-                        {col.items.map((link) => (
-                          <Link
-                            key={link.href}
-                            href={link.href}
-                            className="bonsai-mega-item bonsai-mega-item--compact"
-                            title={link.desc}
-                            onClick={() => setOpenMenu(null)}
-                          >
-                            <strong>{link.label}</strong>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-4 flex items-center justify-between gap-3 border-t border-[#E5E7EB] pt-3">
-                  <p className="text-xs text-muted-foreground">
-                    Free in your browser. No login required.
-                  </p>
-                  <Link
-                    href={routes.tools}
-                    className="text-sm font-semibold text-primary hover:underline"
-                    onClick={() => setOpenMenu(null)}
-                  >
-                    View all PDF tools
-                  </Link>
-                </div>
-              </div>
-            ) : null}
-          </div>
-
-          <Link href={routes.pricing} className="bonsai-nav-link">
-            Pricing
-          </Link>
-        </nav>
-
-        <div className="hidden items-center gap-3 lg:flex">
-          <Link href={routes.login} className="bonsai-nav-link px-2">
-            Login
-          </Link>
-          <Link
-            href={routes.createInvoice}
-            className="bonsai-btn-primary h-10 text-sm"
+          <nav
+            ref={navRef}
+            className="bonsai-nav-cluster relative"
+            aria-label="Main"
           >
-            Get started
-          </Link>
-        </div>
+            <div
+              className="relative"
+              onMouseEnter={() => openOnHover("products")}
+              onMouseLeave={closeOnLeave}
+            >
+              <button
+                type="button"
+                className="bonsai-nav-link"
+                aria-expanded={openMenu === "products"}
+                aria-haspopup="true"
+                onFocus={() => openOnHover("products")}
+                onClick={() => toggleMenu("products")}
+              >
+                Products
+                <ChevronDown
+                  className={cn(
+                    "h-3.5 w-3.5 transition-transform duration-200",
+                    openMenu === "products" && "rotate-180",
+                  )}
+                />
+              </button>
+              {openMenu === "products" ? (
+                <div className="bonsai-mega" onMouseEnter={() => openOnHover("products")}>
+                  <div className="grid gap-6 sm:grid-cols-3">
+                    {productColumns.map((col) => (
+                      <div key={col.title}>
+                        <p className="bonsai-mega-col-title">{col.title}</p>
+                        <div className="space-y-1">
+                          {col.items.map((link) => (
+                            <Link
+                              key={link.label}
+                              href={link.href}
+                              className="bonsai-mega-item"
+                              onClick={() => setOpenMenu(null)}
+                            >
+                              <strong>{link.label}</strong>
+                              <span>{link.desc}</span>
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </div>
 
-        <button
-          type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-[#374151] hover:bg-[#F9FAFB] lg:hidden"
-          aria-label={mobileOpen ? "Close menu" : "Open menu"}
-          aria-expanded={mobileOpen}
-          onClick={() => setMobileOpen((v) => !v)}
-        >
-          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+            <div
+              className="relative"
+              onMouseEnter={() => openOnHover("tools")}
+              onMouseLeave={closeOnLeave}
+            >
+              <button
+                type="button"
+                className="bonsai-nav-link"
+                aria-expanded={openMenu === "tools"}
+                aria-haspopup="true"
+                onFocus={() => openOnHover("tools")}
+                onClick={() => toggleMenu("tools")}
+              >
+                PDF Tools
+                <ChevronDown
+                  className={cn(
+                    "h-3.5 w-3.5 transition-transform duration-200",
+                    openMenu === "tools" && "rotate-180",
+                  )}
+                />
+              </button>
+              {openMenu === "tools" ? (
+                <div
+                  className="bonsai-mega bonsai-mega--tools"
+                  onMouseEnter={() => openOnHover("tools")}
+                >
+                  <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-5">
+                    {pdfToolColumns.map((col) => (
+                      <div key={col.key}>
+                        <p className="bonsai-mega-col-title">{col.title}</p>
+                        <div className="space-y-0.5">
+                          {col.items.map((link) => (
+                            <Link
+                              key={link.href}
+                              href={link.href}
+                              className="bonsai-mega-item bonsai-mega-item--compact"
+                              title={link.desc}
+                              onClick={() => setOpenMenu(null)}
+                            >
+                              <strong>{link.label}</strong>
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 flex items-center justify-between gap-3 border-t border-[#E5E7EB] pt-3">
+                    <p className="text-xs text-muted-foreground">
+                      Free in your browser. No login required.
+                    </p>
+                    <Link
+                      href={routes.tools}
+                      className="text-sm font-semibold text-primary hover:underline"
+                      onClick={() => setOpenMenu(null)}
+                    >
+                      View all PDF tools
+                    </Link>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+
+            <Link href={routes.pricing} className="bonsai-nav-link">
+              Pricing
+            </Link>
+          </nav>
+
+          <div className="bonsai-header-actions">
+            <Link href={routes.login} className="bonsai-nav-login">
+              Login
+            </Link>
+            <Link href={routes.createInvoice} className="bonsai-nav-cta">
+              Get started
+            </Link>
+          </div>
+
+          <button
+            type="button"
+            className="bonsai-menu-toggle"
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
+            onClick={() => setMobileOpen((v) => !v)}
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
 
       {mobileOpen ? (
-        <div className="fixed inset-0 top-[5.5rem] z-40 overflow-y-auto bg-white lg:hidden">
+        <div className="fixed inset-0 top-[5.25rem] z-40 overflow-y-auto bg-white/95 backdrop-blur-md lg:hidden">
           <div className="bonsai-container space-y-6 py-6">
             {productColumns.map((col) => (
               <div key={col.title}>

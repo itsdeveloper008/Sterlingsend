@@ -13,21 +13,21 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
         </p>
       </div>
 
-      <div className="relative hidden flex-col justify-center overflow-hidden bg-slate-950 p-10 xl:p-12 lg:flex">
+      <div className="relative hidden flex-col justify-center overflow-hidden bg-slate-950 px-8 py-10 lg:flex xl:px-12">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(20,184,166,0.15),transparent_50%)]" />
-        <div className="relative z-10 max-w-xl">
+        <div className="relative z-10 mx-auto w-full max-w-[440px]">
           <p className="text-sm font-semibold uppercase tracking-wider text-teal-400">
             SterlingSend
           </p>
           <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white">
             Create invoices. Get paid. Move on.
           </h1>
-          <p className="mt-4 text-lg leading-relaxed text-slate-400">
+          <p className="mt-4 text-base leading-relaxed text-slate-400">
             The fastest way for UK businesses to invoice clients - without
             accounting complexity.
           </p>
         </div>
-        <div className="relative z-10 mt-10 w-full max-w-xl">
+        <div className="relative z-10 mx-auto mt-8 w-full max-w-[440px]">
           <InvoiceEditorMockup />
         </div>
       </div>

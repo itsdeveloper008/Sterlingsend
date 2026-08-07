@@ -82,10 +82,35 @@ const showcases: Showcase[] = [
   },
 ];
 
-function MockupFor({ kind }: { kind: Showcase["mockup"] }) {
-  if (kind === "clients") return <DashboardMockup />;
-  if (kind === "payments") return <PublicPayMockup />;
-  return <InvoiceEditorMockup />;
+const easeOut = [0.22, 1, 0.36, 1] as const;
+
+const chipListVariants = {
+  hidden: {},
+  show: {
+    transition: { staggerChildren: 0.055, delayChildren: 0.08 },
+  },
+};
+
+const chipItemVariants = {
+  hidden: { opacity: 0, y: 12, scale: 0.94 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.4, ease: easeOut },
+  },
+};
+
+function MockupFor({
+  kind,
+  highlight,
+}: {
+  kind: Showcase["mockup"];
+  highlight: string;
+}) {
+  if (kind === "clients") return <DashboardMockup highlight={highlight} />;
+  if (kind === "payments") return <PublicPayMockup highlight={highlight} />;
+  return <InvoiceEditorMockup highlight={highlight} compact />;
 }
 
 function ShowcaseBlock({
@@ -97,6 +122,7 @@ function ShowcaseBlock({
 }) {
   const [activeChip, setActiveChip] = useState(0);
   const reduceMotion = useReducedMotion();
+  const activeLabel = showcase.chips[activeChip];
 
   return (
     <MotionSection
@@ -106,7 +132,15 @@ function ShowcaseBlock({
       )}
     >
       <div className="bonsai-container">
-        <p className="bonsai-eyebrow">{showcase.eyebrow}</p>
+        <motion.p
+          className="bonsai-eyebrow"
+          initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.4, ease: easeOut }}
+        >
+          {showcase.eyebrow}
+        </motion.p>
 
         <div
           className={cn(
@@ -115,29 +149,53 @@ function ShowcaseBlock({
           )}
         >
           <div>
-            <div className="bonsai-chip-row">
-              {showcase.chips.map((chip, index) => (
-                <button
-                  key={chip}
-                  type="button"
-                  className={cn(
-                    "bonsai-chip",
-                    index === activeChip && "bonsai-chip--active",
-                  )}
-                  onClick={() => setActiveChip(index)}
-                >
-                  {chip}
-                </button>
-              ))}
-            </div>
+            <motion.div
+              className="bonsai-chip-row"
+              variants={reduceMotion ? undefined : chipListVariants}
+              initial={reduceMotion ? false : "hidden"}
+              whileInView="show"
+              viewport={{ once: true, margin: "-40px" }}
+            >
+              {showcase.chips.map((chip, index) => {
+                const isActive = index === activeChip;
+                return (
+                  <motion.button
+                    key={chip}
+                    type="button"
+                    variants={reduceMotion ? undefined : chipItemVariants}
+                    className={cn(
+                      "bonsai-chip relative isolate overflow-hidden",
+                      isActive && "bonsai-chip--active",
+                    )}
+                    onClick={() => setActiveChip(index)}
+                    whileHover={reduceMotion ? undefined : { y: -2 }}
+                    whileTap={reduceMotion ? undefined : { scale: 0.97 }}
+                    transition={{ type: "spring", stiffness: 420, damping: 26 }}
+                  >
+                    {isActive && !reduceMotion ? (
+                      <motion.span
+                        layoutId={`showcase-chip-${showcase.id}`}
+                        className="bonsai-chip-glow"
+                        transition={{
+                          type: "spring",
+                          stiffness: 380,
+                          damping: 32,
+                        }}
+                      />
+                    ) : null}
+                    <span className="relative z-10">{chip}</span>
+                  </motion.button>
+                );
+              })}
+            </motion.div>
 
             <AnimatePresence mode="wait">
               <motion.div
                 key={`${showcase.id}-${activeChip}`}
-                initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+                initial={reduceMotion ? false : { opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={reduceMotion ? undefined : { opacity: 0, y: -6 }}
-                transition={{ duration: 0.28, ease: [0, 0, 0.2, 1] }}
+                exit={reduceMotion ? undefined : { opacity: 0, y: -8 }}
+                transition={{ duration: 0.28, ease: easeOut }}
               >
                 <h2 className="bonsai-h2 mt-6 max-w-lg">{showcase.title}</h2>
                 <p className="bonsai-lead mt-4 max-w-lg">
@@ -147,7 +205,7 @@ function ShowcaseBlock({
                       {" "}
                       Focus on{" "}
                       <span className="font-semibold text-[#111827]">
-                        {showcase.chips[activeChip]}
+                        {activeLabel}
                       </span>
                       .
                     </>
@@ -156,30 +214,74 @@ function ShowcaseBlock({
               </motion.div>
             </AnimatePresence>
 
-            <Link
-              href={showcase.href}
-              className="bonsai-btn-primary mt-8 inline-flex"
+            <motion.div
+              initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.45, delay: 0.18, ease: easeOut }}
             >
-              {showcase.cta}
-            </Link>
+              <Link
+                href={showcase.href}
+                className="bonsai-btn-primary mt-8 inline-flex"
+              >
+                {showcase.cta}
+              </Link>
+            </motion.div>
           </div>
 
           <motion.div
             className="bonsai-showcase-visual"
-            initial={reduceMotion ? false : { opacity: 0, scale: 0.98 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            initial={reduceMotion ? false : { opacity: 0, x: reverse ? -28 : 28, scale: 0.97 }}
+            whileInView={{ opacity: 1, x: 0, scale: 1 }}
             viewport={{ once: true, margin: "-40px" }}
-            transition={{ duration: 0.55, ease: [0, 0, 0.2, 1] }}
+            transition={{ duration: 0.65, ease: easeOut }}
           >
-            <BrowserFrame
-              url={
-                showcase.mockup === "payments"
-                  ? "pay.sterlingsend.com"
-                  : "app.sterlingsend.com"
+            <motion.div
+              className="bonsai-showcase-float"
+              animate={
+                reduceMotion
+                  ? undefined
+                  : { y: [0, -8, 0] }
+              }
+              transition={
+                reduceMotion
+                  ? undefined
+                  : {
+                      duration: 5.5,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }
               }
             >
-              <MockupFor kind={showcase.mockup} />
-            </BrowserFrame>
+              <BrowserFrame
+                url={
+                  showcase.mockup === "payments"
+                    ? "pay.sterlingsend.com"
+                    : "app.sterlingsend.com"
+                }
+              >
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={`${showcase.id}-${activeLabel}`}
+                    initial={
+                      reduceMotion ? false : { opacity: 0, y: 10, filter: "blur(4px)" }
+                    }
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    exit={
+                      reduceMotion
+                        ? undefined
+                        : { opacity: 0, y: -8, filter: "blur(3px)" }
+                    }
+                    transition={{ duration: 0.32, ease: easeOut }}
+                  >
+                    <MockupFor
+                      kind={showcase.mockup}
+                      highlight={activeLabel}
+                    />
+                  </motion.div>
+                </AnimatePresence>
+              </BrowserFrame>
+            </motion.div>
           </motion.div>
         </div>
       </div>

@@ -21,13 +21,13 @@ export function MotionReveal({
   return (
     <motion.div
       className={cn(className)}
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 22 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-48px" }}
       transition={{
-        duration: 0.5,
+        duration: 0.55,
         delay,
-        ease: [0, 0, 0.2, 1],
+        ease: [0.22, 1, 0.36, 1],
       }}
     >
       {children}

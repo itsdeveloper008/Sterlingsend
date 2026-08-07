@@ -99,7 +99,14 @@ async function translateChunks(texts: string[], targetLang: string) {
         const data = (await res.json()) as {
           responseData?: { translatedText?: string };
         };
-        translated.push(data.responseData?.translatedText || chunk);
+        const raw = data.responseData?.translatedText || chunk;
+        // MyMemory sometimes mangles dashes / quotes into odd tokens
+        translated.push(
+          raw
+            .replace(/\s*!'+\s*/g, " – ")
+            .replace(/\s{2,}/g, " ")
+            .trim(),
+        );
       } catch {
         translated.push(chunk);
       }
@@ -847,6 +854,161 @@ export async function comparePdf(files: File[]): Promise<ProcessResult> {
   };
 }
 
+/** Script fonts for canvas rendering (Helvetica cannot draw Hindi/CJK/Arabic). */
+const TRANSLATE_FONT_STACK: Record<string, { family: string; url: string }[]> = {
+  hi: [
+    {
+      family: "Noto Sans Devanagari",
+      url: "https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-devanagari@5.2.5/files/noto-sans-devanagari-devanagari-400-normal.woff",
+    },
+  ],
+  mr: [
+    {
+      family: "Noto Sans Devanagari",
+      url: "https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-devanagari@5.2.5/files/noto-sans-devanagari-devanagari-400-normal.woff",
+    },
+  ],
+  ar: [
+    {
+      family: "Noto Sans Arabic",
+      url: "https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-arabic@5.2.5/files/noto-sans-arabic-arabic-400-normal.woff",
+    },
+  ],
+  "zh-CN": [
+    {
+      family: "Noto Sans SC",
+      url: "https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-sc@5.2.5/files/noto-sans-sc-chinese-simplified-400-normal.woff",
+    },
+  ],
+  ja: [
+    {
+      family: "Noto Sans JP",
+      url: "https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-jp@5.2.5/files/noto-sans-jp-japanese-400-normal.woff",
+    },
+  ],
+  ko: [
+    {
+      family: "Noto Sans KR",
+      url: "https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-kr@5.2.5/files/noto-sans-kr-korean-400-normal.woff",
+    },
+  ],
+};
+
+const LATIN_TRANSLATE_FONT = {
+  family: "Noto Sans",
+  url: "https://cdn.jsdelivr.net/npm/@fontsource/noto-sans@5.2.5/files/noto-sans-latin-400-normal.woff",
+};
+
+const loadedTranslateFonts = new Set<string>();
+
+async function ensureTranslateFonts(lang: string) {
+  const stack = [
+    LATIN_TRANSLATE_FONT,
+    ...(TRANSLATE_FONT_STACK[lang] ?? []),
+  ];
+  await Promise.all(
+    stack.map(async ({ family, url }) => {
+      const key = `${family}:${url}`;
+      if (loadedTranslateFonts.has(key)) return;
+      try {
+        const face = new FontFace(family, `url(${url}) format("woff")`, {
+          style: "normal",
+          weight: "400",
+        });
+        const loaded = await face.load();
+        document.fonts.add(loaded);
+        loadedTranslateFonts.add(key);
+      } catch {
+        // Fall back to system fonts if CDN fetch fails
+      }
+    }),
+  );
+  return stack.map((f) => `"${f.family}"`).join(", ") + ", sans-serif";
+}
+
+function wrapTextToWidth(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+) {
+  const words = text.split(/\s+/).filter(Boolean);
+  if (!words.length) return [""];
+  const lines: string[] = [];
+  let current = "";
+  for (const word of words) {
+    const next = current ? `${current} ${word}` : word;
+    if (ctx.measureText(next).width > maxWidth && current) {
+      lines.push(current);
+      // Long unbroken token: hard-split by measured width
+      if (ctx.measureText(word).width > maxWidth) {
+        let chunk = "";
+        for (const ch of word) {
+          const tryChunk = chunk + ch;
+          if (ctx.measureText(tryChunk).width > maxWidth && chunk) {
+            lines.push(chunk);
+            chunk = ch;
+          } else {
+            chunk = tryChunk;
+          }
+        }
+        current = chunk;
+      } else {
+        current = word;
+      }
+    } else {
+      current = next;
+    }
+  }
+  if (current) lines.push(current);
+  return lines;
+}
+
+function renderTranslatedPageCanvas(
+  title: string,
+  body: string,
+  fontFamily: string,
+  rtl: boolean,
+) {
+  const pageW = 595.28;
+  const pageH = 841.89;
+  const margin = 48;
+  const scale = 2;
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.ceil(pageW * scale);
+  canvas.height = Math.ceil(pageH * scale);
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Could not create canvas for translation.");
+
+  ctx.scale(scale, scale);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, pageW, pageH);
+  ctx.fillStyle = "#0c7380";
+  ctx.font = `600 12px ${fontFamily}`;
+  ctx.direction = rtl ? "rtl" : "ltr";
+  ctx.textAlign = rtl ? "right" : "left";
+  const titleX = rtl ? pageW - margin : margin;
+  ctx.fillText(title, titleX, 52);
+
+  ctx.fillStyle = "#0f172a";
+  ctx.font = `400 11px ${fontFamily}`;
+  const maxWidth = pageW - margin * 2;
+  let y = 78;
+  const lineHeight = 16;
+  const paragraphs = (body || "(empty)").split(/\n/);
+
+  for (const paragraph of paragraphs) {
+    const lines = wrapTextToWidth(ctx, paragraph || " ", maxWidth);
+    for (const line of lines) {
+      if (y > pageH - margin) break;
+      ctx.fillText(line, titleX, y);
+      y += lineHeight;
+    }
+    y += 4;
+  }
+
+  return canvas;
+}
+
 export async function translatePdf(
   file: File,
   options: ToolOptions,
@@ -859,39 +1021,58 @@ export async function translatePdf(
     );
   }
 
+  const fontFamily = await ensureTranslateFonts(targetLang);
   const translated = await translateChunks(pages, targetLang);
   const out = await PDFDocument.create();
-  const font = await out.embedFont(StandardFonts.Helvetica);
-  const bold = await out.embedFont(StandardFonts.HelveticaBold);
+  const rtl = targetLang === "ar";
 
   for (let index = 0; index < translated.length; index++) {
-    let page = out.addPage([595.28, 841.89]);
-    page.drawText(`Translated page ${index + 1} (${targetLang})`, {
-      x: 48,
-      y: 800,
-      size: 12,
-      font: bold,
-      color: rgb(0.05, 0.45, 0.42),
-    });
-    const lines = winAnsiSafe(translated[index] || "(empty)").split(/\n/);
-    let y = 770;
-    for (const line of lines) {
-      for (const part of wrapText(line, 90)) {
-        if (y < 48) {
-          page = out.addPage([595.28, 841.89]);
-          y = 800;
-        }
-        page.drawText(part, {
-          x: 48,
-          y,
-          size: 11,
-          font,
-          color: rgb(0.06, 0.09, 0.16),
-        });
-        y -= 14;
-      }
+    const text = translated[index] || "(empty)";
+    // Overflow onto extra pages when body is long
+    const pageW = 595.28;
+    const pageH = 841.89;
+    const margin = 48;
+    const measure = document.createElement("canvas").getContext("2d");
+    if (!measure) throw new Error("Could not measure translated text.");
+    measure.font = `400 11px ${fontFamily}`;
+    const maxWidth = pageW - margin * 2;
+    const allLines: string[] = [];
+    for (const paragraph of text.split(/\n/)) {
+      allLines.push(...wrapTextToWidth(measure, paragraph || " ", maxWidth));
+      allLines.push("");
+    }
+    const linesPerPage = Math.floor((pageH - 78 - margin) / 16);
+    const chunks: string[][] = [];
+    for (let i = 0; i < allLines.length; i += linesPerPage) {
+      chunks.push(allLines.slice(i, i + linesPerPage));
+    }
+    if (!chunks.length) chunks.push([""]);
+
+    for (let c = 0; c < chunks.length; c++) {
+      const title =
+        chunks.length > 1
+          ? `Translated page ${index + 1}.${c + 1} (${targetLang})`
+          : `Translated page ${index + 1} (${targetLang})`;
+      const canvas = renderTranslatedPageCanvas(
+        title,
+        chunks[c].join("\n"),
+        fontFamily,
+        rtl,
+      );
+      const jpg = await canvasToJpegBytes(canvas, 0.92);
+      const image = await out.embedJpg(jpg);
+      const page = out.addPage([pageW, pageH]);
+      page.drawImage(image, {
+        x: 0,
+        y: 0,
+        width: pageW,
+        height: pageH,
+      });
     }
   }
+
+  out.setProducer("SterlingSend Translate");
+  out.setCreator("SterlingSend");
 
   return {
     files: [

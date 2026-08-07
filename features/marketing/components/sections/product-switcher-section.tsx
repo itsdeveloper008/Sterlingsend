@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FileStack, FileText } from "lucide-react";
+import { ArrowRight, FileStack, FileText } from "lucide-react";
 import { routes } from "@/config/routes";
 import { MotionReveal } from "@/features/marketing/lib/motion-reveal";
 import { MotionSection } from "@/features/marketing/lib/motion-section";
@@ -27,30 +27,28 @@ const products = [
 
 export function ProductSwitcherSection() {
   return (
-    <MotionSection className="border-y border-[#E5E7EB] bg-[#F8FAFC] py-14 sm:py-16">
+    <MotionSection className="border-y border-[#E2E8F0] bg-[#F8FAFC] py-16 sm:py-20">
       <div className="bonsai-container">
         <div className="mx-auto max-w-2xl text-center">
           <p className="bonsai-eyebrow">Two products. Login optional.</p>
-          <h2 className="bonsai-h2 mt-3">Pick your workflow</h2>
+          <h2 className="bonsai-h2 mt-4">Pick your workflow</h2>
         </div>
-        <div className="mt-10 grid gap-4 md:grid-cols-2">
+        <div className="mt-10 grid gap-5 md:grid-cols-2">
           {products.map((product, index) => {
             const Icon = product.icon;
             return (
-              <MotionReveal key={product.title} delay={index * 0.06}>
-                <Link
-                  href={product.href}
-                  className="group flex h-full flex-col rounded-2xl border border-[#E5E7EB] bg-white p-6 shadow-sm transition hover:border-primary/40 hover:shadow-md"
-                >
-                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <MotionReveal key={product.title} delay={index * 0.08}>
+                <Link href={product.href} className="bonsai-product-card group">
+                  <span className="bonsai-product-card-icon">
                     <Icon className="h-5 w-5" aria-hidden />
                   </span>
                   <h3 className="bonsai-h3 mt-5">{product.title}</h3>
                   <p className="mt-2 flex-1 text-sm leading-relaxed text-[#64748B]">
                     {product.description}
                   </p>
-                  <span className="mt-5 text-sm font-semibold text-primary group-hover:underline">
-                    {product.cta} →
+                  <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-bold text-teal-700 transition group-hover:gap-2.5">
+                    {product.cta}
+                    <ArrowRight className="h-4 w-4" aria-hidden />
                   </span>
                 </Link>
               </MotionReveal>
