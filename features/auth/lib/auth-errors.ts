@@ -20,6 +20,11 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
 
 export function getAuthErrorMessage(error: unknown, fallback: string) {
   if (error instanceof FirebaseError) {
+    if (error.code === "auth/unauthorized-domain") {
+      const host =
+        typeof window !== "undefined" ? window.location.hostname : "this site";
+      return `Add “${host}” in Firebase → Authentication → Settings → Authorized domains, then try again.`;
+    }
     return AUTH_ERROR_MESSAGES[error.code] ?? fallback;
   }
 

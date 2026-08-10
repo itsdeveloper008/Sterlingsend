@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       ? await businessService.getById(user.businessId)
       : await businessService.getByOwnerId(decoded.uid);
 
-    const redirectTo = business ? routes.dashboard : routes.onboarding;
+    const redirectTo = business ? routes.dashboard : routes.home;
 
     const response = NextResponse.json({ success: true, redirectTo });
 

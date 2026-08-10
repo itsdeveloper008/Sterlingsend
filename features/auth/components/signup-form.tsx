@@ -27,7 +27,7 @@ export function SignupForm() {
     try {
       const redirectTo = await signUp(email, password, displayName);
       toast.success("Account created");
-      window.location.assign(redirectTo ?? routes.onboarding);
+      window.location.assign(redirectTo ?? routes.home);
     } catch (error) {
       toast.error(
         getAuthErrorMessage(error, "Could not create account. Try a different email."),
@@ -43,7 +43,7 @@ export function SignupForm() {
     try {
       const redirectTo = await signInWithGoogle();
       toast.success("Welcome to SterlingSend");
-      window.location.assign(redirectTo ?? routes.onboarding);
+      window.location.assign(redirectTo ?? routes.home);
     } catch (error) {
       toast.error(getAuthErrorMessage(error, "Could not continue with Google"));
       setGoogleLoading(false);

@@ -81,7 +81,7 @@ export function LoginForm() {
       const destination =
         requested && requested.startsWith("/")
           ? requested
-          : (redirectTo ?? routes.dashboard);
+          : (redirectTo ?? routes.home);
       window.setTimeout(() => {
         window.location.assign(destination);
       }, 480);
@@ -115,7 +115,7 @@ export function LoginForm() {
       const destination =
         requested && requested.startsWith("/")
           ? requested
-          : (redirectTo ?? routes.dashboard);
+          : (redirectTo ?? routes.home);
       window.setTimeout(() => {
         window.location.assign(destination);
       }, 480);
