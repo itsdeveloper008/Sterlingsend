@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, LayoutDashboard, LogOut, Menu, X } from "lucide-react";
+import { ChevronDown, FileText, LogOut, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { routes } from "@/config/routes";
 import { Logo } from "@/components/design-system/logo";
@@ -360,12 +360,12 @@ export function MarketingHeader() {
                       ) : null}
                     </div>
                     <Link
-                      href={routes.dashboard}
+                      href={routes.invoicesNew}
                       className="bonsai-account-menu-item"
                       onClick={() => setOpenMenu(null)}
                     >
-                      <LayoutDashboard className="h-4 w-4" />
-                      Dashboard
+                      <FileText className="h-4 w-4" />
+                      Create invoice
                     </Link>
                     <button
                       type="button"
@@ -491,11 +491,11 @@ export function MarketingHeader() {
                     </div>
                   </div>
                   <Link
-                    href={routes.dashboard}
+                    href={routes.invoicesNew}
                     className="bonsai-btn-primary"
                     onClick={() => setMobileOpen(false)}
                   >
-                    Dashboard
+                    Create invoice
                   </Link>
                   <button
                     type="button"

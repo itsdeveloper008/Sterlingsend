@@ -381,13 +381,13 @@ export function OnboardingWizard({ userEmail }: { userEmail?: string }) {
                 <span className="font-medium text-foreground">
                   {data.businessName}
                 </span>{" "}
-                is ready to invoice. You can create your first invoice from the
-                dashboard.
+                is ready to invoice. Create your first invoice whenever you are
+                ready.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ButtonLink href={routes.dashboard} className="w-full sm:w-auto">
-                Go to dashboard
+              <ButtonLink href={routes.invoicesNew} className="w-full sm:w-auto">
+                Create invoice
                 <ArrowRight className="ml-2 h-4 w-4" />
               </ButtonLink>
             </CardContent>

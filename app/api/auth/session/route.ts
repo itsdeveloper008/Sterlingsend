@@ -6,7 +6,6 @@ import {
 } from "@/firebase/session";
 import { getAdminAuth } from "@/firebase/admin";
 import { userService } from "@/services/user.service";
-import { businessService } from "@/services/business.service";
 import { routes } from "@/config/routes";
 
 export async function POST(request: Request) {
@@ -20,21 +19,18 @@ export async function POST(request: Request) {
     const decoded = await getAdminAuth().verifyIdToken(idToken);
     const sessionCookie = await createSessionCookie(idToken);
 
-    let user = await userService.getById(decoded.uid);
+    const user = await userService.getById(decoded.uid);
     if (!user) {
       await userService.create({
         id: decoded.uid,
         email: decoded.email ?? "",
         displayName: decoded.name ?? "",
       });
-      user = await userService.getById(decoded.uid);
     }
 
-    const business = user?.businessId
-      ? await businessService.getById(user.businessId)
-      : await businessService.getByOwnerId(decoded.uid);
-
-    const redirectTo = business ? routes.dashboard : routes.home;
+    // Always land on the marketing home after login — never the dashboard.
+    // Login/signup can still honor a `?redirect=` query param client-side.
+    const redirectTo = routes.home;
 
     const response = NextResponse.json({ success: true, redirectTo });
 

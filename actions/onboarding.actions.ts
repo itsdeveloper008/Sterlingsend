@@ -133,7 +133,7 @@ export async function redirectIfOnboardingComplete() {
   if (user?.businessId) {
     const business = await businessService.getById(user.businessId);
     if (business) {
-      redirect(routes.dashboard);
+      redirect(routes.home);
     }
   }
 }
