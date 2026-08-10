@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { ChevronDown, LayoutDashboard, LogOut, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { routes } from "@/config/routes";
 import { Logo } from "@/components/design-system/logo";
+import { useAuth } from "@/hooks/use-auth";
 import {
   CATEGORY_META,
   CATEGORY_ORDER,
@@ -85,13 +86,35 @@ const pdfToolColumns = CATEGORY_ORDER.map((category) => ({
   })),
 }));
 
-type OpenMenu = null | "products" | "tools";
+type OpenMenu = null | "products" | "tools" | "account";
+
+function displayNameFor(user: {
+  displayName: string | null;
+  email: string | null;
+}) {
+  if (user.displayName?.trim()) return user.displayName.trim();
+  if (user.email) return user.email.split("@")[0] ?? user.email;
+  return "Account";
+}
+
+function initialsFor(name: string) {
+  const parts = name.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
+  }
+  return name.slice(0, 2).toUpperCase() || "SS";
+}
 
 export function MarketingHeader() {
+  const { user, loading, signOut } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [openMenu, setOpenMenu] = useState<OpenMenu>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
+  const actionsRef = useRef<HTMLDivElement>(null);
+
+  const userName = user ? displayNameFor(user) : "";
+  const userInitials = userName ? initialsFor(userName) : "";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -102,7 +125,13 @@ export function MarketingHeader() {
 
   useEffect(() => {
     function onPointer(event: MouseEvent) {
-      if (navRef.current && !navRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (
+        navRef.current &&
+        !navRef.current.contains(target) &&
+        actionsRef.current &&
+        !actionsRef.current.contains(target)
+      ) {
         setOpenMenu(null);
       }
     }
@@ -152,6 +181,13 @@ export function MarketingHeader() {
     };
   }, []);
 
+  async function handleSignOut() {
+    setOpenMenu(null);
+    setMobileOpen(false);
+    await signOut();
+    window.location.assign(routes.home);
+  }
+
   return (
     <header
       className={cn("bonsai-header", scrolled && "bonsai-header--scrolled")}
@@ -187,7 +223,10 @@ export function MarketingHeader() {
                 />
               </button>
               {openMenu === "products" ? (
-                <div className="bonsai-mega" onMouseEnter={() => openOnHover("products")}>
+                <div
+                  className="bonsai-mega"
+                  onMouseEnter={() => openOnHover("products")}
+                >
                   <div className="grid gap-6 sm:grid-cols-3">
                     {productColumns.map((col) => (
                       <div key={col.title}>
@@ -279,13 +318,76 @@ export function MarketingHeader() {
             </Link>
           </nav>
 
-          <div className="bonsai-header-actions">
-            <Link href={routes.login} className="bonsai-nav-login">
-              Login
-            </Link>
-            <Link href={routes.createInvoice} className="bonsai-nav-cta">
-              Get started
-            </Link>
+          <div ref={actionsRef} className="bonsai-header-actions">
+            {!loading && user ? (
+              <div className="relative">
+                <button
+                  type="button"
+                  className="bonsai-nav-user"
+                  aria-expanded={openMenu === "account"}
+                  aria-haspopup="true"
+                  onClick={() => toggleMenu("account")}
+                >
+                  {user.photoURL ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={user.photoURL}
+                      alt=""
+                      className="bonsai-nav-user-avatar"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <span className="bonsai-nav-user-fallback" aria-hidden>
+                      {userInitials}
+                    </span>
+                  )}
+                  <span className="bonsai-nav-user-name">{userName}</span>
+                  <ChevronDown
+                    className={cn(
+                      "h-3.5 w-3.5 shrink-0 text-[#64748b] transition-transform duration-200",
+                      openMenu === "account" && "rotate-180",
+                    )}
+                  />
+                </button>
+                {openMenu === "account" ? (
+                  <div className="bonsai-account-menu">
+                    <div className="bonsai-account-menu-meta">
+                      <p className="font-semibold text-[#0f172a]">{userName}</p>
+                      {user.email ? (
+                        <p className="truncate text-xs text-[#64748b]">
+                          {user.email}
+                        </p>
+                      ) : null}
+                    </div>
+                    <Link
+                      href={routes.dashboard}
+                      className="bonsai-account-menu-item"
+                      onClick={() => setOpenMenu(null)}
+                    >
+                      <LayoutDashboard className="h-4 w-4" />
+                      Dashboard
+                    </Link>
+                    <button
+                      type="button"
+                      className="bonsai-account-menu-item"
+                      onClick={handleSignOut}
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Log out
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            ) : (
+              <>
+                <Link href={routes.login} className="bonsai-nav-login">
+                  Login
+                </Link>
+                <Link href={routes.createInvoice} className="bonsai-nav-cta">
+                  Get started
+                </Link>
+              </>
+            )}
           </div>
 
           <button
@@ -295,7 +397,11 @@ export function MarketingHeader() {
             aria-expanded={mobileOpen}
             onClick={() => setMobileOpen((v) => !v)}
           >
-            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {mobileOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </button>
         </div>
       </div>
@@ -357,20 +463,66 @@ export function MarketingHeader() {
             </div>
 
             <div className="flex flex-col gap-2 border-t border-[#E5E7EB] pt-4">
-              <Link
-                href={routes.login}
-                className="bonsai-btn-secondary"
-                onClick={() => setMobileOpen(false)}
-              >
-                Login
-              </Link>
-              <Link
-                href={routes.createInvoice}
-                className="bonsai-btn-primary"
-                onClick={() => setMobileOpen(false)}
-              >
-                Get started
-              </Link>
+              {!loading && user ? (
+                <>
+                  <div className="flex items-center gap-3 rounded-2xl border border-[#E5E7EB] bg-white px-3 py-3">
+                    {user.photoURL ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={user.photoURL}
+                        alt=""
+                        className="h-10 w-10 rounded-full object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-600 text-sm font-bold text-white">
+                        {userInitials}
+                      </span>
+                    )}
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-[#0f172a]">
+                        {userName}
+                      </p>
+                      {user.email ? (
+                        <p className="truncate text-xs text-[#64748b]">
+                          {user.email}
+                        </p>
+                      ) : null}
+                    </div>
+                  </div>
+                  <Link
+                    href={routes.dashboard}
+                    className="bonsai-btn-primary"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    type="button"
+                    className="bonsai-btn-secondary"
+                    onClick={handleSignOut}
+                  >
+                    Log out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href={routes.login}
+                    className="bonsai-btn-secondary"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href={routes.createInvoice}
+                    className="bonsai-btn-primary"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    Get started
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

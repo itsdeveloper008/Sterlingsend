@@ -376,6 +376,98 @@
   box-shadow: 0 12px 24px rgba(13, 148, 136, 0.34);
 }
 
+.bonsai-nav-user {
+  display: inline-flex;
+  max-width: 14rem;
+  align-items: center;
+  gap: 0.55rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  background: #fff;
+  padding: 0.2rem 0.7rem 0.2rem 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0f172a;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.bonsai-nav-user:hover {
+  background: #f8fafc;
+  border-color: #99f6e4;
+  box-shadow: 0 8px 18px rgba(13, 148, 136, 0.12);
+}
+
+.bonsai-nav-user-avatar,
+.bonsai-nav-user-fallback {
+  height: 1.85rem;
+  width: 1.85rem;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.bonsai-nav-user-avatar {
+  object-fit: cover;
+}
+
+.bonsai-nav-user-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #14b8a6, #0d9488);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.bonsai-nav-user-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bonsai-account-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.55rem);
+  z-index: 50;
+  width: 15.5rem;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  padding: 0.45rem;
+}
+
+.bonsai-account-menu-meta {
+  padding: 0.65rem 0.7rem 0.55rem;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 0.25rem;
+}
+
+.bonsai-account-menu-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.55rem;
+  border-radius: 10px;
+  padding: 0.6rem 0.7rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+  text-align: left;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.bonsai-account-menu-item:hover {
+  background: #f0fdfa;
+  color: #0f766e;
+}
+
 .bonsai-menu-toggle {
   display: inline-flex;
   height: 2.5rem;
