@@ -5,6 +5,7 @@ import { InvoicePdfPreviewPage } from "@/pdf/components/invoice-pdf-preview-page
 import { buildInvoicePdfDocument } from "@/pdf/utils/build-document";
 import { invoiceService } from "@/services/invoice.service";
 import { customerService } from "@/services/customer.service";
+import { settingsService } from "@/services/settings.service";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function PdfPreviewFallback() {
@@ -30,15 +31,16 @@ export default async function InvoicePdfPage({
     notFound();
   }
 
-  const customer = await customerService.getCustomer(
-    invoice.customerId,
-    business.id,
-  );
+  const [customer, settings] = await Promise.all([
+    customerService.getCustomer(invoice.customerId, business.id),
+    settingsService.getByBusinessId(business.id),
+  ]);
 
   const document = buildInvoicePdfDocument({
     invoice,
     business,
     customer,
+    templateId: settings.branding.templateId,
   });
 
   return (

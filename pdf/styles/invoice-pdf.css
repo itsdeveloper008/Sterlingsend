@@ -1,5 +1,6 @@
 .invoice-pdf-template {
-  --pdf-primary: #14b8a6;
+  --pdf-primary: #0d9488;
+  --pdf-accent: #14b8a6;
   --pdf-text: #0f172a;
   --pdf-muted: #64748b;
   --pdf-border: #e2e8f0;
@@ -31,7 +32,149 @@
 
 .invoice-pdf-accent {
   height: 4px;
-  background: linear-gradient(90deg, #14b8a6 0%, #06b6d4 100%);
+  background: linear-gradient(90deg, var(--pdf-primary) 0%, var(--pdf-accent) 100%);
+}
+
+.invoice-pdf-sidebar-rail {
+  display: none;
+}
+
+/* Layout: modern */
+.invoice-pdf-template[data-layout="modern"] {
+  border-radius: 20px;
+}
+.invoice-pdf-template[data-layout="modern"] .invoice-pdf-header {
+  background: var(--pdf-soft);
+}
+.invoice-pdf-template[data-layout="modern"] .invoice-pdf-number {
+  color: var(--pdf-primary);
+}
+.invoice-pdf-template[data-layout="modern"] .invoice-pdf-items-list {
+  background: #fff;
+  border: 1px solid var(--pdf-border);
+}
+
+/* Layout: bold */
+.invoice-pdf-template[data-layout="bold"] .invoice-pdf-accent {
+  height: 0;
+}
+.invoice-pdf-template[data-layout="bold"] .invoice-pdf-header {
+  background: linear-gradient(135deg, var(--pdf-primary), var(--pdf-accent));
+  color: #fff;
+  border-bottom: none;
+}
+.invoice-pdf-template[data-layout="bold"] .invoice-pdf-business-name,
+.invoice-pdf-template[data-layout="bold"] .invoice-pdf-number,
+.invoice-pdf-template[data-layout="bold"] .invoice-pdf-label,
+.invoice-pdf-template[data-layout="bold"] .invoice-pdf-business-meta,
+.invoice-pdf-template[data-layout="bold"] .invoice-pdf-dates dt,
+.invoice-pdf-template[data-layout="bold"] .invoice-pdf-dates dd {
+  color: #fff;
+}
+.invoice-pdf-template[data-layout="bold"] .invoice-pdf-logo-fallback {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  border-color: transparent;
+}
+.invoice-pdf-template[data-layout="bold"] .invoice-pdf-grand-total dt,
+.invoice-pdf-template[data-layout="bold"] .invoice-pdf-grand-total dd {
+  color: var(--pdf-primary);
+}
+
+/* Layout: minimal */
+.invoice-pdf-template[data-layout="minimal"] {
+  border-radius: 0;
+  box-shadow: none;
+  border-color: #dbe3ee;
+}
+.invoice-pdf-template[data-layout="minimal"] .invoice-pdf-accent {
+  height: 2px;
+}
+.invoice-pdf-template[data-layout="minimal"] .invoice-pdf-items-list {
+  background: transparent;
+  border-radius: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+.invoice-pdf-template[data-layout="minimal"] .invoice-pdf-business-name {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 14px;
+}
+
+/* Layout: sidebar */
+.invoice-pdf-template[data-layout="sidebar"] {
+  padding-left: 18px;
+}
+.invoice-pdf-template[data-layout="sidebar"] .invoice-pdf-sidebar-rail {
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 14px;
+  background: linear-gradient(180deg, var(--pdf-primary), var(--pdf-accent));
+}
+.invoice-pdf-template[data-layout="sidebar"] .invoice-pdf-accent {
+  display: none;
+}
+
+/* Layout: band */
+.invoice-pdf-template[data-layout="band"] .invoice-pdf-accent {
+  height: 56px;
+  background: linear-gradient(90deg, var(--pdf-primary), var(--pdf-accent));
+}
+.invoice-pdf-template[data-layout="band"] .invoice-pdf-header {
+  margin-top: -28px;
+  position: relative;
+  z-index: 1;
+}
+.invoice-pdf-template[data-layout="band"] .invoice-pdf-brand {
+  background: #fff;
+  border-radius: 16px;
+  padding: 12px 14px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+/* Layout: framed */
+.invoice-pdf-template[data-layout="framed"] {
+  border: 2px solid var(--pdf-primary);
+  border-radius: 18px;
+}
+.invoice-pdf-template[data-layout="framed"] .invoice-pdf-accent {
+  height: 0;
+}
+.invoice-pdf-template[data-layout="framed"] .invoice-pdf-header,
+.invoice-pdf-template[data-layout="framed"] .invoice-pdf-customer,
+.invoice-pdf-template[data-layout="framed"] .invoice-pdf-items,
+.invoice-pdf-template[data-layout="framed"] .invoice-pdf-totals,
+.invoice-pdf-template[data-layout="framed"] .invoice-pdf-footer {
+  padding-left: 28px;
+  padding-right: 28px;
+}
+
+/* Layout: split */
+.invoice-pdf-template[data-layout="split"] .invoice-pdf-header {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 0;
+  padding: 0;
+}
+.invoice-pdf-template[data-layout="split"] .invoice-pdf-brand {
+  padding: 28px 36px;
+  background: color-mix(in srgb, var(--pdf-primary) 8%, white);
+}
+.invoice-pdf-template[data-layout="split"] .invoice-pdf-invoice-meta {
+  padding: 28px 36px;
+  text-align: left;
+  background: #fff;
+}
+.invoice-pdf-template[data-layout="split"] .invoice-pdf-dates div {
+  justify-content: flex-start;
+}
+.invoice-pdf-template[data-layout="split"] .invoice-pdf-number {
+  color: var(--pdf-primary);
 }
 
 .invoice-pdf-header,
@@ -70,8 +213,8 @@
   display: grid;
   place-items: center;
   border-radius: 16px;
-  background: rgba(20, 184, 166, 0.12);
-  color: #0d9488;
+  background: color-mix(in srgb, var(--pdf-primary) 14%, white);
+  color: var(--pdf-primary);
   font-size: 20px;
   font-weight: 700;
   flex-shrink: 0;

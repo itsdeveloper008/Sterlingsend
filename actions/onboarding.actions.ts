@@ -11,6 +11,7 @@ import {
 } from "@/lib/validations/onboarding";
 import { businessService } from "@/services/business.service";
 import { userService } from "@/services/user.service";
+import { settingsService } from "@/services/settings.service";
 import { routes } from "@/config/routes";
 
 export type OnboardingActionResult =
@@ -108,6 +109,9 @@ export async function completeOnboarding(
         updatedAt: businessPayload.updatedAt,
       });
     });
+
+    // Ensure settings (including default invoice template) exist for this business
+    await settingsService.getByBusinessId(businessRef.id);
 
     return { success: true, businessId: businessRef.id };
   } catch (error) {

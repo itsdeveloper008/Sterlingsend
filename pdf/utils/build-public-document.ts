@@ -1,12 +1,12 @@
-import {
-  PDF_TEMPLATE_ID,
-  type InvoicePdfDocument,
-} from "@/pdf/types";
+import type { InvoicePdfDocument } from "@/pdf/types";
 import type { PublicInvoiceView } from "@/types/public-invoice";
+import { getInvoiceTemplate } from "@/pdf/templates/catalog";
 
 export function buildPublicInvoicePdfDocument(
   invoice: PublicInvoiceView,
+  templateId?: string | null,
 ): InvoicePdfDocument {
+  const template = getInvoiceTemplate(templateId);
   return {
     invoiceId: invoice.publicToken,
     invoiceNumber: invoice.invoiceNumber,
@@ -32,6 +32,12 @@ export function buildPublicInvoicePdfDocument(
       email: invoice.customer.email,
       addressLines: invoice.customer.addressLines,
     },
-    templateId: PDF_TEMPLATE_ID,
+    templateId: template.id,
+    theme: {
+      layout: template.layout,
+      primary: template.primary,
+      accent: template.accent,
+      name: template.name,
+    },
   };
 }

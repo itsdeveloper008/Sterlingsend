@@ -86,7 +86,8 @@ export function InvoicePdfPreviewPage({
               Invoice preview
             </h1>
             <p className="text-sm text-muted-foreground">
-              {pdfDocument.invoiceNumber} · SterlingSend Classic
+              {pdfDocument.invoiceNumber} ·{" "}
+              {pdfDocument.theme?.name ?? "SterlingSend Classic"}
             </p>
           </div>
         </div>

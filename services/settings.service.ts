@@ -29,6 +29,18 @@ export class SettingsService {
       id: businessId,
       ...DEFAULT_SETTINGS,
       ...docToData<Settings>(snap.id, snap.data()),
+      branding: {
+        ...DEFAULT_SETTINGS.branding,
+        ...(snap.data()?.branding ?? {}),
+      },
+      invoice: {
+        ...DEFAULT_SETTINGS.invoice,
+        ...(snap.data()?.invoice ?? {}),
+      },
+      notifications: {
+        ...DEFAULT_SETTINGS.notifications,
+        ...(snap.data()?.notifications ?? {}),
+      },
       stripe: {
         ...DEFAULT_SETTINGS.stripe,
         ...(snap.data()?.stripe ?? {}),
@@ -40,10 +52,22 @@ export class SettingsService {
     businessId: string,
     input: Partial<Omit<Settings, "id" | "businessId" | "createdAt" | "updatedAt">>,
   ): Promise<void> {
+    let payload = input;
+    if (input.branding) {
+      const current = await this.getByBusinessId(businessId);
+      payload = {
+        ...input,
+        branding: {
+          ...current.branding,
+          ...input.branding,
+        },
+      };
+    }
+
     await this.db
       .collection(COLLECTIONS.SETTINGS)
       .doc(businessId)
-      .set(withUpdatedAt(input), { merge: true });
+      .set(withUpdatedAt(payload), { merge: true });
   }
 }
 

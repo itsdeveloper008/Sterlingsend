@@ -1,7 +1,9 @@
 import type { InvoiceItem, InvoiceStatus, InvoiceTotals } from "@/types";
+import { DEFAULT_INVOICE_TEMPLATE_ID } from "@/pdf/templates/catalog";
 
-export const PDF_TEMPLATE_ID = "valix-classic" as const;
-export type PdfTemplateId = typeof PDF_TEMPLATE_ID;
+/** @deprecated Prefer DEFAULT_INVOICE_TEMPLATE_ID from catalog */
+export const PDF_TEMPLATE_ID = DEFAULT_INVOICE_TEMPLATE_ID;
+export type PdfTemplateId = string;
 
 export interface InvoicePdfBusiness {
   name: string;
@@ -40,6 +42,12 @@ export interface InvoicePdfDocument {
   business: InvoicePdfBusiness;
   customer: InvoicePdfCustomer;
   templateId: PdfTemplateId;
+  theme?: {
+    layout: string;
+    primary: string;
+    accent: string;
+    name: string;
+  };
 }
 
 export type PdfActionState = "idle" | "loading" | "generating" | "ready" | "error";

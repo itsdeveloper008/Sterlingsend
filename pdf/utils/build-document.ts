@@ -1,21 +1,23 @@
 import type { Business } from "@/types/business";
 import type { Customer } from "@/types/customer";
 import type { Invoice } from "@/types/invoice";
-import {
-  PDF_TEMPLATE_ID,
-  type InvoicePdfDocument,
-} from "@/pdf/types";
+import type { InvoicePdfDocument } from "@/pdf/types";
 import { formatAddressLines } from "@/pdf/utils/address";
+import { getInvoiceTemplate } from "@/pdf/templates/catalog";
 
 export function buildInvoicePdfDocument({
   invoice,
   business,
   customer,
+  templateId,
 }: {
   invoice: Invoice;
   business: Business;
   customer: Customer | null;
+  templateId?: string | null;
 }): InvoicePdfDocument {
+  const template = getInvoiceTemplate(templateId);
+
   return {
     invoiceId: invoice.id,
     invoiceNumber: invoice.invoiceNumber,
@@ -56,6 +58,12 @@ export function buildInvoicePdfDocument({
         customer?.country,
       ]),
     },
-    templateId: PDF_TEMPLATE_ID,
+    templateId: template.id,
+    theme: {
+      layout: template.layout,
+      primary: template.primary,
+      accent: template.accent,
+      name: template.name,
+    },
   };
 }

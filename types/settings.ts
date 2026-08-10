@@ -1,4 +1,5 @@
 import type { BaseDocument } from "./common";
+import { DEFAULT_INVOICE_TEMPLATE_ID } from "@/pdf/templates/catalog";
 
 export interface InvoiceSettings {
   prefix: string;
@@ -48,9 +49,9 @@ export const DEFAULT_SETTINGS: Omit<
     showVatNumber: true,
   },
   branding: {
-    templateId: "default",
-    primaryColor: "#111827",
-    accentColor: "#2563eb",
+    templateId: DEFAULT_INVOICE_TEMPLATE_ID,
+    primaryColor: "#0d9488",
+    accentColor: "#14b8a6",
   },
   notifications: {
     emailOnPayment: true,
