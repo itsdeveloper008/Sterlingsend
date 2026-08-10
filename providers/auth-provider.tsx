@@ -15,6 +15,7 @@ import {
   logOut as firebaseLogOut,
   resetPassword,
   signIn,
+  signInWithGoogle,
   signUp,
 } from "@/firebase/auth";
 import { isFirebaseConfigured } from "@/firebase/is-configured";
@@ -23,6 +24,7 @@ interface AuthContextValue {
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<string | null>;
+  signInWithGoogle: () => Promise<string | null>;
   signUp: (
     email: string,
     password: string,
@@ -95,6 +97,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return redirectTo;
   }, []);
 
+  const handleSignInWithGoogle = useCallback(async () => {
+    if (!isFirebaseConfigured()) {
+      throw new Error("Firebase is not configured. Add keys to .env.local");
+    }
+    const nextUser = await signInWithGoogle();
+    const redirectTo = await persistSession(nextUser);
+    setUser(nextUser);
+    return redirectTo;
+  }, []);
+
   const handleSignUp = useCallback(
     async (email: string, password: string, displayName?: string) => {
       if (!isFirebaseConfigured()) {
@@ -128,6 +140,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user,
       loading,
       signIn: handleSignIn,
+      signInWithGoogle: handleSignInWithGoogle,
       signUp: handleSignUp,
       signOut: handleSignOut,
       forgotPassword: handleForgotPassword,
@@ -137,6 +150,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user,
       loading,
       handleSignIn,
+      handleSignInWithGoogle,
       handleSignUp,
       handleSignOut,
       handleForgotPassword,

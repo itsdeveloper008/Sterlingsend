@@ -9,14 +9,16 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 import { routes } from "@/config/routes";
 import { getAuthErrorMessage } from "@/features/auth/lib/auth-errors";
+import { GoogleGlyph } from "@/features/auth/components/google-glyph";
 import { PageDescription, PageTitle } from "@/components/design-system/typography";
 
 export function SignupForm() {
-  const { signUp } = useAuth();
+  const { signUp, signInWithGoogle } = useAuth();
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -31,6 +33,20 @@ export function SignupForm() {
         getAuthErrorMessage(error, "Could not create account. Try a different email."),
       );
       setLoading(false);
+    }
+  }
+
+  async function onGoogleSignIn() {
+    if (loading || googleLoading) return;
+    setGoogleLoading(true);
+
+    try {
+      const redirectTo = await signInWithGoogle();
+      toast.success("Welcome to SterlingSend");
+      window.location.assign(redirectTo ?? routes.onboarding);
+    } catch (error) {
+      toast.error(getAuthErrorMessage(error, "Could not continue with Google"));
+      setGoogleLoading(false);
     }
   }
 
@@ -77,10 +93,30 @@ export function SignupForm() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <Button type="submit" className="w-full" disabled={loading}>
+        <Button type="submit" className="w-full" disabled={loading || googleLoading}>
           {loading ? "Creating account..." : "Create account"}
         </Button>
       </form>
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t border-border" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">or</span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        disabled={loading || googleLoading}
+        onClick={onGoogleSignIn}
+        className="flex h-11 w-full items-center justify-center gap-2.5 rounded-full border border-border bg-white text-sm font-semibold text-foreground transition hover:bg-muted disabled:opacity-60"
+      >
+        <GoogleGlyph className="h-5 w-5 shrink-0" />
+        {googleLoading ? "Connecting..." : "Continue with Google"}
+      </button>
+
       <p className="text-center text-sm text-muted-foreground">
         Already have an account?{" "}
         <Link href={routes.login} className="font-medium text-foreground">

@@ -8,7 +8,13 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
   "auth/user-not-found": "Invalid email or password.",
   "auth/wrong-password": "Invalid email or password.",
   "auth/unauthorized-domain": "This domain is not authorized for Firebase Auth.",
-  "auth/operation-not-allowed": "Email/password sign-in is disabled in Firebase.",
+  "auth/operation-not-allowed":
+    "That sign-in method is disabled in Firebase. Enable Google in Authentication → Sign-in method.",
+  "auth/popup-closed-by-user": "Google sign-in was cancelled.",
+  "auth/cancelled-popup-request": "Google sign-in was cancelled.",
+  "auth/popup-blocked": "Allow popups for this site to continue with Google.",
+  "auth/account-exists-with-different-credential":
+    "An account already exists with this email using a different sign-in method.",
   "auth/too-many-requests": "Too many attempts. Wait a moment and try again.",
 };
 

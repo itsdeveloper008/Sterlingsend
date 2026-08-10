@@ -2,7 +2,9 @@
 
 import {
   getAuth,
+  GoogleAuthProvider,
   signInWithEmailAndPassword,
+  signInWithPopup,
   createUserWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
@@ -14,6 +16,7 @@ import { getFirebaseApp } from "./client";
 import { isFirebaseConfigured } from "./is-configured";
 
 let auth: Auth | undefined;
+const googleProvider = new GoogleAuthProvider();
 
 export function getFirebaseAuth(): Auth {
   if (!isFirebaseConfigured()) {
@@ -34,6 +37,12 @@ export async function signIn(email: string, password: string) {
     email,
     password,
   );
+  return credential.user;
+}
+
+export async function signInWithGoogle() {
+  googleProvider.setCustomParameters({ prompt: "select_account" });
+  const credential = await signInWithPopup(getFirebaseAuth(), googleProvider);
   return credential.user;
 }
 

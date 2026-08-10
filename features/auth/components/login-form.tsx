@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { routes } from "@/config/routes";
 import { getAuthErrorMessage } from "@/features/auth/lib/auth-errors";
+import { GoogleGlyph } from "@/features/auth/components/google-glyph";
 import {
   MascotCharacter,
   type MascotState,
@@ -27,36 +28,14 @@ function CompassMark({ className }: { className?: string }) {
   );
 }
 
-function GoogleGlyph({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} aria-hidden>
-      <path
-        fill="#EA4335"
-        d="M12 10.2v3.6h5.1c-.2 1.2-.9 2.3-1.9 3l3.1 2.4c1.8-1.7 2.9-4.1 2.9-7 0-.7-.1-1.3-.2-1.9H12z"
-      />
-      <path
-        fill="#34A853"
-        d="M6.6 14.3l-.9.7-2.5 1.9C4.8 20 8.1 22.2 12 22.2c2.4 0 4.4-.8 5.9-2.1l-3.1-2.4c-.8.6-1.9.9-2.8.9-2.2 0-4-1.5-4.7-3.5z"
-      />
-      <path
-        fill="#4A90E2"
-        d="M3.2 7.1C2.4 8.6 2 10.2 2 12s.4 3.4 1.2 4.9l3.4-2.6C6.2 13.4 6 12.7 6 12s.2-1.4.6-2.3L3.2 7.1z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M12 5.8c1.3 0 2.5.5 3.4 1.3l2.5-2.5C16.4 3.1 14.4 2.2 12 2.2 8.1 2.2 4.8 4.4 3.2 7.1l3.4 2.6C7.9 7.3 9.8 5.8 12 5.8z"
-      />
-    </svg>
-  );
-}
-
 export function LoginForm() {
   const searchParams = useSearchParams();
-  const { signIn } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [focusField, setFocusField] = useState<"email" | "password" | null>(
     null,
   );
@@ -120,6 +99,30 @@ export function LoginForm() {
       }
       toast.error(getAuthErrorMessage(error, "Invalid email or password"));
       setLoading(false);
+    }
+  }
+
+  async function onGoogleSignIn() {
+    if (loading || googleLoading) return;
+    setGoogleLoading(true);
+    clearError();
+
+    try {
+      const redirectTo = await signInWithGoogle();
+      setSuccess(true);
+      toast.success("Welcome back");
+      const requested = searchParams.get("redirect");
+      const destination =
+        requested && requested.startsWith("/")
+          ? requested
+          : (redirectTo ?? routes.dashboard);
+      window.setTimeout(() => {
+        window.location.assign(destination);
+      }, 480);
+    } catch (error) {
+      setSuccess(false);
+      toast.error(getAuthErrorMessage(error, "Could not sign in with Google"));
+      setGoogleLoading(false);
     }
   }
 
@@ -248,7 +251,7 @@ export function LoginForm() {
               <div className="space-y-3 pt-2">
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || googleLoading}
                   className={cn(
                     "flex h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-semibold text-white",
                     "transition hover:bg-[#0d9488] disabled:opacity-60",
@@ -259,16 +262,15 @@ export function LoginForm() {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    toast.message("Google sign-in is coming soon")
-                  }
+                  disabled={loading || googleLoading}
+                  onClick={onGoogleSignIn}
                   className={cn(
                     "flex h-12 w-full items-center justify-center gap-2.5 rounded-full border border-border bg-white text-sm font-semibold text-foreground",
-                    "transition hover:bg-muted",
+                    "transition hover:bg-muted disabled:opacity-60",
                   )}
                 >
-                  <GoogleGlyph className="h-4 w-4" />
-                  Log in with Google
+                  <GoogleGlyph className="h-5 w-5 shrink-0" />
+                  {googleLoading ? "Connecting..." : "Log in with Google"}
                 </button>
               </div>
             </form>
