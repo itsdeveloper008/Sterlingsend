@@ -1,6 +1,9 @@
 import { siteConfig } from "@/config/site";
 import { getDefaultInvoiceDates } from "@/features/invoices/lib/dates";
-import { createEmptyFormLineItem } from "@/lib/invoice/calculations";
+import {
+  createEmptyFormLineItem,
+  DEFAULT_FORM_LINE_ITEM_ID,
+} from "@/lib/invoice/calculations";
 import {
   BUILDER_INVOICE_VERSION,
   type BuilderInvoice,
@@ -38,7 +41,7 @@ export function createDefaultBuilderInvoice(): BuilderInvoice {
     },
     items: [
       {
-        ...createEmptyFormLineItem(0),
+        ...createEmptyFormLineItem(0, DEFAULT_FORM_LINE_ITEM_ID),
         description: "",
         quantity: 1,
         unitPrice: 100,

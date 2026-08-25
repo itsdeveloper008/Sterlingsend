@@ -14,8 +14,9 @@ import "@/features/invoice-builder/styles/invoice-builder.css";
 
 /** Landing hero - editable invoice in the clean sheet format. */
 export function HeroEditableInvoice() {
-  const { invoice, hydrated, dispatch, setLogoFromFile, resetInvoice } =
-    useInvoiceBuilder({ seed: "empty" });
+  const { invoice, hydrated, dispatch, setLogoFromFile } = useInvoiceBuilder({
+    seed: "empty",
+  });
   const cardRef = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
 
@@ -24,7 +25,6 @@ export function HeroEditableInvoice() {
       setBusy(true);
       await downloadBuilderInvoicePdf(invoice);
       toast.success("PDF downloaded");
-      resetInvoice();
     } catch (error) {
       console.error("[hero-pdf]", error);
       toast.error("Failed to generate PDF");

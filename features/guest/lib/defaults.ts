@@ -1,6 +1,9 @@
 import { siteConfig } from "@/config/site";
 import { getDefaultInvoiceDates } from "@/features/invoices/lib/dates";
-import { createEmptyFormLineItem } from "@/lib/invoice/calculations";
+import {
+  createEmptyFormLineItem,
+  DEFAULT_FORM_LINE_ITEM_ID,
+} from "@/lib/invoice/calculations";
 import {
   GUEST_INVOICE_VERSION,
   type GuestInvoice,
@@ -35,9 +38,10 @@ export function createDefaultGuestInvoice(): GuestInvoice {
       address: "",
     },
     items: [
-      {
-        ...createEmptyFormLineItem(siteConfig.defaultVatRate),
-      },
+      createEmptyFormLineItem(
+        siteConfig.defaultVatRate,
+        DEFAULT_FORM_LINE_ITEM_ID,
+      ),
     ],
   };
 }

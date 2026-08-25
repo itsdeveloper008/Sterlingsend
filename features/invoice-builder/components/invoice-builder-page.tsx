@@ -14,8 +14,7 @@ import { routes } from "@/config/routes";
 import "@/features/invoice-builder/styles/invoice-builder.css";
 
 export function InvoiceBuilderPage() {
-  const { invoice, hydrated, dispatch, setLogoFromFile, resetInvoice } =
-    useInvoiceBuilder();
+  const { invoice, hydrated, dispatch, setLogoFromFile } = useInvoiceBuilder();
   const cardRef = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
 
@@ -24,7 +23,6 @@ export function InvoiceBuilderPage() {
       setBusy(true);
       await downloadBuilderInvoicePdf(invoice);
       toast.success("PDF downloaded");
-      resetInvoice();
     } catch (error) {
       console.error("[builder-pdf]", error);
       toast.error("Failed to generate PDF");

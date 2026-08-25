@@ -60,9 +60,15 @@ export function createEmptyLineItem(vatRate = 20): InvoiceItem {
   });
 }
 
-export function createEmptyFormLineItem(vatRate = 20): InvoiceFormLineItem {
+/** Stable id for the first empty row so SSR + client hydration match. */
+export const DEFAULT_FORM_LINE_ITEM_ID = "line-item-1";
+
+export function createEmptyFormLineItem(
+  vatRate = 20,
+  id?: string,
+): InvoiceFormLineItem {
   return {
-    id: createId(),
+    id: id ?? createId(),
     description: "",
     quantity: 1,
     unitPrice: 0,

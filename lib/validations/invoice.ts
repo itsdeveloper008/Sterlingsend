@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { INVOICE_STATUSES } from "@/types";
-import { createId } from "@/lib/id";
+import {
+  createEmptyFormLineItem,
+  DEFAULT_FORM_LINE_ITEM_ID,
+} from "@/lib/invoice/calculations";
 
 const invoiceStatusSchema = z.enum([
   INVOICE_STATUSES.DRAFT,
@@ -43,16 +46,7 @@ export function defaultInvoiceFormValues(
     dueDate,
     status: INVOICE_STATUSES.DRAFT,
     notes: "",
-    items: [
-      {
-        id: createId(),
-        description: "",
-        quantity: 1,
-        unitPrice: 0,
-        vatRate: 20,
-        discountRate: 0,
-      },
-    ],
+    items: [createEmptyFormLineItem(20, DEFAULT_FORM_LINE_ITEM_ID)],
   };
 }
 
