@@ -1,16 +1,33 @@
-import type { InvoiceFormLineItem, InvoiceItem, InvoiceTotals } from "@/types";
+import type {
+  DiscountType,
+  InvoiceFormLineItem,
+  InvoiceItem,
+  InvoiceTotals,
+} from "@/types";
 import { createId } from "@/lib/id";
 
+export function resolveDiscountType(
+  discountType?: DiscountType | null,
+): DiscountType {
+  return discountType === "fixed" ? "fixed" : "percent";
+}
+
 export function calculateLineItem(
-  item: InvoiceFormLineItem | Omit<InvoiceItem, "lineSubtotal" | "lineVat" | "lineDiscount" | "lineTotal">,
+  item:
+    | InvoiceFormLineItem
+    | Omit<InvoiceItem, "lineSubtotal" | "lineVat" | "lineDiscount" | "lineTotal">,
 ): InvoiceItem {
   const quantity = Number(item.quantity) || 0;
   const unitPrice = Number(item.unitPrice) || 0;
   const vatRate = Number(item.vatRate) || 0;
-  const discountRate = Number(item.discountRate) || 0;
+  const discountValue = Math.max(Number(item.discountRate) || 0, 0);
+  const discountType = resolveDiscountType(item.discountType);
 
   const gross = quantity * unitPrice;
-  const lineDiscount = gross * (discountRate / 100);
+  const lineDiscount =
+    discountType === "fixed"
+      ? Math.min(discountValue, gross)
+      : gross * (Math.min(discountValue, 100) / 100);
   const lineSubtotal = Math.max(gross - lineDiscount, 0);
   const lineVat = lineSubtotal * (vatRate / 100);
 
@@ -20,7 +37,8 @@ export function calculateLineItem(
     quantity,
     unitPrice,
     vatRate,
-    discountRate,
+    discountRate: discountValue,
+    discountType,
     lineSubtotal: roundMoney(lineSubtotal),
     lineVat: roundMoney(lineVat),
     lineDiscount: roundMoney(lineDiscount),
@@ -41,7 +59,9 @@ export function calculateInvoiceTotals(items: InvoiceItem[]): InvoiceTotals {
   };
 }
 
-export function calculateItemsFromForm(items: InvoiceFormLineItem[]): InvoiceItem[] {
+export function calculateItemsFromForm(
+  items: InvoiceFormLineItem[],
+): InvoiceItem[] {
   return items.map((item) => calculateLineItem(item));
 }
 
@@ -57,6 +77,7 @@ export function createEmptyLineItem(vatRate = 20): InvoiceItem {
     unitPrice: 0,
     vatRate,
     discountRate: 0,
+    discountType: "percent",
   });
 }
 
@@ -74,6 +95,7 @@ export function createEmptyFormLineItem(
     unitPrice: 0,
     vatRate,
     discountRate: 0,
+    discountType: "percent",
   };
 }
 

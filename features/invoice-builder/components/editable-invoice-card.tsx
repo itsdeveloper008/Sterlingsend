@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import {
   calculateItemsFromForm,
   calculateInvoiceTotals,
+  resolveDiscountType,
 } from "@/lib/invoice/calculations";
 import { formatInvoiceCurrency } from "@/features/invoices/lib/format";
 import { getDisplayVatRate } from "@/features/invoices/lib/invoice-document-utils";
@@ -281,7 +282,7 @@ export function EditableInvoiceCard({
                 Price
               </th>
               <th scope="col" className="num">
-                Discount (%)
+                Discount
               </th>
               <th scope="col" className="num">
                 VAT (%)
@@ -350,24 +351,79 @@ export function EditableInvoiceCard({
                     />
                   </td>
                   <td className="num">
-                    <input
-                      className="builder-field text-right"
-                      type="number"
-                      min={0}
-                      max={100}
-                      step="any"
-                      value={item.discountRate}
-                      onChange={(event) =>
-                        dispatch({
-                          type: "patchItem",
-                          id: item.id,
-                          patch: {
-                            discountRate: Number(event.target.value) || 0,
-                          },
-                        })
-                      }
-                      aria-label="Discount percent"
-                    />
+                    {(() => {
+                      const discountType = resolveDiscountType(
+                        item.discountType,
+                      );
+                      return (
+                        <div className="builder-discount-cell">
+                          <input
+                            className="builder-field text-right"
+                            type="number"
+                            min={0}
+                            max={discountType === "percent" ? 100 : undefined}
+                            step="any"
+                            value={item.discountRate}
+                            onChange={(event) =>
+                              dispatch({
+                                type: "patchItem",
+                                id: item.id,
+                                patch: {
+                                  discountRate:
+                                    Number(event.target.value) || 0,
+                                },
+                              })
+                            }
+                            aria-label={
+                              discountType === "percent"
+                                ? "Discount percent"
+                                : "Discount amount"
+                            }
+                          />
+                          <div
+                            className="builder-discount-toggle no-print"
+                            role="group"
+                            aria-label="Discount type"
+                          >
+                            <button
+                              type="button"
+                              className={
+                                discountType === "percent" ? "is-active" : undefined
+                              }
+                              onClick={() =>
+                                dispatch({
+                                  type: "patchItem",
+                                  id: item.id,
+                                  patch: { discountType: "percent" },
+                                })
+                              }
+                              aria-pressed={discountType === "percent"}
+                            >
+                              %
+                            </button>
+                            <button
+                              type="button"
+                              className={
+                                discountType === "fixed" ? "is-active" : undefined
+                              }
+                              onClick={() =>
+                                dispatch({
+                                  type: "patchItem",
+                                  id: item.id,
+                                  patch: { discountType: "fixed" },
+                                })
+                              }
+                              aria-pressed={discountType === "fixed"}
+                            >
+                              {currencySymbol}
+                            </button>
+                          </div>
+                          <span className="builder-discount-print-suffix print:inline hidden">
+                            {discountType === "percent" ? "%" : currencySymbol}
+                          </span>
+                        </div>
+                      );
+                    })()}
                   </td>
                   <td className="num">
                     <input

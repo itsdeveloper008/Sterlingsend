@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { INVOICE_STATUSES } from "@/types";
+import type { DiscountType } from "@/types";
 import {
   createEmptyFormLineItem,
   DEFAULT_FORM_LINE_ITEM_ID,
@@ -14,14 +15,28 @@ const invoiceStatusSchema = z.enum([
   INVOICE_STATUSES.CANCELLED,
 ]);
 
-export const invoiceLineItemSchema = z.object({
-  id: z.string().min(1),
-  description: z.string().max(500),
-  quantity: z.coerce.number().min(0, "Quantity must be 0 or more"),
-  unitPrice: z.coerce.number().min(0, "Unit price must be 0 or more"),
-  vatRate: z.coerce.number().min(0).max(100),
-  discountRate: z.coerce.number().min(0).max(100),
-});
+export const invoiceLineItemSchema = z
+  .object({
+    id: z.string().min(1),
+    description: z.string().max(500),
+    quantity: z.coerce.number().min(0, "Quantity must be 0 or more"),
+    unitPrice: z.coerce.number().min(0, "Unit price must be 0 or more"),
+    vatRate: z.coerce.number().min(0).max(100),
+    discountRate: z.coerce.number().min(0),
+    discountType: z.enum(["percent", "fixed"]).optional(),
+  })
+  .superRefine((item, ctx) => {
+    if (
+      (item.discountType ?? "percent") === "percent" &&
+      item.discountRate > 100
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Discount percent cannot exceed 100",
+        path: ["discountRate"],
+      });
+    }
+  });
 
 export const invoiceFormSchema = z.object({
   customerId: z.string().min(1, "Select a customer"),
@@ -29,9 +44,7 @@ export const invoiceFormSchema = z.object({
   dueDate: z.string().min(1, "Due date is required"),
   status: invoiceStatusSchema,
   notes: z.string().max(5000).optional().or(z.literal("")),
-  items: z
-    .array(invoiceLineItemSchema)
-    .min(1, "Add at least one line item"),
+  items: z.array(invoiceLineItemSchema).min(1, "Add at least one line item"),
 });
 
 export type InvoiceFormData = z.infer<typeof invoiceFormSchema>;
@@ -63,6 +76,7 @@ export function invoiceToFormData(invoice: {
     unitPrice: number;
     vatRate: number;
     discountRate: number;
+    discountType?: DiscountType;
   }>;
 }): InvoiceFormData {
   return {
@@ -78,6 +92,7 @@ export function invoiceToFormData(invoice: {
       unitPrice: item.unitPrice,
       vatRate: item.vatRate,
       discountRate: item.discountRate,
+      discountType: item.discountType ?? "percent",
     })),
   };
 }

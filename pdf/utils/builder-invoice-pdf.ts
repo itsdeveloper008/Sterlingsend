@@ -8,6 +8,7 @@ import { getDisplayVatRate } from "@/features/invoices/lib/invoice-document-util
 import {
   calculateInvoiceTotals,
   calculateItemsFromForm,
+  resolveDiscountType,
 } from "@/lib/invoice/calculations";
 import { getInvoicePdfFilename } from "@/pdf/utils/filename";
 
@@ -369,7 +370,7 @@ export async function buildBuilderInvoicePdf(invoice: BuilderInvoice) {
     sheet.text("DESCRIPTION", cols.description, baseline, headStyle);
     sheet.text("QTY", cols.qty, baseline, { ...headStyle, align: "right" });
     sheet.text("PRICE", cols.price, baseline, { ...headStyle, align: "right" });
-    sheet.text("DISCOUNT (%)", cols.discount, baseline, { ...headStyle, align: "right" });
+    sheet.text("DISCOUNT", cols.discount, baseline, { ...headStyle, align: "right" });
     sheet.text("VAT (%)", cols.vat, baseline, { ...headStyle, align: "right" });
     sheet.text("TOTAL", cols.total, baseline, { ...headStyle, align: "right" });
     sheet.y = baseline + 9;
@@ -403,7 +404,14 @@ export async function buildBuilderInvoicePdf(invoice: BuilderInvoice) {
     const numberStyle: TextOptions = { size: 9, align: "right" };
     sheet.text(String(source?.quantity ?? item.quantity), cols.qty, baseline, numberStyle);
     sheet.text(formatAmount(item.unitPrice), cols.price, baseline, numberStyle);
-    sheet.text(String(item.discountRate), cols.discount, baseline, numberStyle);
+    const discountType = resolveDiscountType(
+      source?.discountType ?? item.discountType,
+    );
+    const discountLabel =
+      discountType === "fixed"
+        ? `${symbol}${formatAmount(item.discountRate)}`
+        : `${item.discountRate}%`;
+    sheet.text(discountLabel, cols.discount, baseline, numberStyle);
     sheet.text(String(item.vatRate), cols.vat, baseline, numberStyle);
     sheet.text(`${symbol}${formatAmount(item.lineTotal)}`, cols.total, baseline, {
       ...numberStyle,

@@ -218,6 +218,61 @@ button:has(.builder-logo-preview):focus-visible {
   border-bottom: 1px solid #e2e8f0;
 }
 
+.builder-discount-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.builder-discount-cell .builder-field {
+  min-width: 0;
+  flex: 1;
+}
+
+.builder-discount-toggle {
+  display: inline-flex;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #f8fafc;
+}
+
+.builder-discount-toggle button {
+  min-width: 1.75rem;
+  padding: 2px 6px;
+  border: 0;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.builder-discount-toggle button + button {
+  border-left: 1px solid #e2e8f0;
+}
+
+.builder-discount-toggle button.is-active {
+  background: #f0fdfa;
+  color: #0f766e;
+}
+
+.builder-discount-print-suffix {
+  display: none;
+  margin-left: 2px;
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+@media print {
+  .builder-discount-print-suffix {
+    display: inline;
+  }
+}
+
 .builder-row-remove {
   opacity: 0;
   transition: opacity 0.15s ease;

@@ -11,6 +11,7 @@ export type {
   Invoice,
   CreateInvoiceInput,
   UpdateInvoiceInput,
+  DiscountType,
   InvoiceItem,
   InvoiceStatus,
   InvoiceTotals,

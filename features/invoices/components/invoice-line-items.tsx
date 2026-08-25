@@ -8,11 +8,12 @@ import {
   calculateInvoiceTotals,
   calculateLineItem,
   createEmptyFormLineItem,
+  resolveDiscountType,
 } from "@/lib/invoice/calculations";
 import type { InvoiceFormLineItem } from "@/types";
-import {
-  formatInvoiceCurrency,
-} from "@/features/invoices/lib/format";
+import { formatInvoiceCurrency } from "@/features/invoices/lib/format";
+import { getCurrencySymbol } from "@/config/currencies";
+import { cn } from "@/lib/utils";
 
 export function InvoiceLineItems({
   items,
@@ -27,6 +28,8 @@ export function InvoiceLineItems({
   errors?: Record<string, string>;
   disabled?: boolean;
 }) {
+  const currencySymbol = getCurrencySymbol(currency);
+
   function updateItem(id: string, patch: Partial<InvoiceFormLineItem>) {
     onChange(
       items.map((item) => (item.id === id ? { ...item, ...patch } : item)),
@@ -51,7 +54,13 @@ export function InvoiceLineItems({
             Add products or services to this invoice.
           </p>
         </div>
-        <Button type="button" variant="outline" size="sm" onClick={addItem} disabled={disabled}>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={addItem}
+          disabled={disabled}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Add item
         </Button>
@@ -61,6 +70,7 @@ export function InvoiceLineItems({
         {items.map((item, index) => {
           const calculated = calculateLineItem(item);
           const itemError = errors?.[`items.${index}.description`];
+          const discountType = resolveDiscountType(item.discountType);
 
           return (
             <div
@@ -151,12 +161,50 @@ export function InvoiceLineItems({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor={`discountRate-${item.id}`}>Discount %</Label>
+                  <div className="flex items-center justify-between gap-2">
+                    <Label htmlFor={`discountRate-${item.id}`}>Discount</Label>
+                    <div
+                      className="inline-flex overflow-hidden rounded-md border border-input"
+                      role="group"
+                      aria-label="Discount type"
+                    >
+                      <button
+                        type="button"
+                        className={cn(
+                          "px-2 py-0.5 text-xs font-semibold text-muted-foreground",
+                          discountType === "percent" &&
+                            "bg-teal-50 text-teal-800",
+                        )}
+                        onClick={() =>
+                          updateItem(item.id, { discountType: "percent" })
+                        }
+                        disabled={disabled}
+                        aria-pressed={discountType === "percent"}
+                      >
+                        %
+                      </button>
+                      <button
+                        type="button"
+                        className={cn(
+                          "border-l border-input px-2 py-0.5 text-xs font-semibold text-muted-foreground",
+                          discountType === "fixed" &&
+                            "bg-teal-50 text-teal-800",
+                        )}
+                        onClick={() =>
+                          updateItem(item.id, { discountType: "fixed" })
+                        }
+                        disabled={disabled}
+                        aria-pressed={discountType === "fixed"}
+                      >
+                        {currencySymbol}
+                      </button>
+                    </div>
+                  </div>
                   <Input
                     id={`discountRate-${item.id}`}
                     type="number"
                     min="0"
-                    max="100"
+                    max={discountType === "percent" ? 100 : undefined}
                     step="0.1"
                     value={item.discountRate}
                     onChange={(event) =>

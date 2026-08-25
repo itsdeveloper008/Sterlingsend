@@ -1,6 +1,7 @@
 import type { BaseDocument, CurrencyCode, SoftDeletable } from "./common";
 import type { InvoicePaymentStatus } from "./public-invoice";
 import type {
+  DiscountType,
   InvoiceItem,
   InvoiceStatus,
   InvoiceTotals,
@@ -66,7 +67,9 @@ export interface InvoiceFormLineItem {
   quantity: number;
   unitPrice: number;
   vatRate: number;
+  /** Percent (0–100) or fixed currency amount, depending on `discountType`. */
   discountRate: number;
+  discountType?: DiscountType;
 }
 
 export interface InvoiceFormValues {
@@ -84,5 +87,11 @@ export interface InvoiceListResult {
   hasMore: boolean;
 }
 
-export type { InvoiceItem, InvoiceStatus, InvoiceTotals, InvoiceSummary } from "./invoice-item";
+export type {
+  DiscountType,
+  InvoiceItem,
+  InvoiceStatus,
+  InvoiceTotals,
+  InvoiceSummary,
+} from "./invoice-item";
 export { INVOICE_STATUSES } from "./invoice-item";

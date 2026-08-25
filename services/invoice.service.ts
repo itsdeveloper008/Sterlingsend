@@ -346,6 +346,7 @@ export class InvoiceService {
         unitPrice: item.unitPrice,
         vatRate: item.vatRate,
         discountRate: item.discountRate,
+        discountType: item.discountType ?? "percent",
       })),
       currency: business.currency,
       reserveNumber: true,
