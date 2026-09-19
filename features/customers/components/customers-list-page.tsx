@@ -11,20 +11,24 @@ import { CustomerSearch } from "@/features/customers/components/customer-search"
 import { CustomerTable } from "@/features/customers/components/customer-table";
 import { CustomerEmptyState } from "@/features/customers/components/customer-empty-state";
 import { DeleteCustomerModal } from "@/features/customers/components/delete-customer-modal";
-import {
-  deleteCustomerAction,
-  searchCustomersAction,
-} from "@/actions/customer.actions";
 import type { SerializedCustomer } from "@/features/customers/lib/format";
 import { routes } from "@/config/routes";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { PageHeader, PageShell } from "@/components/design-system";
+import type { WorkspaceSource } from "@/lib/workspace/resolve-source";
+import {
+  workspaceDeleteCustomer,
+  workspaceSearchCustomers,
+} from "@/lib/workspace/client-api";
+import { listLocalCustomers } from "@/lib/local-store/customers.local";
 
 export function CustomersListPage({
+  source = "cloud",
   initialCustomers,
   initialNextCursor,
   initialHasMore,
 }: {
+  source?: WorkspaceSource;
   initialCustomers: SerializedCustomer[];
   initialNextCursor: string | null;
   initialHasMore: boolean;
@@ -36,27 +40,44 @@ export function CustomersListPage({
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 300);
   const [isSearching, startSearchTransition] = useTransition();
+  const [hydratedLocal, setHydratedLocal] = useState(source !== "local");
   const [deleteTarget, setDeleteTarget] = useState<SerializedCustomer | null>(
     null,
   );
   const [deleting, setDeleting] = useState(false);
 
-  const runSearch = useCallback((term: string) => {
-    startSearchTransition(async () => {
-      const result = await searchCustomersAction(term);
-      if (!result.success) {
-        toast.error(result.error);
-        return;
-      }
-      setCustomers(result.data ?? []);
-      setNextCursor(null);
-      setHasMore(false);
-    });
-  }, []);
+  useEffect(() => {
+    if (source !== "local") return;
+    setCustomers(listLocalCustomers());
+    setHydratedLocal(true);
+  }, [source]);
+
+  const runSearch = useCallback(
+    (term: string) => {
+      startSearchTransition(async () => {
+        try {
+          const results = await workspaceSearchCustomers(source, term);
+          setCustomers(results);
+          setNextCursor(null);
+          setHasMore(false);
+        } catch (error) {
+          toast.error(
+            error instanceof Error ? error.message : "Failed to search customers",
+          );
+        }
+      });
+    },
+    [source],
+  );
 
   useEffect(() => {
+    if (!hydratedLocal) return;
     if (debouncedSearch === "") {
-      setCustomers(initialCustomers);
+      if (source === "local") {
+        setCustomers(listLocalCustomers());
+      } else {
+        setCustomers(initialCustomers);
+      }
       setNextCursor(initialNextCursor);
       setHasMore(initialHasMore);
       return;
@@ -64,16 +85,18 @@ export function CustomersListPage({
     runSearch(debouncedSearch);
   }, [
     debouncedSearch,
+    hydratedLocal,
     initialCustomers,
     initialHasMore,
     initialNextCursor,
     runSearch,
+    source,
   ]);
 
   async function handleDelete() {
     if (!deleteTarget) return;
     setDeleting(true);
-    const result = await deleteCustomerAction(deleteTarget.id);
+    const result = await workspaceDeleteCustomer(source, deleteTarget.id);
     setDeleting(false);
 
     if (!result.success) {
@@ -86,7 +109,7 @@ export function CustomersListPage({
     setCustomers((current) =>
       current.filter((customer) => customer.id !== deleteTarget.id),
     );
-    router.refresh();
+    if (source === "cloud") router.refresh();
   }
 
   const showEmpty = !isSearching && customers.length === 0 && !debouncedSearch;
@@ -95,7 +118,11 @@ export function CustomersListPage({
     <PageShell>
       <PageHeader
         title="Customers"
-        description="Manage clients you invoice regularly."
+        description={
+          source === "local"
+            ? "Saved in this browser until you log in."
+            : "Manage clients you invoice regularly."
+        }
         action={
           <ButtonLink href={routes.customersNew} className="shadow-xs">
             <Plus className="mr-2 h-4 w-4" />
@@ -104,11 +131,9 @@ export function CustomersListPage({
         }
       />
 
-      {!showEmpty && (
-        <CustomerSearch value={search} onChange={setSearch} />
-      )}
+      {!showEmpty && <CustomerSearch value={search} onChange={setSearch} />}
 
-      {isSearching ? (
+      {!hydratedLocal || isSearching ? (
         <div className="space-y-3">
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />

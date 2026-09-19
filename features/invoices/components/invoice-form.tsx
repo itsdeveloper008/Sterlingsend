@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,6 +21,7 @@ import { ALL_INVOICE_STATUSES } from "@/lib/invoice/status-transitions";
 import type { InvoiceFormData } from "@/lib/validations/invoice";
 import type { SerializedCustomer } from "@/features/customers/lib/format";
 import { INVOICE_STATUSES } from "@/types";
+import type { WorkspaceSource } from "@/lib/workspace/resolve-source";
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
@@ -28,6 +29,7 @@ function FieldError({ message }: { message?: string }) {
 }
 
 export function InvoiceForm({
+  source = "cloud",
   values,
   currency,
   selectedCustomer,
@@ -39,6 +41,7 @@ export function InvoiceForm({
   lastSavedAt,
   autosaveState,
 }: {
+  source?: WorkspaceSource;
   values: InvoiceFormData;
   currency: string;
   selectedCustomer?: SerializedCustomer | null;
@@ -79,6 +82,7 @@ export function InvoiceForm({
             </p>
           </div>
           <CustomerPicker
+            source={source}
             value={values.customerId}
             selectedCustomer={selectedCustomer}
             onChange={onCustomerChange}

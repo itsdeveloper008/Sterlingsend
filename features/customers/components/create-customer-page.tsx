@@ -16,8 +16,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { workspaceCreateCustomer } from "@/lib/workspace/client-api";
+import type { WorkspaceSource } from "@/lib/workspace/resolve-source";
 
-export function CreateCustomerPage() {
+export function CreateCustomerPage({
+  source = "cloud",
+}: {
+  source?: WorkspaceSource;
+}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -25,11 +31,11 @@ export function CreateCustomerPage() {
   async function handleSubmit(data: Parameters<typeof createCustomerAction>[0]) {
     setLoading(true);
     setErrors({});
-    const result = await createCustomerAction(data);
+    const result = await workspaceCreateCustomer(source, data);
     setLoading(false);
 
     if (!result.success) {
-      if (result.fieldErrors) {
+      if ("fieldErrors" in result && result.fieldErrors) {
         const fieldErrors: Record<string, string> = {};
         for (const [key, messages] of Object.entries(result.fieldErrors)) {
           if (messages?.[0]) fieldErrors[key] = messages[0];
@@ -40,9 +46,13 @@ export function CreateCustomerPage() {
       return;
     }
 
-    toast.success("Customer created");
+    toast.success(
+      source === "local"
+        ? "Customer saved in this browser"
+        : "Customer created",
+    );
     router.push(routes.customer(result.data!.id));
-    router.refresh();
+    if (source === "cloud") router.refresh();
   }
 
   return (
@@ -58,26 +68,30 @@ export function CreateCustomerPage() {
           </Link>
           <PageHeader
             title="Add customer"
-            description="Save client details for faster invoicing."
+            description={
+              source === "local"
+                ? "Saved in this browser until you log in."
+                : "Save client details for faster invoicing."
+            }
           />
         </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Customer details</CardTitle>
-          <CardDescription>
-            Fields marked with * are required.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <CustomerForm
-            submitLabel="Create customer"
-            onSubmit={handleSubmit}
-            loading={loading}
-            errors={errors}
-          />
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Customer details</CardTitle>
+            <CardDescription>
+              Fields marked with * are required.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <CustomerForm
+              submitLabel="Create customer"
+              onSubmit={handleSubmit}
+              loading={loading}
+              errors={errors}
+            />
+          </CardContent>
+        </Card>
       </div>
     </PageShell>
   );

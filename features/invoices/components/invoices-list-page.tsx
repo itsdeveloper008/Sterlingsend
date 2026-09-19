@@ -19,23 +19,27 @@ import { InvoiceStatusFilter } from "@/features/invoices/components/invoice-stat
 import { InvoiceTable } from "@/features/invoices/components/invoice-table";
 import { InvoiceEmptyState } from "@/features/invoices/components/invoice-empty-state";
 import { DeleteInvoiceModal } from "@/features/invoices/components/delete-invoice-modal";
-import {
-  deleteInvoiceAction,
-  duplicateInvoiceAction,
-  searchInvoicesAction,
-} from "@/actions/invoice.actions";
 import type { SerializedInvoice } from "@/features/invoices/lib/format";
 import { routes } from "@/config/routes";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import type { InvoiceStatus } from "@/types";
 import { PageHeader, PageShell } from "@/components/design-system";
+import type { WorkspaceSource } from "@/lib/workspace/resolve-source";
+import {
+  workspaceDeleteInvoice,
+  workspaceDuplicateInvoice,
+  workspaceSearchInvoices,
+} from "@/lib/workspace/client-api";
+import { listLocalInvoices } from "@/lib/local-store/invoices.local";
 
 export function InvoicesListPage({
+  source = "cloud",
   initialInvoices,
   initialNextCursor,
   initialHasMore,
   currency,
 }: {
+  source?: WorkspaceSource;
   initialInvoices: SerializedInvoice[];
   initialNextCursor: string | null;
   initialHasMore: boolean;
@@ -49,30 +53,43 @@ export function InvoicesListPage({
   const [sortBy, setSortBy] = useState<"issueDate" | "total">("issueDate");
   const debouncedSearch = useDebouncedValue(search, 300);
   const [isSearching, startSearchTransition] = useTransition();
+  const [hydratedLocal, setHydratedLocal] = useState(source !== "local");
   const [deleteTarget, setDeleteTarget] = useState<SerializedInvoice | null>(
     null,
   );
   const [deleting, setDeleting] = useState(false);
   const [duplicatingId, setDuplicatingId] = useState<string | null>(null);
 
-  const runSearch = useCallback((term: string) => {
-    startSearchTransition(async () => {
-      const result = await searchInvoicesAction(term);
-      if (!result.success) {
-        toast.error(result.error);
-        return;
-      }
-      setInvoices(result.data ?? []);
-    });
-  }, []);
+  useEffect(() => {
+    if (source !== "local") return;
+    setInvoices(listLocalInvoices());
+    setHydratedLocal(true);
+  }, [source]);
+
+  const runSearch = useCallback(
+    (term: string) => {
+      startSearchTransition(async () => {
+        try {
+          const results = await workspaceSearchInvoices(source, term);
+          setInvoices(results);
+        } catch (error) {
+          toast.error(
+            error instanceof Error ? error.message : "Failed to search invoices",
+          );
+        }
+      });
+    },
+    [source],
+  );
 
   useEffect(() => {
+    if (!hydratedLocal) return;
     if (debouncedSearch === "") {
-      setInvoices(initialInvoices);
+      setInvoices(source === "local" ? listLocalInvoices() : initialInvoices);
       return;
     }
     runSearch(debouncedSearch);
-  }, [debouncedSearch, initialInvoices, runSearch]);
+  }, [debouncedSearch, hydratedLocal, initialInvoices, runSearch, source]);
 
   const filteredInvoices = useMemo(() => {
     const list = invoices.filter((invoice) =>
@@ -90,7 +107,7 @@ export function InvoicesListPage({
   async function handleDelete() {
     if (!deleteTarget) return;
     setDeleting(true);
-    const result = await deleteInvoiceAction(deleteTarget.id);
+    const result = await workspaceDeleteInvoice(source, deleteTarget.id);
     setDeleting(false);
 
     if (!result.success) {
@@ -103,12 +120,12 @@ export function InvoicesListPage({
     setInvoices((current) =>
       current.filter((invoice) => invoice.id !== deleteTarget.id),
     );
-    router.refresh();
+    if (source === "cloud") router.refresh();
   }
 
   async function handleDuplicate(invoice: SerializedInvoice) {
     setDuplicatingId(invoice.id);
-    const result = await duplicateInvoiceAction(invoice.id);
+    const result = await workspaceDuplicateInvoice(source, invoice.id);
     setDuplicatingId(null);
 
     if (!result.success) {
@@ -121,8 +138,13 @@ export function InvoicesListPage({
     }
 
     toast.success("Invoice duplicated");
-    router.push(routes.invoiceEdit(result.data.id));
-    router.refresh();
+    if (source === "local") {
+      setInvoices(listLocalInvoices());
+      router.push(routes.invoice(result.data.id));
+    } else {
+      router.push(routes.invoiceEdit(result.data.id));
+      router.refresh();
+    }
   }
 
   const showEmpty =
@@ -135,7 +157,11 @@ export function InvoicesListPage({
     <PageShell>
       <PageHeader
         title="Invoices"
-        description="Create, send, and track invoices."
+        description={
+          source === "local"
+            ? "Saved in this browser until you log in."
+            : "Create, send, and track invoices."
+        }
         action={
           <ButtonLink href={routes.invoicesNew} className="shadow-xs">
             <Plus className="mr-2 h-4 w-4" />
@@ -170,7 +196,7 @@ export function InvoicesListPage({
         </div>
       )}
 
-      {isSearching ? (
+      {!hydratedLocal || isSearching ? (
         <div className="space-y-3">
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />

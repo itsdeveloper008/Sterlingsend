@@ -29,7 +29,16 @@ export function getAuthErrorMessage(error: unknown, fallback: string) {
   }
 
   if (error instanceof Error && error.message) {
-    return error.message;
+    const message = error.message;
+    if (
+      message.includes("redirect_uri_mismatch") ||
+      message.includes("invalid_request")
+    ) {
+      const origin =
+        typeof window !== "undefined" ? window.location.origin : "your site";
+      return `Add ${origin}/__/auth/handler as an Authorized redirect URI on the Firebase Google OAuth client (Google Cloud Console → Credentials), then try again.`;
+    }
+    return message;
   }
 
   return fallback;

@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
-import { requireOnboarding } from "@/actions/auth.actions";
 import { CustomerDetailPage } from "@/features/customers";
+import { LocalCustomerDetail } from "@/features/customers/components/local-customer-detail";
 import { serializeCustomer } from "@/features/customers/lib/serialize";
+import { resolveWorkspaceSource } from "@/lib/workspace/resolve-source";
 import { customerService } from "@/services/customer.service";
 
 export default async function CustomerPage({
@@ -10,12 +11,19 @@ export default async function CustomerPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { business } = await requireOnboarding();
-  const customer = await customerService.getCustomer(id, business.id);
+  const workspace = await resolveWorkspaceSource();
 
-  if (!customer) {
-    notFound();
+  if (workspace.source === "local") {
+    return <LocalCustomerDetail id={id} />;
   }
 
-  return <CustomerDetailPage customer={serializeCustomer(customer)} />;
+  const customer = await customerService.getCustomer(id, workspace.businessId!);
+  if (!customer) notFound();
+
+  return (
+    <CustomerDetailPage
+      source="cloud"
+      customer={serializeCustomer(customer)}
+    />
+  );
 }

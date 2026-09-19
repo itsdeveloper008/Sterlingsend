@@ -7,6 +7,47 @@ import {
 import { getAdminAuth } from "@/firebase/admin";
 import { userService } from "@/services/user.service";
 import { routes } from "@/config/routes";
+import type { DecodedIdToken } from "firebase-admin/auth";
+
+function isRetriableNetworkError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return /ECONNRESET|ETIMEDOUT|ENOTFOUND|EAI_AGAIN|socket disconnected|network|TLS|UNAVAILABLE|deadline/i.test(
+    message,
+  );
+}
+
+async function verifyIdTokenWithRetry(
+  idToken: string,
+  attempts = 3,
+): Promise<DecodedIdToken> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      return await getAdminAuth().verifyIdToken(idToken);
+    } catch (error) {
+      lastError = error;
+      if (!isRetriableNetworkError(error) || attempt === attempts - 1) {
+        throw error;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 400 * (attempt + 1)));
+    }
+  }
+  throw lastError;
+}
+
+function sessionErrorMessage(error: unknown): string {
+  const message = error instanceof Error ? error.message : "Failed to create session";
+  if (isRetriableNetworkError(error)) {
+    return "Could not reach Firebase to start your session. Check your connection and try again.";
+  }
+  if (message.includes("Firebase Admin is not configured")) {
+    return message;
+  }
+  if (/argument-error|invalid|id.?token/i.test(message)) {
+    return "Sign-in token was invalid or expired. Please try Google sign-in again.";
+  }
+  return message;
+}
 
 export async function POST(request: Request) {
   try {
@@ -16,7 +57,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing idToken" }, { status: 400 });
     }
 
-    const decoded = await getAdminAuth().verifyIdToken(idToken);
+    const decoded = await verifyIdTokenWithRetry(idToken);
     const sessionCookie = await createSessionCookie(idToken);
 
     const user = await userService.getById(decoded.uid);
@@ -47,11 +88,12 @@ export async function POST(request: Request) {
     return response;
   } catch (error) {
     console.error("[auth/session] POST failed", error);
-    const message =
-      error instanceof Error ? error.message : "Failed to create session";
+    const message = sessionErrorMessage(error);
     const status = message.includes("Firebase Admin is not configured")
       ? 503
-      : 401;
+      : message.includes("Could not reach Firebase")
+        ? 503
+        : 401;
     return NextResponse.json({ error: message }, { status });
   }
 }

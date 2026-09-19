@@ -267,12 +267,6 @@ button:has(.builder-logo-preview):focus-visible {
   font-size: 0.75rem;
 }
 
-@media print {
-  .builder-discount-print-suffix {
-    display: inline;
-  }
-}
-
 .builder-row-remove {
   opacity: 0;
   transition: opacity 0.15s ease;
@@ -403,26 +397,138 @@ tr:hover .builder-row-remove {
   color: #0f172a;
 }
 
+/* Print: fit a default invoice on one A4 page; long invoices break between rows */
 @media print {
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
   .builder-action-bar,
   .builder-draft-banner,
   .builder-login-hint,
   .builder-row-remove,
+  .builder-logo-box,
+  .builder-discount-toggle,
+  .builder-empty-print,
   .no-print {
     display: none !important;
   }
 
+  .builder-discount-print-suffix {
+    display: inline;
+  }
+
   .builder-page {
-    background: #fff;
+    background: #fff !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .builder-sheet {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   .builder-card {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    border: none !important;
     box-shadow: none !important;
-    border: 1px solid #e2e8f0;
+    overflow: visible !important;
   }
 
-  .builder-empty-print {
-    display: none !important;
+  .builder-card-inner {
+    padding: 0 !important;
+  }
+
+  .builder-header,
+  .builder-billed,
+  .builder-totals,
+  .builder-section,
+  .builder-footer {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .builder-title {
+    margin-top: 10px;
+    font-size: 1.75rem;
+  }
+
+  .builder-billed {
+    margin-top: 14px;
+    padding: 10px 12px;
+  }
+
+  .builder-table {
+    margin-top: 12px;
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .builder-table thead {
+    display: table-header-group;
+  }
+
+  .builder-table tbody {
+    display: table-row-group;
+  }
+
+  .builder-table tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .builder-totals {
+    margin-top: 12px;
+  }
+
+  .builder-section {
+    margin-top: 16px;
+    padding-top: 12px;
+  }
+
+  .builder-footer {
+    margin-top: 14px;
+    padding-top: 10px;
+  }
+
+  .builder-field,
+  .builder-field--area {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+    resize: none !important;
+  }
+
+  .builder-field--area {
+    min-height: 0 !important;
+  }
+
+  .builder-field::placeholder {
+    color: transparent !important;
+  }
+
+  .builder-total-final {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }
 
@@ -431,7 +537,9 @@ body.builder-pdf-export .builder-action-bar,
 body.builder-pdf-export .builder-draft-banner,
 body.builder-pdf-export .builder-login-hint,
 body.builder-pdf-export .builder-row-remove,
-body.builder-pdf-export .builder-empty-print {
+body.builder-pdf-export .builder-empty-print,
+body.builder-pdf-export .builder-logo-box,
+body.builder-pdf-export .builder-discount-toggle {
   display: none !important;
 }
 

@@ -38,7 +38,7 @@ export function HeroEditableInvoice() {
   }
 
   return (
-    <div id="try-invoice" className="mx-auto w-full max-w-3xl" ref={cardRef}>
+    <div id="try-invoice" className="builder-sheet mx-auto w-full max-w-3xl" ref={cardRef}>
       <EditableInvoiceCard
         invoice={invoice}
         dispatch={dispatch}

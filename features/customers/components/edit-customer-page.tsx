@@ -21,11 +21,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import type { WorkspaceSource } from "@/lib/workspace/resolve-source";
+import { workspaceUpdateCustomer } from "@/lib/workspace/client-api";
 
 export function EditCustomerPage({
   customer,
+  source = "cloud",
 }: {
   customer: SerializedCustomer;
+  source?: WorkspaceSource;
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -34,11 +38,11 @@ export function EditCustomerPage({
   async function handleSubmit(data: CustomerFormData) {
     setLoading(true);
     setErrors({});
-    const result = await updateCustomerAction(customer.id, data);
+    const result = await workspaceUpdateCustomer(source, customer.id, data);
     setLoading(false);
 
     if (!result.success) {
-      if (result.fieldErrors) {
+      if ("fieldErrors" in result && result.fieldErrors) {
         const fieldErrors: Record<string, string> = {};
         for (const [key, messages] of Object.entries(result.fieldErrors)) {
           if (messages?.[0]) fieldErrors[key] = messages[0];
@@ -51,7 +55,7 @@ export function EditCustomerPage({
 
     toast.success("Customer updated");
     router.push(routes.customer(customer.id));
-    router.refresh();
+    if (source === "cloud") router.refresh();
   }
 
   return (

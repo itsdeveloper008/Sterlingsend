@@ -11,6 +11,7 @@ import { routes } from "@/config/routes";
 import { getAuthErrorMessage } from "@/features/auth/lib/auth-errors";
 import { GoogleGlyph } from "@/features/auth/components/google-glyph";
 import { PageDescription, PageTitle } from "@/components/design-system/typography";
+import { AUTH_POST_LOGIN_KEY } from "@/firebase/auth";
 
 export function SignupForm() {
   const { signUp, signInWithGoogle } = useAuth();
@@ -41,9 +42,12 @@ export function SignupForm() {
     setGoogleLoading(true);
 
     try {
-      const redirectTo = await signInWithGoogle();
+      sessionStorage.removeItem(AUTH_POST_LOGIN_KEY);
+      const result = await signInWithGoogle();
+      if (result === "redirecting") return;
+
       toast.success("Welcome to SterlingSend");
-      window.location.assign(redirectTo ?? routes.home);
+      window.location.assign(result ?? routes.home);
     } catch (error) {
       toast.error(getAuthErrorMessage(error, "Could not continue with Google"));
       setGoogleLoading(false);

@@ -9,13 +9,16 @@ import {
   listInvoiceTemplatesByCategory,
   type InvoiceTemplateDefinition,
 } from "@/pdf/templates/catalog";
-import { updateInvoiceTemplateAction } from "@/actions/settings.actions";
+import type { WorkspaceSource } from "@/lib/workspace/resolve-source";
+import { workspaceSaveTemplate } from "@/lib/workspace/client-api";
 
 export function InvoiceTemplatePicker({
+  source = "cloud",
   initialTemplateId,
   compact = false,
   onSelected,
 }: {
+  source?: WorkspaceSource;
   initialTemplateId: string;
   compact?: boolean;
   onSelected?: (template: InvoiceTemplateDefinition) => void;
@@ -46,9 +49,13 @@ export function InvoiceTemplatePicker({
     onSelected?.(template);
     startTransition(async () => {
       try {
-        const result = await updateInvoiceTemplateAction(template.id);
+        const result = await workspaceSaveTemplate(source, template.id);
         if (result.success) {
-          toast.success(`Template saved: ${template.name}`);
+          toast.success(
+            source === "local"
+              ? `Template saved in this browser: ${template.name}`
+              : `Template saved: ${template.name}`,
+          );
         }
       } catch {
         toast.error("Could not save template preference");
@@ -64,7 +71,10 @@ export function InvoiceTemplatePicker({
             Invoice templates
           </h3>
           <p className="text-xs text-muted-foreground">
-            {INVOICE_TEMPLATES.length} designs · saved to your account
+            {INVOICE_TEMPLATES.length} designs ·{" "}
+            {source === "local"
+              ? "saved in this browser"
+              : "saved to your account"}
           </p>
         </div>
         <div className="relative w-full sm:max-w-xs">

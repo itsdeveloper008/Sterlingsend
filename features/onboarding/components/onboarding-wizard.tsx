@@ -125,6 +125,16 @@ export function OnboardingWizard({ userEmail }: { userEmail?: string }) {
     clearDraft();
     setStep(5);
     toast.success("Business profile created");
+
+    try {
+      const { flushPendingLocalMigration } = await import(
+        "@/lib/local-store/migrate-client"
+      );
+      await flushPendingLocalMigration();
+    } catch (error) {
+      console.error("[onboarding] pending migration flush failed", error);
+    }
+
     router.refresh();
   }
 

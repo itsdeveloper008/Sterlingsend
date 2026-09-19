@@ -53,7 +53,7 @@ export function EditableInvoiceCard({
     >
       <div className="builder-card-inner">
         {/* Header: logo + company */}
-        <header className="flex flex-wrap items-start justify-between gap-6">
+        <header className="builder-header flex flex-wrap items-start justify-between gap-6">
           <div className="min-w-0">
             <input
               ref={fileRef}

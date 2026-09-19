@@ -14,6 +14,7 @@ import {
   type MascotState,
 } from "@/features/auth/components/mascot-character";
 import { cn } from "@/lib/utils";
+import { AUTH_POST_LOGIN_KEY } from "@/firebase/auth";
 
 function CompassMark({ className }: { className?: string }) {
   return (
@@ -108,16 +109,21 @@ export function LoginForm() {
     clearError();
 
     try {
-      const redirectTo = await signInWithGoogle();
+      const requested = searchParams.get("redirect");
+      if (requested && requested.startsWith("/")) {
+        sessionStorage.setItem(AUTH_POST_LOGIN_KEY, requested);
+      } else {
+        sessionStorage.removeItem(AUTH_POST_LOGIN_KEY);
+      }
+
+      const result = await signInWithGoogle();
+      // Full-page redirect to Google is in progress.
+      if (result === "redirecting") return;
+
       setSuccess(true);
       toast.success("Welcome back");
-      const requested = searchParams.get("redirect");
-      const destination =
-        requested && requested.startsWith("/")
-          ? requested
-          : (redirectTo ?? routes.home);
       window.setTimeout(() => {
-        window.location.assign(destination);
+        window.location.assign(result ?? routes.home);
       }, 480);
     } catch (error) {
       setSuccess(false);

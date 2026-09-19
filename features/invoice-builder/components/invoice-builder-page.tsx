@@ -78,7 +78,7 @@ export function InvoiceBuilderPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-[1100px] px-4 py-8 sm:px-6 sm:py-10" ref={cardRef}>
+      <div className="builder-sheet mx-auto max-w-[1100px] px-4 py-8 sm:px-6 sm:py-10" ref={cardRef}>
         <EditableInvoiceCard
           invoice={invoice}
           dispatch={dispatch}

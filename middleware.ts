@@ -1,14 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE_NAME, routes } from "@/config/routes";
 
-const protectedPrefixes = [
-  "/dashboard",
-  "/onboarding",
-  "/customers",
-  "/invoices",
-  "/services",
-  "/settings",
-];
+/** Account-only surfaces. Customers/invoices/services/settings are guest-accessible (localStorage). */
+const protectedPrefixes = ["/dashboard", "/onboarding"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -48,14 +42,6 @@ export const config = {
     "/dashboard/:path*",
     "/onboarding",
     "/onboarding/:path*",
-    "/customers",
-    "/customers/:path*",
-    "/invoices",
-    "/invoices/:path*",
-    "/services",
-    "/services/:path*",
-    "/settings",
-    "/settings/:path*",
     "/login",
     "/signup",
     "/forgot-password",

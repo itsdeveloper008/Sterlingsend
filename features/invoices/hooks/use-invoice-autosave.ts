@@ -1,20 +1,26 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { autosaveInvoiceAction } from "@/actions/invoice.actions";
 import type { InvoiceFormData } from "@/lib/validations/invoice";
 import { INVOICE_STATUSES } from "@/types";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import type { WorkspaceSource } from "@/lib/workspace/resolve-source";
+import { workspaceAutosaveInvoice } from "@/lib/workspace/client-api";
+import { siteConfig } from "@/config/site";
 
 export function useInvoiceAutosave({
   invoiceId,
   values,
   enabled,
+  source = "cloud",
+  currency = siteConfig.defaultCurrency,
   onInvoiceCreated,
 }: {
   invoiceId: string | null;
   values: InvoiceFormData;
   enabled: boolean;
+  source?: WorkspaceSource;
+  currency?: string;
   onInvoiceCreated?: (invoiceId: string) => void;
 }) {
   const [currentInvoiceId, setCurrentInvoiceId] = useState(invoiceId);
@@ -35,9 +41,11 @@ export function useInvoiceAutosave({
     }
 
     setAutosaveState("saving");
-    const result = await autosaveInvoiceAction(
+    const result = await workspaceAutosaveInvoice(
+      source,
       currentInvoiceId,
       debouncedValues,
+      currency,
     );
 
     if (!result.success) {
@@ -53,10 +61,12 @@ export function useInvoiceAutosave({
     setLastSavedAt(result.data?.updatedAt ?? new Date().toISOString());
     setAutosaveState("saved");
   }, [
+    currency,
     currentInvoiceId,
     debouncedValues,
     enabled,
     onInvoiceCreated,
+    source,
   ]);
 
   useEffect(() => {

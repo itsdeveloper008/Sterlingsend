@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
-import { requireOnboarding } from "@/actions/auth.actions";
 import { EditCustomerPage } from "@/features/customers";
+import { LocalCustomerEdit } from "@/features/customers/components/local-customer-edit";
 import { serializeCustomer } from "@/features/customers/lib/serialize";
+import { resolveWorkspaceSource } from "@/lib/workspace/resolve-source";
 import { customerService } from "@/services/customer.service";
 
 export default async function CustomerEditPage({
@@ -10,12 +11,16 @@ export default async function CustomerEditPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { business } = await requireOnboarding();
-  const customer = await customerService.getCustomer(id, business.id);
+  const workspace = await resolveWorkspaceSource();
 
-  if (!customer) {
-    notFound();
+  if (workspace.source === "local") {
+    return <LocalCustomerEdit id={id} />;
   }
 
-  return <EditCustomerPage customer={serializeCustomer(customer)} />;
+  const customer = await customerService.getCustomer(id, workspace.businessId!);
+  if (!customer) notFound();
+
+  return (
+    <EditCustomerPage source="cloud" customer={serializeCustomer(customer)} />
+  );
 }

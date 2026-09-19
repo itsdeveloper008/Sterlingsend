@@ -2,20 +2,23 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { Check, ChevronsUpDown, User } from "lucide-react";
-import { searchCustomersAction } from "@/actions/customer.actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { SerializedCustomer } from "@/features/customers/lib/format";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import type { WorkspaceSource } from "@/lib/workspace/resolve-source";
+import { workspaceSearchCustomers } from "@/lib/workspace/client-api";
 
 export function CustomerPicker({
+  source = "cloud",
   value,
   selectedCustomer,
   onChange,
   error,
   disabled,
 }: {
+  source?: WorkspaceSource;
   value: string;
   selectedCustomer?: SerializedCustomer | null;
   onChange: (customer: SerializedCustomer) => void;
@@ -32,12 +35,14 @@ export function CustomerPicker({
     if (!open) return;
 
     startSearch(async () => {
-      const result = await searchCustomersAction(debouncedSearch);
-      if (result.success) {
-        setResults(result.data ?? []);
+      try {
+        const data = await workspaceSearchCustomers(source, debouncedSearch);
+        setResults(data);
+      } catch {
+        setResults([]);
       }
     });
-  }, [debouncedSearch, open]);
+  }, [debouncedSearch, open, source]);
 
   const displayLabel = selectedCustomer
     ? `${selectedCustomer.name}${selectedCustomer.companyName ? ` · ${selectedCustomer.companyName}` : ""}`

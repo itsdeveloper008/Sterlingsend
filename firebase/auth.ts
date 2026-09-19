@@ -5,6 +5,8 @@ import {
   GoogleAuthProvider,
   signInWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   createUserWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
@@ -17,6 +19,9 @@ import { isFirebaseConfigured } from "./is-configured";
 
 let auth: Auth | undefined;
 const googleProvider = new GoogleAuthProvider();
+
+/** Where to send the user after Google redirect sign-in completes. */
+export const AUTH_POST_LOGIN_KEY = "sterlingsend_auth_post_login";
 
 export function getFirebaseAuth(): Auth {
   if (!isFirebaseConfigured()) {
@@ -40,10 +45,47 @@ export async function signIn(email: string, password: string) {
   return credential.user;
 }
 
-export async function signInWithGoogle() {
+function authErrorCode(error: unknown): string {
+  if (error && typeof error === "object" && "code" in error) {
+    return String(error.code);
+  }
+  return "";
+}
+
+/**
+ * Google sign-in. Prefers popup (same-origin authDomain + /__/auth proxy).
+ * Falls back to full-page redirect if the popup is blocked.
+ */
+export async function signInWithGoogle(): Promise<
+  FirebaseUser | "redirecting"
+> {
   googleProvider.setCustomParameters({ prompt: "select_account" });
-  const credential = await signInWithPopup(getFirebaseAuth(), googleProvider);
-  return credential.user;
+  const firebaseAuth = getFirebaseAuth();
+
+  try {
+    const credential = await signInWithPopup(firebaseAuth, googleProvider);
+    return credential.user;
+  } catch (error) {
+    if (authErrorCode(error) === "auth/popup-blocked") {
+      await signInWithRedirect(firebaseAuth, googleProvider);
+      return "redirecting";
+    }
+    throw error;
+  }
+}
+
+/** Call once on app boot after returning from Google redirect. */
+let redirectResultPromise: Promise<FirebaseUser | null> | null = null;
+
+export async function completeGoogleRedirectSignIn() {
+  if (!isFirebaseConfigured()) return null;
+  // Share one promise so React Strict Mode double-mount doesn't consume twice.
+  if (!redirectResultPromise) {
+    redirectResultPromise = getRedirectResult(getFirebaseAuth()).then(
+      (result) => result?.user ?? null,
+    );
+  }
+  return redirectResultPromise;
 }
 
 export async function signUp(

@@ -15,18 +15,21 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { DeleteCustomerModal } from "@/features/customers/components/delete-customer-modal";
-import { deleteCustomerAction } from "@/actions/customer.actions";
 import {
   formatCustomerAddress,
   formatCustomerDate,
   type SerializedCustomer,
 } from "@/features/customers/lib/format";
 import { routes } from "@/config/routes";
+import type { WorkspaceSource } from "@/lib/workspace/resolve-source";
+import { workspaceDeleteCustomer } from "@/lib/workspace/client-api";
 
 export function CustomerDetailPage({
   customer,
+  source = "cloud",
 }: {
   customer: SerializedCustomer;
+  source?: WorkspaceSource;
 }) {
   const router = useRouter();
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -34,7 +37,7 @@ export function CustomerDetailPage({
 
   async function handleDelete() {
     setDeleting(true);
-    const result = await deleteCustomerAction(customer.id);
+    const result = await workspaceDeleteCustomer(source, customer.id);
     setDeleting(false);
 
     if (!result.success) {
@@ -44,7 +47,7 @@ export function CustomerDetailPage({
 
     toast.success("Customer deleted");
     router.push(routes.customers);
-    router.refresh();
+    if (source === "cloud") router.refresh();
   }
 
   return (

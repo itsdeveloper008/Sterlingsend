@@ -9,7 +9,10 @@ import {
   useState,
 } from "react";
 import { onAuthStateChanged, type User } from "firebase/auth";
+import { toast } from "sonner";
 import {
+  AUTH_POST_LOGIN_KEY,
+  completeGoogleRedirectSignIn,
   getFirebaseAuth,
   getIdToken,
   logOut as firebaseLogOut,
@@ -19,12 +22,15 @@ import {
   signUp,
 } from "@/firebase/auth";
 import { isFirebaseConfigured } from "@/firebase/is-configured";
+import { routes } from "@/config/routes";
+import { getAuthErrorMessage } from "@/features/auth/lib/auth-errors";
 
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<string | null>;
-  signInWithGoogle: () => Promise<string | null>;
+  /** Path after login, or "redirecting" while navigating to Google. */
+  signInWithGoogle: () => Promise<string | null | "redirecting">;
   signUp: (
     email: string,
     password: string,
@@ -57,16 +63,42 @@ async function persistSession(user: User): Promise<string | null> {
     throw new Error(message);
   }
 
+  let redirectTo: string | null = null;
   try {
     const payload = (await response.json()) as { redirectTo?: string };
-    return payload.redirectTo ?? null;
+    redirectTo = payload.redirectTo ?? null;
   } catch {
-    return null;
+    redirectTo = null;
   }
+
+  try {
+    const { runLocalWorkspaceMigration } = await import(
+      "@/lib/local-store/migrate-client"
+    );
+    const migration = await runLocalWorkspaceMigration();
+    if (migration.redirectHint) {
+      return migration.redirectHint;
+    }
+  } catch (error) {
+    console.error("[auth] local workspace migration failed", error);
+  }
+
+  return redirectTo;
 }
 
 async function clearSession() {
   await fetch("/api/auth/session", { method: "DELETE" });
+}
+
+function readPostLoginDestination(fallback: string | null): string {
+  try {
+    const stored = sessionStorage.getItem(AUTH_POST_LOGIN_KEY);
+    sessionStorage.removeItem(AUTH_POST_LOGIN_KEY);
+    if (stored && stored.startsWith("/")) return stored;
+  } catch {
+    // ignore
+  }
+  return fallback ?? routes.home;
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -79,12 +111,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const unsubscribe = onAuthStateChanged(getFirebaseAuth(), async (nextUser) => {
-      setUser(nextUser);
-      setLoading(false);
-    });
+    let cancelled = false;
+    let unsubscribe: (() => void) | undefined;
 
-    return unsubscribe;
+    void (async () => {
+      try {
+        const redirectedUser = await completeGoogleRedirectSignIn();
+        if (cancelled) return;
+
+        if (redirectedUser) {
+          const sessionRedirect = await persistSession(redirectedUser);
+          if (cancelled) return;
+          setUser(redirectedUser);
+          setLoading(false);
+          toast.success("Welcome back");
+          window.location.assign(readPostLoginDestination(sessionRedirect));
+          return;
+        }
+      } catch (error) {
+        console.error("[auth] google redirect completion failed", error);
+        toast.error(
+          getAuthErrorMessage(error, "Could not finish Google sign-in"),
+        );
+      }
+
+      if (cancelled) return;
+
+      unsubscribe = onAuthStateChanged(getFirebaseAuth(), (nextUser) => {
+        setUser(nextUser);
+        setLoading(false);
+      });
+    })();
+
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
   }, []);
 
   const handleSignIn = useCallback(async (email: string, password: string) => {
@@ -101,9 +163,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!isFirebaseConfigured()) {
       throw new Error("Firebase is not configured. Add keys to .env.local");
     }
-    const nextUser = await signInWithGoogle();
-    const redirectTo = await persistSession(nextUser);
-    setUser(nextUser);
+    const result = await signInWithGoogle();
+    if (result === "redirecting") return "redirecting";
+    const redirectTo = await persistSession(result);
+    setUser(result);
     return redirectTo;
   }, []);
 
