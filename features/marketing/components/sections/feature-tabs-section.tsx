@@ -24,19 +24,19 @@ type Showcase = {
 const showcases: Showcase[] = [
   {
     id: "templates",
-    eyebrow: "Templates",
-    title: "88 designs, free for everyone",
+    eyebrow: "Invoice builder",
+    title: "Create a polished invoice in minutes",
     description:
-      "Pick any layout and palette for your invoice PDF - no account required. Log in later if you want a saved history.",
+      "Fill in the details, download a PDF, and send it. Log in later if you want a saved history.",
     cta: "Try SterlingSend for free",
     href: routes.createInvoice,
     chips: [
-      "88 templates",
-      "8 layouts",
-      "11 palettes",
       "Guest PDF download",
       "No signup wall",
-      "Brand colours",
+      "VAT & discounts",
+      "Print ready",
+      "Free to start",
+      "History when you log in",
     ],
     mockup: "invoices",
   },

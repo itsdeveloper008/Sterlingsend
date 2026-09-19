@@ -11,7 +11,6 @@ import { cn } from "@/lib/utils";
 const pills = [
   "Guest Mode",
   "Invoice builder",
-  "88 templates",
   "Line items",
   "VAT & discounts",
   "PDF export",

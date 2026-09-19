@@ -20,19 +20,15 @@ import {
 import { routes } from "@/config/routes";
 import { INVOICE_STATUSES } from "@/types";
 import { PageHeader, PageShell } from "@/components/design-system";
-import { InvoiceTemplatePicker } from "@/features/settings/components/invoice-template-picker";
-import { DEFAULT_INVOICE_TEMPLATE_ID } from "@/pdf/templates/catalog";
 
 export function CreateInvoicePage({
   currency,
   issueDate,
   dueDate,
-  initialTemplateId = DEFAULT_INVOICE_TEMPLATE_ID,
 }: {
   currency: string;
   issueDate: string;
   dueDate: string;
-  initialTemplateId?: string;
 }) {
   const router = useRouter();
   const [values, setValues] = useState<InvoiceFormData>(
@@ -96,14 +92,7 @@ export function CreateInvoicePage({
           </Link>
           <PageHeader
             title="New invoice"
-            description="Pick a template, then draft your invoice. Everything autosaves to your account."
-          />
-        </div>
-
-        <div className="rounded-2xl border border-border bg-white p-4 sm:p-6">
-          <InvoiceTemplatePicker
-            initialTemplateId={initialTemplateId}
-            compact
+            description="Draft your invoice. Everything autosaves to your account."
           />
         </div>
 
