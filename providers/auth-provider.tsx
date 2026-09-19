@@ -71,18 +71,6 @@ async function persistSession(user: User): Promise<string | null> {
     redirectTo = null;
   }
 
-  try {
-    const { runLocalWorkspaceMigration } = await import(
-      "@/lib/local-store/migrate-client"
-    );
-    const migration = await runLocalWorkspaceMigration();
-    if (migration.redirectHint) {
-      return migration.redirectHint;
-    }
-  } catch (error) {
-    console.error("[auth] local workspace migration failed", error);
-  }
-
   return redirectTo;
 }
 

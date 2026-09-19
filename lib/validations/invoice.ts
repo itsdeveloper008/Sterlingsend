@@ -39,7 +39,13 @@ export const invoiceLineItemSchema = z
   });
 
 export const invoiceFormSchema = z.object({
-  customerId: z.string().min(1, "Select a customer"),
+  clientName: z.string().min(1, "Client name is required").max(200),
+  clientEmail: z
+    .string()
+    .email("Enter a valid email")
+    .optional()
+    .or(z.literal("")),
+  clientAddress: z.string().max(500).optional().or(z.literal("")),
   issueDate: z.string().min(1, "Issue date is required"),
   dueDate: z.string().min(1, "Due date is required"),
   status: invoiceStatusSchema,
@@ -54,7 +60,9 @@ export function defaultInvoiceFormValues(
   dueDate: string,
 ): InvoiceFormData {
   return {
-    customerId: "",
+    clientName: "",
+    clientEmail: "",
+    clientAddress: "",
     issueDate,
     dueDate,
     status: INVOICE_STATUSES.DRAFT,
@@ -64,7 +72,9 @@ export function defaultInvoiceFormValues(
 }
 
 export function invoiceToFormData(invoice: {
-  customerId: string;
+  clientName: string;
+  clientEmail?: string;
+  clientAddress?: string;
   issueDate: string;
   dueDate: string;
   status: string;
@@ -80,7 +90,9 @@ export function invoiceToFormData(invoice: {
   }>;
 }): InvoiceFormData {
   return {
-    customerId: invoice.customerId,
+    clientName: invoice.clientName,
+    clientEmail: invoice.clientEmail ?? "",
+    clientAddress: invoice.clientAddress ?? "",
     issueDate: invoice.issueDate,
     dueDate: invoice.dueDate,
     status: invoice.status as InvoiceFormData["status"],

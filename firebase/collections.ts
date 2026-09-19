@@ -3,14 +3,14 @@
  *
  * Relationships:
  * - users (1) ── owns ──> (1) businesses via businesses.ownerId
- * - businesses (1) ── has many ──> customers, invoices, savedServices, payments
- * - customers (1) ── optional on ──> invoices via invoices.customerId
- * - invoices (1) ── has many ──> payments via payments.invoiceId
+ * - businesses (1) ── has many ──> invoices, savedServices, payments
  * - settings doc id === businessId (1:1)
+ * - CUSTOMERS is legacy-only (CRM removed from product)
  */
 export const COLLECTIONS = {
   USERS: "users",
   BUSINESSES: "businesses",
+  /** @deprecated CRM removed — do not write new docs */
   CUSTOMERS: "customers",
   INVOICES: "invoices",
   PAYMENTS: "payments",

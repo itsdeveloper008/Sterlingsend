@@ -9,6 +9,7 @@ import type {
 
 export interface Invoice extends BaseDocument, SoftDeletable {
   businessId: string;
+  /** Legacy link; new invoices leave this empty and use client* fields. */
   customerId: string;
   invoiceNumber: string;
   invoiceNumberLower: string;
@@ -17,6 +18,7 @@ export interface Invoice extends BaseDocument, SoftDeletable {
   dueDate: string;
   clientName: string;
   clientEmail?: string;
+  clientAddress?: string;
   items: InvoiceItem[];
   notes?: string;
   currency: CurrencyCode;
@@ -73,7 +75,9 @@ export interface InvoiceFormLineItem {
 }
 
 export interface InvoiceFormValues {
-  customerId: string;
+  clientName: string;
+  clientEmail: string;
+  clientAddress: string;
   issueDate: string;
   dueDate: string;
   status: InvoiceStatus;

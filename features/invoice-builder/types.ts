@@ -32,6 +32,8 @@ export type BuilderInvoice = {
   dueDate: string;
   currency: CurrencyCode;
   notes: string;
+  /** Selected catalog template for PDF output (session-only for guests). */
+  templateId: string;
   /** Client-side preview only (data URL / object URL) until post-login Storage upload. */
   logoDataUrl?: string;
   business: BuilderBusiness;

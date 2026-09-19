@@ -11,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CustomerPicker } from "@/features/invoices/components/customer-picker";
 import {
   InvoiceLineItems,
   useInvoiceTotals,
@@ -19,9 +18,7 @@ import {
 import { InvoiceSummary } from "@/features/invoices/components/invoice-summary";
 import { ALL_INVOICE_STATUSES } from "@/lib/invoice/status-transitions";
 import type { InvoiceFormData } from "@/lib/validations/invoice";
-import type { SerializedCustomer } from "@/features/customers/lib/format";
 import { INVOICE_STATUSES } from "@/types";
-import type { WorkspaceSource } from "@/lib/workspace/resolve-source";
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
@@ -29,25 +26,19 @@ function FieldError({ message }: { message?: string }) {
 }
 
 export function InvoiceForm({
-  source = "cloud",
   values,
   currency,
-  selectedCustomer,
   errors = {},
   onChange,
-  onCustomerChange,
   disabled,
   showStatus = true,
   lastSavedAt,
   autosaveState,
 }: {
-  source?: WorkspaceSource;
   values: InvoiceFormData;
   currency: string;
-  selectedCustomer?: SerializedCustomer | null;
   errors?: Record<string, string>;
   onChange: (values: InvoiceFormData) => void;
-  onCustomerChange: (customer: SerializedCustomer) => void;
   disabled?: boolean;
   showStatus?: boolean;
   lastSavedAt?: string | null;
@@ -67,8 +58,8 @@ export function InvoiceForm({
     return null;
   }, [autosaveState, lastSavedAt]);
 
-  function patch(patch: Partial<InvoiceFormData>) {
-    onChange({ ...values, ...patch });
+  function patch(next: Partial<InvoiceFormData>) {
+    onChange({ ...values, ...next });
   }
 
   return (
@@ -76,19 +67,50 @@ export function InvoiceForm({
       <div className="space-y-6">
         <section className="space-y-4 rounded-lg border bg-card p-6 shadow-sm">
           <div>
-            <h2 className="text-base font-medium">Customer</h2>
+            <h2 className="text-base font-medium">Bill to</h2>
             <p className="text-sm text-muted-foreground">
-              Select an existing customer for this invoice.
+              Client details for this invoice only.
             </p>
           </div>
-          <CustomerPicker
-            source={source}
-            value={values.customerId}
-            selectedCustomer={selectedCustomer}
-            onChange={onCustomerChange}
-            error={errors.customerId}
-            disabled={disabled}
-          />
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="clientName">Client name</Label>
+              <Input
+                id="clientName"
+                value={values.clientName}
+                onChange={(event) => patch({ clientName: event.target.value })}
+                placeholder="Acme Ltd or Jane Smith"
+                disabled={disabled}
+              />
+              <FieldError message={errors.clientName} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="clientEmail">Email</Label>
+              <Input
+                id="clientEmail"
+                type="email"
+                value={values.clientEmail ?? ""}
+                onChange={(event) => patch({ clientEmail: event.target.value })}
+                placeholder="client@example.com"
+                disabled={disabled}
+              />
+              <FieldError message={errors.clientEmail} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="clientAddress">Address</Label>
+              <Textarea
+                id="clientAddress"
+                value={values.clientAddress ?? ""}
+                onChange={(event) =>
+                  patch({ clientAddress: event.target.value })
+                }
+                placeholder="Street, city, postcode"
+                rows={3}
+                disabled={disabled}
+              />
+              <FieldError message={errors.clientAddress} />
+            </div>
+          </div>
         </section>
 
         <section className="space-y-4 rounded-lg border bg-card p-6 shadow-sm">

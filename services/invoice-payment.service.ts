@@ -4,7 +4,6 @@ import { Timestamp } from "firebase-admin/firestore";
 import { getAdminDb } from "@/firebase/admin";
 import { COLLECTIONS } from "@/firebase/collections";
 import { businessService } from "@/services/business.service";
-import { customerService } from "@/services/customer.service";
 import { docToData, withUpdatedAt } from "@/lib/firestore-utils";
 import {
   buildPublicInvoiceUrl,
@@ -78,11 +77,6 @@ export class InvoicePaymentService {
     const business = await businessService.getById(invoice.businessId);
     if (!business) return null;
 
-    const customer = await customerService.getCustomer(
-      invoice.customerId,
-      invoice.businessId,
-    );
-
     const canPay =
       invoice.paymentEnabled &&
       PAYABLE_STATUSES.has(invoice.status) &&
@@ -122,15 +116,11 @@ export class InvoicePaymentService {
         ]),
       },
       customer: {
-        name: customer?.name ?? invoice.clientName,
-        email: customer?.email ?? invoice.clientEmail,
-        addressLines: formatAddressLines([
-          customer?.addressLine1,
-          customer?.addressLine2,
-          customer?.city,
-          customer?.postcode,
-          customer?.country,
-        ]),
+        name: invoice.clientName,
+        email: invoice.clientEmail,
+        addressLines: formatAddressLines(
+          invoice.clientAddress ? [invoice.clientAddress] : [],
+        ),
       },
     };
   }

@@ -2,12 +2,6 @@ export type { Address, BankDetails, BaseDocument, CurrencyCode, SoftDeletable } 
 export type { User, CreateUserInput, UpdateUserInput } from "./user";
 export type { Business, CreateBusinessInput, UpdateBusinessInput } from "./business";
 export type {
-  Customer,
-  CreateCustomerInput,
-  UpdateCustomerInput,
-  CustomerListResult,
-} from "./customer";
-export type {
   Invoice,
   CreateInvoiceInput,
   UpdateInvoiceInput,

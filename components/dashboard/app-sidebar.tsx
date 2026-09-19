@@ -8,7 +8,6 @@ import {
   LayoutDashboard,
   Package,
   Settings,
-  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { routes } from "@/config/routes";
@@ -16,7 +15,6 @@ import { Logo } from "@/components/design-system/logo";
 
 const navItems = [
   { href: routes.dashboard, label: "Dashboard", icon: LayoutDashboard },
-  { href: routes.customers, label: "Customers", icon: Users },
   { href: routes.invoices, label: "Invoices", icon: FileText },
   { href: routes.tools, label: "PDF Tools", icon: FileStack },
   { href: routes.services, label: "Services", icon: Package },
@@ -54,8 +52,8 @@ export function AppSidebar() {
       </nav>
       <div className="border-t border-border p-4">
         <p className="text-xs leading-relaxed text-muted-foreground">
-          Tools stay free for everyone. This workspace is for saving invoices,
-          customers, and settings.
+          Tools stay free for everyone. Log in to save invoice history and
+          branding.
         </p>
       </div>
     </aside>

@@ -1,13 +1,10 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import { requireOnboarding } from "@/actions/auth.actions";
 import { InvoicePdfPreviewPage } from "@/pdf/components/invoice-pdf-preview-page";
-import { LocalInvoicePdf } from "@/features/invoices/components/local-invoice-pdf";
 import { buildInvoicePdfDocument } from "@/pdf/utils/build-document";
-import { resolveWorkspaceSource } from "@/lib/workspace/resolve-source";
 import { invoiceService } from "@/services/invoice.service";
-import { customerService } from "@/services/customer.service";
 import { settingsService } from "@/services/settings.service";
-import { businessService } from "@/services/business.service";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function PdfPreviewFallback() {
@@ -26,31 +23,18 @@ export default async function InvoicePdfPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const workspace = await resolveWorkspaceSource();
+  const { business } = await requireOnboarding();
+  const invoice = await invoiceService.getInvoice(id, business.id);
 
-  if (workspace.source === "local") {
-    return (
-      <Suspense fallback={<PdfPreviewFallback />}>
-        <LocalInvoicePdf id={id} />
-      </Suspense>
-    );
+  if (!invoice) {
+    notFound();
   }
 
-  const business = await businessService.getById(workspace.businessId!);
-  if (!business) notFound();
-
-  const invoice = await invoiceService.getInvoice(id, business.id);
-  if (!invoice) notFound();
-
-  const [customer, settings] = await Promise.all([
-    customerService.getCustomer(invoice.customerId, business.id),
-    settingsService.getByBusinessId(business.id),
-  ]);
+  const settings = await settingsService.getByBusinessId(business.id);
 
   const document = buildInvoicePdfDocument({
     invoice,
     business,
-    customer,
     templateId: settings.branding.templateId,
   });
 

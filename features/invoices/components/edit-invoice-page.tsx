@@ -14,7 +14,6 @@ import {
   invoiceToFormData,
   type InvoiceFormData,
 } from "@/lib/validations/invoice";
-import type { SerializedCustomer } from "@/features/customers/lib/format";
 import type { SerializedInvoice } from "@/features/invoices/lib/format";
 import { routes } from "@/config/routes";
 import { INVOICE_STATUSES } from "@/types";
@@ -23,18 +22,13 @@ import { PageHeader, PageShell } from "@/components/design-system";
 export function EditInvoicePage({
   invoice,
   currency,
-  customer,
 }: {
   invoice: SerializedInvoice;
   currency: string;
-  customer?: SerializedCustomer | null;
 }) {
   const router = useRouter();
   const [values, setValues] = useState<InvoiceFormData>(
     invoiceToFormData(invoice),
-  );
-  const [selectedCustomer, setSelectedCustomer] = useState<SerializedCustomer | null>(
-    customer ?? null,
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
@@ -49,11 +43,6 @@ export function EditInvoicePage({
     values,
     enabled: isDraft && !isLocked,
   });
-
-  function handleCustomerChange(nextCustomer: SerializedCustomer) {
-    setSelectedCustomer(nextCustomer);
-    setValues((current) => ({ ...current, customerId: nextCustomer.id }));
-  }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -101,27 +90,25 @@ export function EditInvoicePage({
           />
         </div>
 
-      <InvoiceForm
-        values={values}
-        currency={currency}
-        selectedCustomer={selectedCustomer}
-        errors={errors}
-        onChange={setValues}
-        onCustomerChange={handleCustomerChange}
-        disabled={isLocked}
-        lastSavedAt={lastSavedAt}
-        autosaveState={isDraft ? autosaveState : "idle"}
-      />
+        <InvoiceForm
+          values={values}
+          currency={currency}
+          errors={errors}
+          onChange={setValues}
+          disabled={isLocked}
+          lastSavedAt={lastSavedAt}
+          autosaveState={isDraft ? autosaveState : "idle"}
+        />
 
-      <div className="flex justify-end gap-2">
-        <ButtonLink href={routes.invoice(invoice.id)} variant="outline">
-          Cancel
-        </ButtonLink>
-        <Button type="submit" disabled={saving || isLocked}>
-          {saving ? "Saving..." : "Save changes"}
-        </Button>
-      </div>
-    </form>
+        <div className="flex justify-end gap-2">
+          <ButtonLink href={routes.invoice(invoice.id)} variant="outline">
+            Cancel
+          </ButtonLink>
+          <Button type="submit" disabled={saving || isLocked}>
+            {saving ? "Saving..." : "Save changes"}
+          </Button>
+        </div>
+      </form>
     </PageShell>
   );
 }

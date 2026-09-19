@@ -59,8 +59,8 @@ export function SignupForm() {
       <div className="space-y-2 text-center lg:text-left">
         <PageTitle>Save your work</PageTitle>
         <PageDescription>
-          Create an account only when you want saved invoices, customers, and
-          payment history. PDF tools and invoice creation already work without
+          Create an account only when you want saved invoice history and
+          payment details. PDF tools and invoice creation already work without
           login.
         </PageDescription>
       </div>

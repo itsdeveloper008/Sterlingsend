@@ -63,9 +63,9 @@ const productColumns = [
         desc: "Only needed to save your data",
       },
       {
-        href: routes.features,
-        label: "Saved customers",
-        desc: "Reuse details on every invoice",
+        href: routes.invoices,
+        label: "Invoice history",
+        desc: "Saved invoices when you log in",
       },
       {
         href: routes.features,

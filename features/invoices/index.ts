@@ -8,7 +8,6 @@ export { InvoiceSearch } from "./components/invoice-search";
 export { InvoiceStatusFilter } from "./components/invoice-status-filter";
 export { InvoiceEmptyState } from "./components/invoice-empty-state";
 export { DeleteInvoiceModal } from "./components/delete-invoice-modal";
-export { CustomerPicker } from "./components/customer-picker";
 export { InvoiceLineItems } from "./components/invoice-line-items";
 export { InvoiceSummary } from "./components/invoice-summary";
 export { GuestInvoiceEditor } from "./components/guest-invoice-editor";

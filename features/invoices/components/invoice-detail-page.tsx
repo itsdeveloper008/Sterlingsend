@@ -39,18 +39,12 @@ import { routes } from "@/config/routes";
 import type { BankDetails } from "@/types";
 import { INVOICE_STATUSES } from "@/types";
 import { PageDescription, PageShell, PageTitle } from "@/components/design-system";
-import type { WorkspaceSource } from "@/lib/workspace/resolve-source";
-import {
-  workspaceDeleteInvoice,
-  workspaceDuplicateInvoice,
-} from "@/lib/workspace/client-api";
 import "@/features/invoices/styles/invoice-document.css";
 
 export function InvoiceDetailPage({
   invoice,
   currency,
   business,
-  source = "cloud",
 }: {
   invoice: SerializedInvoice;
   currency: string;
@@ -60,7 +54,6 @@ export function InvoiceDetailPage({
     logoUrl?: string;
     bankDetails?: BankDetails;
   };
-  source?: WorkspaceSource;
 }) {
   const router = useRouter();
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -69,7 +62,7 @@ export function InvoiceDetailPage({
 
   async function handleDelete() {
     setDeleting(true);
-    const result = await workspaceDeleteInvoice(source, invoice.id);
+    const result = await deleteInvoiceAction(invoice.id);
     setDeleting(false);
 
     if (!result.success) {
@@ -79,11 +72,11 @@ export function InvoiceDetailPage({
 
     toast.success("Invoice deleted");
     router.push(routes.invoices);
-    if (source === "cloud") router.refresh();
+    router.refresh();
   }
 
   async function handleDuplicate() {
-    const result = await workspaceDuplicateInvoice(source, invoice.id);
+    const result = await duplicateInvoiceAction(invoice.id);
     if (!result.success) {
       toast.error(result.error);
       return;
@@ -94,19 +87,11 @@ export function InvoiceDetailPage({
     }
 
     toast.success("Invoice duplicated");
-    router.push(
-      source === "local"
-        ? routes.invoice(result.data.id)
-        : routes.invoiceEdit(result.data.id),
-    );
-    if (source === "cloud") router.refresh();
+    router.push(routes.invoiceEdit(result.data.id));
+    router.refresh();
   }
 
   async function handleStatusChange(status: typeof invoice.status) {
-    if (source === "local") {
-      toast.message("Status updates sync to your account after login");
-      return;
-    }
     setUpdatingStatus(true);
     const result = await updateInvoiceStatusAction(invoice.id, status);
     setUpdatingStatus(false);
@@ -121,7 +106,6 @@ export function InvoiceDetailPage({
   }
 
   const canEdit =
-    source === "cloud" &&
     invoice.status !== INVOICE_STATUSES.PAID &&
     invoice.status !== INVOICE_STATUSES.CANCELLED;
 
@@ -206,41 +190,21 @@ export function InvoiceDetailPage({
         />
 
         <div className="space-y-4">
-          {source === "cloud" ? (
-            <InvoicePaymentSection
-              invoice={invoice}
-              onUpdated={() => router.refresh()}
-            />
-          ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle>Payments</CardTitle>
-                <CardDescription>
-                  Online payments unlock after you log in and finish business
-                  setup.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          )}
+          <InvoicePaymentSection
+            invoice={invoice}
+            onUpdated={() => router.refresh()}
+          />
 
           <Card>
             <CardHeader>
               <CardTitle>Actions</CardTitle>
-              <CardDescription>
-                {source === "local"
-                  ? "Status syncs to your account after login"
-                  : "Update invoice status"}
-              </CardDescription>
+              <CardDescription>Update invoice status</CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
               <Button
                 className="w-full justify-start"
                 variant="outline"
-                disabled={
-                  source === "local" ||
-                  updatingStatus ||
-                  invoice.status !== INVOICE_STATUSES.DRAFT
-                }
+                disabled={updatingStatus || invoice.status !== INVOICE_STATUSES.DRAFT}
                 onClick={() => handleStatusChange(INVOICE_STATUSES.SENT)}
               >
                 <Send className="mr-2 h-4 w-4" />
@@ -250,7 +214,6 @@ export function InvoiceDetailPage({
                 className="w-full justify-start"
                 variant="outline"
                 disabled={
-                  source === "local" ||
                   updatingStatus ||
                   invoice.status === INVOICE_STATUSES.PAID ||
                   invoice.status === INVOICE_STATUSES.CANCELLED
@@ -264,9 +227,7 @@ export function InvoiceDetailPage({
                 className="w-full justify-start"
                 variant="outline"
                 disabled={
-                  source === "local" ||
-                  updatingStatus ||
-                  invoice.status === INVOICE_STATUSES.CANCELLED
+                  updatingStatus || invoice.status === INVOICE_STATUSES.CANCELLED
                 }
                 onClick={() => handleStatusChange(INVOICE_STATUSES.CANCELLED)}
               >

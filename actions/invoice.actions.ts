@@ -139,8 +139,8 @@ export async function autosaveInvoiceAction(
     return { success: false, error: "Autosave is only available for drafts" };
   }
 
-  if (!data.customerId) {
-    return { success: false, error: "Select a customer to save draft" };
+  if (!data.clientName?.trim()) {
+    return { success: false, error: "Enter a client name to save draft" };
   }
 
   const parsed = invoiceFormSchema.safeParse(data);

@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EditableInvoiceCard } from "@/features/invoice-builder/components/editable-invoice-card";
 import { useInvoiceBuilder } from "@/features/invoice-builder/hooks/use-invoice-builder";
-import { downloadBuilderInvoicePdf } from "@/pdf/utils/builder-invoice-pdf";
+import { downloadBuilderInvoicePdf } from "@/pdf/utils/download-builder-with-template";
+import { InvoiceTemplatePicker } from "@/features/settings/components/invoice-template-picker";
 import { routes } from "@/config/routes";
 import "@/features/invoice-builder/styles/invoice-builder.css";
 
@@ -38,7 +39,19 @@ export function HeroEditableInvoice() {
   }
 
   return (
-    <div id="try-invoice" className="builder-sheet mx-auto w-full max-w-3xl" ref={cardRef}>
+    <div id="try-invoice" className="builder-sheet mx-auto w-full max-w-3xl space-y-4" ref={cardRef}>
+      <div className="no-print rounded-2xl border border-border bg-white p-4">
+        <InvoiceTemplatePicker
+          key={invoice.templateId}
+          initialTemplateId={invoice.templateId}
+          persist={false}
+          compact
+          onSelected={(template) =>
+            dispatch({ type: "patch", patch: { templateId: template.id } })
+          }
+        />
+      </div>
+
       <EditableInvoiceCard
         invoice={invoice}
         dispatch={dispatch}
@@ -73,7 +86,7 @@ export function HeroEditableInvoice() {
       </div>
 
       <p className="builder-login-hint no-print mt-4">
-        Want to save this invoice and reuse client details next time?{" "}
+        Want to keep a history of invoices you create?{" "}
         <Link href={routes.login}>Log in</Link>
       </p>
     </div>

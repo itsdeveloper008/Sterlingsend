@@ -12,10 +12,6 @@ export const routes = {
   forgotPassword: "/forgot-password",
   onboarding: "/onboarding",
   dashboard: "/dashboard",
-  customers: "/customers",
-  customersNew: "/customers/new",
-  customer: (id: string) => `/customers/${id}`,
-  customerEdit: (id: string) => `/customers/${id}/edit`,
   invoices: "/invoices",
   invoicesNew: "/invoices/new",
   invoice: (id: string) => `/invoices/${id}`,
@@ -57,11 +53,10 @@ export const authRoutes = [
   routes.forgotPassword,
 ] as const;
 
-/** Account-only surfaces for saving invoices, customers, and settings. */
+/** Account-only surfaces for invoice history, services, and settings. */
 export const protectedRoutes = [
   routes.dashboard,
   routes.onboarding,
-  routes.customers,
   routes.invoices,
   routes.services,
   routes.settings,

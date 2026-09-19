@@ -8,7 +8,6 @@ import { routes } from "@/config/routes";
 const LABELS: Record<string, string> = {
   dashboard: "Dashboard",
   invoices: "Invoices",
-  customers: "Customers",
   services: "Services",
   settings: "Settings",
   onboarding: "Onboarding",

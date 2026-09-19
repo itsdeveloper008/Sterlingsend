@@ -8,6 +8,7 @@ import {
   BUILDER_INVOICE_VERSION,
   type BuilderInvoice,
 } from "@/features/invoice-builder/types";
+import { DEFAULT_INVOICE_TEMPLATE_ID } from "@/pdf/templates/catalog";
 
 export function createDefaultBuilderInvoice(): BuilderInvoice {
   const { issueDate, dueDate } = getDefaultInvoiceDates(14);
@@ -20,6 +21,7 @@ export function createDefaultBuilderInvoice(): BuilderInvoice {
     dueDate,
     currency: siteConfig.defaultCurrency,
     notes: "Thank you for your business!",
+    templateId: DEFAULT_INVOICE_TEMPLATE_ID,
     logoDataUrl: undefined,
     business: {
       name: "",

@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 const pills = [
   "Guest Mode",
   "Invoice builder",
-  "Customers",
+  "88 templates",
   "Line items",
   "VAT & discounts",
   "PDF export",
@@ -22,7 +22,7 @@ const pills = [
   "Saved services",
   "Tracking",
   "Dashboard",
-  "Recurring-ready",
+  "Invoice history",
 ];
 
 export function ProductPillsSection() {

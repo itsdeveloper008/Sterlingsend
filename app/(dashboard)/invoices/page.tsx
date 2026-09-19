@@ -1,23 +1,10 @@
 import { InvoicesListPage } from "@/features/invoices";
 import { serializeInvoices } from "@/features/invoices/lib/serialize";
-import { resolveWorkspaceSource } from "@/lib/workspace/resolve-source";
+import { requireOnboarding } from "@/actions/auth.actions";
 import { invoiceService } from "@/services/invoice.service";
-import { siteConfig } from "@/config/site";
 
 export default async function InvoicesPage() {
-  const workspace = await resolveWorkspaceSource();
-
-  if (workspace.source === "local") {
-    return (
-      <InvoicesListPage
-        source="local"
-        initialInvoices={[]}
-        initialNextCursor={null}
-        initialHasMore={false}
-        currency={siteConfig.defaultCurrency}
-      />
-    );
-  }
+  const { business } = await requireOnboarding();
 
   let invoices: Awaited<
     ReturnType<typeof invoiceService.getInvoices>
@@ -27,7 +14,7 @@ export default async function InvoicesPage() {
 
   try {
     const result = await invoiceService.getInvoices({
-      businessId: workspace.businessId!,
+      businessId: business.id,
     });
     invoices = result.invoices;
     nextCursor = result.nextCursor;
@@ -38,11 +25,10 @@ export default async function InvoicesPage() {
 
   return (
     <InvoicesListPage
-      source="cloud"
       initialInvoices={serializeInvoices(invoices)}
       initialNextCursor={nextCursor}
       initialHasMore={hasMore}
-      currency={workspace.currency ?? siteConfig.defaultCurrency}
+      currency={business.currency}
     />
   );
 }

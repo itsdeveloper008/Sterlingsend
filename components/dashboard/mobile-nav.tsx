@@ -7,14 +7,12 @@ import {
   FileText,
   LayoutDashboard,
   Settings,
-  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { routes } from "@/config/routes";
 
 const items = [
   { href: routes.dashboard, label: "Home", icon: LayoutDashboard },
-  { href: routes.customers, label: "Customers", icon: Users },
   { href: routes.invoices, label: "Invoices", icon: FileText },
   { href: routes.tools, label: "Tools", icon: FileStack },
   { href: routes.settings, label: "Settings", icon: Settings },
@@ -28,7 +26,7 @@ export function MobileNav() {
       className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur-md md:hidden"
       aria-label="Mobile"
     >
-      <div className="grid grid-cols-5">
+      <div className="grid grid-cols-4">
         {items.map((item) => {
           const Icon = item.icon;
           const active =

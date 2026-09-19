@@ -1,5 +1,4 @@
 import type { Business } from "@/types/business";
-import type { Customer } from "@/types/customer";
 import type { Invoice } from "@/types/invoice";
 import type { InvoicePdfDocument } from "@/pdf/types";
 import { formatAddressLines } from "@/pdf/utils/address";
@@ -8,12 +7,10 @@ import { getInvoiceTemplate } from "@/pdf/templates/catalog";
 export function buildInvoicePdfDocument({
   invoice,
   business,
-  customer,
   templateId,
 }: {
   invoice: Invoice;
   business: Business;
-  customer: Customer | null;
   templateId?: string | null;
 }): InvoicePdfDocument {
   const template = getInvoiceTemplate(templateId);
@@ -45,18 +42,11 @@ export function buildInvoicePdfDocument({
       ]),
     },
     customer: {
-      name: customer?.name ?? invoice.clientName,
-      companyName: customer?.companyName,
-      email: customer?.email ?? invoice.clientEmail,
-      phone: customer?.phone,
-      vatNumber: customer?.vatNumber,
-      addressLines: formatAddressLines([
-        customer?.addressLine1,
-        customer?.addressLine2,
-        customer?.city,
-        customer?.postcode,
-        customer?.country,
-      ]),
+      name: invoice.clientName,
+      email: invoice.clientEmail,
+      addressLines: formatAddressLines(
+        invoice.clientAddress ? [invoice.clientAddress] : [],
+      ),
     },
     templateId: template.id,
     theme: {

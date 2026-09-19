@@ -10,7 +10,7 @@ import { MotionSection } from "@/features/marketing/lib/motion-section";
 const faqs = [
   {
     q: "Do I need an account?",
-    a: "No. Create invoices and use every PDF tool free without signing up. Create an account only when you want to save invoices, customers, and payment history.",
+    a: "No. Create invoices and use every PDF tool free without signing up. Create an account only when you want to save invoice history and payment details.",
   },
   {
     q: "Are PDF tools free without login?",
@@ -18,7 +18,7 @@ const faqs = [
   },
   {
     q: "How does guest invoicing work?",
-    a: "Open Create Invoice, add your business and client details, then download or print a PDF immediately. Sign up later if you want saved customers and tracked invoices.",
+    a: "Open Create Invoice, pick a template, add your business and client details, then download or print a PDF immediately. Sign up later if you want tracked invoice history.",
   },
   {
     q: "Can my clients pay online?",

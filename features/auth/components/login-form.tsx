@@ -147,7 +147,7 @@ export function LoginForm() {
                 Welcome back to SterlingSend
               </h1>
               <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-                Log in to save invoices, customers, and payment history. Tools and
+                Log in to save invoice history and payment details. Tools and
                 invoice creation stay free without an account.
               </p>
             </div>

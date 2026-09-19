@@ -12,7 +12,6 @@ import { createId } from "@/lib/id";
 import { assertStatusTransition } from "@/lib/invoice/status-transitions";
 import { docToData, withTimestamps, withUpdatedAt } from "@/lib/firestore-utils";
 import { businessService } from "@/services/business.service";
-import { customerService } from "@/services/customer.service";
 import type {
   CreateInvoiceInput,
   CurrencyCode,
@@ -167,7 +166,9 @@ export class InvoiceService {
   async createInvoice(
     businessId: string,
     input: {
-      customerId: string;
+      clientName: string;
+      clientEmail?: string;
+      clientAddress?: string;
       issueDate: string;
       dueDate: string;
       status?: InvoiceStatus;
@@ -178,9 +179,9 @@ export class InvoiceService {
       invoiceNumber?: string;
     },
   ): Promise<Invoice> {
-    const customer = await customerService.getCustomer(input.customerId, businessId);
-    if (!customer) {
-      throw new Error("Customer not found");
+    const clientName = input.clientName.trim();
+    if (!clientName) {
+      throw new Error("Client name is required");
     }
 
     const items = calculateItemsFromForm(input.items);
@@ -198,14 +199,15 @@ export class InvoiceService {
     const ref = this.db.collection(COLLECTIONS.INVOICES).doc();
     const payload = withTimestamps({
       businessId,
-      customerId: input.customerId,
+      customerId: "",
       invoiceNumber,
       invoiceNumberLower: invoiceNumber.toLowerCase(),
       status: input.status ?? INVOICE_STATUSES.DRAFT,
       issueDate: input.issueDate,
       dueDate: input.dueDate,
-      clientName: customer.name,
-      clientEmail: customer.email,
+      clientName,
+      clientEmail: input.clientEmail?.trim() || undefined,
+      clientAddress: input.clientAddress?.trim() || undefined,
       items,
       notes: input.notes?.trim() || undefined,
       currency: input.currency,
@@ -223,7 +225,9 @@ export class InvoiceService {
     invoiceId: string,
     businessId: string,
     input: {
-      customerId?: string;
+      clientName?: string;
+      clientEmail?: string;
+      clientAddress?: string;
       issueDate?: string;
       dueDate?: string;
       status?: InvoiceStatus;
@@ -245,17 +249,18 @@ export class InvoiceService {
 
     const updates: Record<string, unknown> = {};
 
-    if (input.customerId && input.customerId !== existing.customerId) {
-      const customer = await customerService.getCustomer(
-        input.customerId,
-        businessId,
-      );
-      if (!customer) {
-        throw new Error("Customer not found");
+    if (input.clientName !== undefined) {
+      const clientName = input.clientName.trim();
+      if (!clientName) {
+        throw new Error("Client name is required");
       }
-      updates.customerId = input.customerId;
-      updates.clientName = customer.name;
-      updates.clientEmail = customer.email;
+      updates.clientName = clientName;
+    }
+    if (input.clientEmail !== undefined) {
+      updates.clientEmail = input.clientEmail.trim() || undefined;
+    }
+    if (input.clientAddress !== undefined) {
+      updates.clientAddress = input.clientAddress.trim() || undefined;
     }
 
     if (input.issueDate !== undefined) updates.issueDate = input.issueDate;
@@ -334,7 +339,9 @@ export class InvoiceService {
     }
 
     return this.createInvoice(businessId, {
-      customerId: existing.customerId,
+      clientName: existing.clientName,
+      clientEmail: existing.clientEmail,
+      clientAddress: existing.clientAddress,
       issueDate: existing.issueDate,
       dueDate: existing.dueDate,
       status: INVOICE_STATUSES.DRAFT,

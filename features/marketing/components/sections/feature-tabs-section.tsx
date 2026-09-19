@@ -5,7 +5,6 @@ import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { routes } from "@/config/routes";
 import { BrowserFrame } from "@/features/marketing/components/mockups/browser-frame";
-import { DashboardMockup } from "@/features/marketing/components/mockups/dashboard-mockup";
 import { InvoiceEditorMockup } from "@/features/marketing/components/mockups/invoice-editor-mockup";
 import { PublicPayMockup } from "@/features/marketing/components/mockups/public-pay-mockup";
 import { MotionSection } from "@/features/marketing/lib/motion-section";
@@ -19,27 +18,27 @@ type Showcase = {
   cta: string;
   href: string;
   chips: string[];
-  mockup: "clients" | "invoices" | "payments";
+  mockup: "invoices" | "payments";
 };
 
 const showcases: Showcase[] = [
   {
-    id: "clients",
-    eyebrow: "Client management",
-    title: "Streamline your client workflow",
+    id: "templates",
+    eyebrow: "Templates",
+    title: "88 designs, free for everyone",
     description:
-      "Manage leads and client details while delivering a clean billing experience - save once, reuse on every invoice.",
+      "Pick any layout and palette for your invoice PDF - no account required. Log in later if you want a saved history.",
     cta: "Try SterlingSend for free",
     href: routes.createInvoice,
     chips: [
-      "Customers",
-      "Saved contacts",
-      "Email & address",
-      "Reuse on invoices",
-      "Client portal link",
-      "Status tracking",
+      "88 templates",
+      "8 layouts",
+      "11 palettes",
+      "Guest PDF download",
+      "No signup wall",
+      "Brand colours",
     ],
-    mockup: "clients",
+    mockup: "invoices",
   },
   {
     id: "invoices",
@@ -108,7 +107,6 @@ function MockupFor({
   kind: Showcase["mockup"];
   highlight: string;
 }) {
-  if (kind === "clients") return <DashboardMockup highlight={highlight} />;
   if (kind === "payments") return <PublicPayMockup highlight={highlight} />;
   return <InvoiceEditorMockup highlight={highlight} compact />;
 }

@@ -9,7 +9,8 @@ import { Logo } from "@/components/design-system/logo";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EditableInvoiceCard } from "@/features/invoice-builder/components/editable-invoice-card";
 import { useInvoiceBuilder } from "@/features/invoice-builder/hooks/use-invoice-builder";
-import { downloadBuilderInvoicePdf } from "@/pdf/utils/builder-invoice-pdf";
+import { downloadBuilderInvoicePdf } from "@/pdf/utils/download-builder-with-template";
+import { InvoiceTemplatePicker } from "@/features/settings/components/invoice-template-picker";
 import { routes } from "@/config/routes";
 import "@/features/invoice-builder/styles/invoice-builder.css";
 
@@ -78,7 +79,22 @@ export function InvoiceBuilderPage() {
         </div>
       </div>
 
-      <div className="builder-sheet mx-auto max-w-[1100px] px-4 py-8 sm:px-6 sm:py-10" ref={cardRef}>
+      <div
+        className="builder-sheet mx-auto max-w-[1100px] space-y-6 px-4 py-8 sm:px-6 sm:py-10"
+        ref={cardRef}
+      >
+        <div className="no-print rounded-2xl border border-border bg-white p-4 sm:p-6">
+          <InvoiceTemplatePicker
+            key={invoice.templateId}
+            initialTemplateId={invoice.templateId}
+            persist={false}
+            compact
+            onSelected={(template) =>
+              dispatch({ type: "patch", patch: { templateId: template.id } })
+            }
+          />
+        </div>
+
         <EditableInvoiceCard
           invoice={invoice}
           dispatch={dispatch}
@@ -86,7 +102,7 @@ export function InvoiceBuilderPage() {
         />
 
         <p className="builder-login-hint no-print mt-6">
-          Want to save this invoice and reuse client details next time?{" "}
+          Want to keep a history of invoices you create?{" "}
           <Link href={routes.login}>Log in</Link>
         </p>
       </div>

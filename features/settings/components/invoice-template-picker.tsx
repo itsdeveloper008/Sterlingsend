@@ -9,18 +9,18 @@ import {
   listInvoiceTemplatesByCategory,
   type InvoiceTemplateDefinition,
 } from "@/pdf/templates/catalog";
-import type { WorkspaceSource } from "@/lib/workspace/resolve-source";
-import { workspaceSaveTemplate } from "@/lib/workspace/client-api";
+import { updateInvoiceTemplateAction } from "@/actions/settings.actions";
 
 export function InvoiceTemplatePicker({
-  source = "cloud",
   initialTemplateId,
   compact = false,
+  /** When false, selection is session-only (guest builder). */
+  persist = true,
   onSelected,
 }: {
-  source?: WorkspaceSource;
   initialTemplateId: string;
   compact?: boolean;
+  persist?: boolean;
   onSelected?: (template: InvoiceTemplateDefinition) => void;
 }) {
   const [selectedId, setSelectedId] = useState(initialTemplateId);
@@ -47,15 +47,17 @@ export function InvoiceTemplatePicker({
   function selectTemplate(template: InvoiceTemplateDefinition) {
     setSelectedId(template.id);
     onSelected?.(template);
+
+    if (!persist) {
+      toast.success(`Template selected: ${template.name}`);
+      return;
+    }
+
     startTransition(async () => {
       try {
-        const result = await workspaceSaveTemplate(source, template.id);
+        const result = await updateInvoiceTemplateAction(template.id);
         if (result.success) {
-          toast.success(
-            source === "local"
-              ? `Template saved in this browser: ${template.name}`
-              : `Template saved: ${template.name}`,
-          );
+          toast.success(`Template saved: ${template.name}`);
         }
       } catch {
         toast.error("Could not save template preference");
@@ -71,10 +73,8 @@ export function InvoiceTemplatePicker({
             Invoice templates
           </h3>
           <p className="text-xs text-muted-foreground">
-            {INVOICE_TEMPLATES.length} designs ·{" "}
-            {source === "local"
-              ? "saved in this browser"
-              : "saved to your account"}
+            {INVOICE_TEMPLATES.length} designs
+            {persist ? " · saved to your account" : " · applies to this invoice"}
           </p>
         </div>
         <div className="relative w-full sm:max-w-xs">
@@ -88,80 +88,57 @@ export function InvoiceTemplatePicker({
         </div>
       </div>
 
-      <div className={cn("space-y-6", compact && "max-h-[28rem] overflow-y-auto pr-1")}>
+      <div
+        className={cn(
+          "space-y-6",
+          compact ? "max-h-[320px] overflow-y-auto pr-1" : "",
+          pending && "opacity-70",
+        )}
+      >
         {filteredGroups.map((group) => (
-          <div key={group.category}>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          <div key={group.category} className="space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               {group.category}
             </p>
-            <div
-              className={cn(
-                "grid gap-3",
-                compact
-                  ? "grid-cols-2 sm:grid-cols-3"
-                  : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4",
-              )}
-            >
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {group.templates.map((template) => {
                 const selected = template.id === selectedId;
                 return (
                   <button
                     key={template.id}
                     type="button"
-                    disabled={pending}
                     onClick={() => selectTemplate(template)}
                     className={cn(
-                      "group relative overflow-hidden rounded-2xl border bg-white p-3 text-left transition",
+                      "relative flex items-start gap-3 rounded-xl border p-3 text-left transition",
                       selected
-                        ? "border-teal-500 ring-2 ring-teal-500/30"
-                        : "border-border hover:border-teal-300 hover:shadow-md",
-                      pending && "opacity-70",
+                        ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+                        : "border-border bg-white hover:border-primary/40",
                     )}
                   >
-                    <div
-                      className="mb-3 h-16 overflow-hidden rounded-xl border border-black/5"
-                      style={{ background: "#fff" }}
-                    >
-                      <div
-                        className="h-2 w-full"
-                        style={{
-                          background: `linear-gradient(90deg, ${template.primary}, ${template.accent})`,
-                        }}
-                      />
-                      <div className="space-y-1.5 p-2">
-                        <div
-                          className="h-2 w-1/2 rounded"
-                          style={{ background: template.primary, opacity: 0.85 }}
-                        />
-                        <div className="h-1.5 w-full rounded bg-slate-100" />
-                        <div className="h-1.5 w-4/5 rounded bg-slate-100" />
-                        <div className="ml-auto h-3 w-1/3 rounded" style={{ background: `${template.accent}33` }} />
-                      </div>
-                    </div>
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-foreground">
-                          {template.name}
-                        </p>
-                        <p className="truncate text-[11px] text-muted-foreground">
-                          {template.description}
-                        </p>
-                      </div>
-                      {selected ? (
-                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-teal-600 text-white">
-                          <Check className="h-3 w-3" />
-                        </span>
-                      ) : null}
-                    </div>
+                    <span
+                      className="mt-0.5 h-10 w-10 shrink-0 rounded-lg"
+                      style={{
+                        background: `linear-gradient(135deg, ${template.primary}, ${template.accent})`,
+                      }}
+                      aria-hidden
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-medium text-foreground">
+                        {template.name}
+                      </span>
+                      <span className="block text-xs text-muted-foreground">
+                        {template.palette}
+                      </span>
+                    </span>
+                    {selected ? (
+                      <Check className="h-4 w-4 shrink-0 text-primary" />
+                    ) : null}
                   </button>
                 );
               })}
             </div>
           </div>
         ))}
-        {filteredGroups.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No templates match your search.</p>
-        ) : null}
       </div>
     </div>
   );
