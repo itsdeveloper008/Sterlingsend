@@ -19,7 +19,13 @@ export default function TermsPage() {
           <p>
             By using {siteConfig.name}, you agree to these terms. This page will
             be updated with full terms covering account usage, invoicing features,
-            payment processing via Stripe, and acceptable use of Guest Mode.
+            and acceptable use of Guest Mode.
+          </p>
+          <p className="mt-4">
+            Online payment features are not currently offered.
+          </p>
+          <p className="mt-4">
+            A solicitor should review these terms before you rely on them.
           </p>
           <p className="mt-4">
             Questions? Contact us at{" "}

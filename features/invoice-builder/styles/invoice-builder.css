@@ -1,9 +1,55 @@
-/* Editable invoice card - clean modern sheet (landing + /create-invoice) */
+/* Editable invoice card - clean modern sheet (landing + /create-invoice)
+ *
+ * INVOICE LOCK: colours below are fixed hex values for the sheet chrome and
+ * content. Do not replace with global --brand / --primary tokens.
+ */
 
 .builder-page {
+  /* Locked palette (independent of app theme tokens) */
+  --inv-ink: #0f172a;
+  --inv-muted: #64748b;
+  --inv-border: #e5e7eb;
+  --inv-border-soft: #e2e8f0;
+  --inv-paper: #ffffff;
+  --inv-page: #f3f4f6;
+  --inv-teal: #14b8a6;
+  --inv-teal-deep: #0d9488;
+  --inv-teal-hover: #0f766e;
+  --inv-soft: #f8fafc;
+  --inv-soft-teal: #f0fdfa;
+  --inv-banner-bg: #ecfdf5;
+  --inv-banner-border: #a7f3d0;
+  --inv-banner-text: #065f46;
+  --inv-placeholder: #94a3b8;
+  --inv-danger: #dc2626;
+
   min-height: 100vh;
-  background: #f3f4f6;
-  color: #0f172a;
+  background: var(--inv-page);
+  color: var(--inv-ink);
+  /* Force light paper surfaces even in app dark mode */
+  color-scheme: light;
+  /* Locked typeface: pre-Phase-1 sheet face (Geist), not app/marketing fonts */
+  font-family:
+    var(--font-invoice-sheet),
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+.builder-page input,
+.builder-page textarea,
+.builder-page select,
+.builder-page button,
+.builder-page h1,
+.builder-page h2,
+.builder-page h3,
+.builder-page h4 {
+  font-family: inherit;
+  font-style: normal;
+  letter-spacing: normal;
 }
 
 .builder-action-bar {
@@ -135,8 +181,10 @@ button:has(.builder-logo-preview):focus-visible {
 .builder-title {
   margin-top: 18px;
   margin-bottom: 0;
+  font-family: var(--font-invoice-sheet), ui-sans-serif, system-ui, sans-serif;
   font-size: clamp(2.25rem, 4.5vw, 2.85rem);
   font-weight: 800;
+  font-style: normal;
   letter-spacing: 0.02em;
   line-height: 1.1;
   color: #0f172a;

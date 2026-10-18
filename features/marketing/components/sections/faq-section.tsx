@@ -10,27 +10,27 @@ import { MotionSection } from "@/features/marketing/lib/motion-section";
 const faqs = [
   {
     q: "Do I need an account?",
-    a: "No. Create invoices and use every PDF tool free without signing up. Create an account only when you want to save invoice history and payment details.",
+    a: "No. Create invoices and use every PDF tool free without signing up. Create an account only when you want to save invoice history.",
   },
   {
     q: "Are PDF tools free without login?",
-    a: "Yes. Open /tools and use merge, split, compress, convert, OCR, sign, protect, and more in your browser. Files stay on your device. Login is optional and only for saving account data.",
+    a: "Yes. Open /tools and use merge, split, compress, convert, OCR, sign, protect, and more in your browser. Most tools keep files on your device. Login is optional and only for saving account data.",
   },
   {
     q: "How does guest invoicing work?",
-    a: "Open Create Invoice, pick a template, add your business and client details, then download or print a PDF immediately. Sign up later if you want tracked invoice history.",
-  },
-  {
-    q: "Can my clients pay online?",
-    a: "Yes. When you send an invoice from a saved account, clients open a public link and pay securely via Stripe Checkout. They do not need a SterlingSend account.",
+    a: "Open Create Invoice, add your business and client details, then download or print a PDF immediately. Sign up later if you want tracked invoice history.",
   },
   {
     q: "Is SterlingSend accounting software?",
-    a: "No. SterlingSend is lightweight invoicing and PDF tooling focused on creating professional documents and getting paid. It is not an ERP, CRM, payroll, or inventory system.",
+    a: "No. SterlingSend is lightweight invoicing and PDF tooling focused on creating professional documents. It is not an ERP, CRM, payroll, or inventory system.",
   },
   {
     q: "Is it suitable for UK businesses?",
     a: "Yes. SterlingSend is built for UK freelancers, consultants, agencies, and small businesses. Invoices use GBP, en-GB formatting, 20% VAT by default, and Net 30 payment terms.",
+  },
+  {
+    q: "Do you process online payments?",
+    a: "Online payment features are not currently offered.",
   },
 ];
 

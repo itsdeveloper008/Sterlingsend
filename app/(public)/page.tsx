@@ -4,7 +4,7 @@ import { siteConfig } from "@/config/site";
 
 const title = `${siteConfig.name} - Professional invoicing for service businesses`;
 const description =
-  "Create invoices and use every PDF tool free, no login required. Create an account only when you want to save customers, invoices, and payments.";
+  "Create invoices and use every PDF tool free, no login required. Create an account only when you want to save invoice history.";
 
 export const metadata: Metadata = {
   title,

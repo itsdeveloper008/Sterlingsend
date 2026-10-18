@@ -14,8 +14,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { PageHeader, PageShell } from "@/components/design-system";
+import { isPaymentsEnabled } from "@/lib/config/payments";
 
-const links = [
+const baseLinks = [
   {
     href: routes.settingsBusiness,
     label: "Business",
@@ -35,12 +36,6 @@ const links = [
     icon: Palette,
   },
   {
-    href: routes.settingsPayments,
-    label: "Payments",
-    description: "Stripe and online payments",
-    icon: CreditCard,
-  },
-  {
     href: routes.settingsSecurity,
     label: "Security",
     description: "Password and account",
@@ -49,11 +44,24 @@ const links = [
 ];
 
 export default function SettingsPage() {
+  const links = isPaymentsEnabled()
+    ? [
+        ...baseLinks.slice(0, 3),
+        {
+          href: routes.settingsPayments,
+          label: "Payments",
+          description: "Stripe and online payments",
+          icon: CreditCard,
+        },
+        ...baseLinks.slice(3),
+      ]
+    : baseLinks;
+
   return (
     <PageShell>
       <PageHeader
         title="Settings"
-        description="Manage your business, invoices, and payments."
+        description="Manage your business and invoice preferences."
       />
       <div className="grid gap-4 sm:grid-cols-2">
         {links.map((link) => {
@@ -62,7 +70,7 @@ export default function SettingsPage() {
             <Link key={link.href} href={link.href} className="group block">
               <Card className="h-full transition-colors hover:border-primary/20 hover:bg-muted/20">
                 <CardHeader className="flex flex-row items-start gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/8 text-primary transition-colors group-hover:bg-primary/12">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-primary/8 text-primary transition-colors group-hover:bg-primary/12">
                     <Icon className="h-4 w-4" aria-hidden />
                   </div>
                   <div className="space-y-1">

@@ -3,6 +3,7 @@ import {
   INVOICE_PAYMENT_STATUSES,
   type PublicInvoiceView,
 } from "@/types/public-invoice";
+import { isPaymentsEnabled } from "@/lib/config/payments";
 
 export {
   formatPaymentTermsLabel,
@@ -12,6 +13,7 @@ export {
 } from "@/features/invoices/lib/invoice-document-utils";
 
 export function shouldShowPayButton(invoice: PublicInvoiceView) {
+  if (!isPaymentsEnabled()) return false;
   return (
     invoice.paymentEnabled &&
     invoice.paymentStatus !== INVOICE_PAYMENT_STATUSES.PAID &&

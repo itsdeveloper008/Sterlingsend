@@ -19,8 +19,13 @@ export default function PrivacyPage() {
           <p>
             {siteConfig.name} respects your privacy. This page will be updated with
             our full privacy policy covering data collection, Firebase authentication,
-            Firestore storage, Stripe payment processing, and guest-mode localStorage
-            usage.
+            Firestore storage, and guest-mode localStorage usage.
+          </p>
+          <p className="mt-4">
+            Online payment features are not currently offered.
+          </p>
+          <p className="mt-4">
+            A solicitor should review this policy before you rely on it.
           </p>
           <p className="mt-4">
             Questions? Contact us at{" "}

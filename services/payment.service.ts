@@ -1,11 +1,9 @@
 import "server-only";
 
-import { Timestamp } from "firebase-admin/firestore";
 import { getAdminDb } from "@/firebase/admin";
 import { COLLECTIONS } from "@/firebase/collections";
 import { docToData, withTimestamps, withUpdatedAt } from "@/lib/firestore-utils";
 import type { CreatePaymentInput, Payment, PaymentStatus } from "@/types";
-import { PAYMENT_STATUSES } from "@/types";
 
 export class PaymentService {
   private get db() {

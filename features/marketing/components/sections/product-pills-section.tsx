@@ -14,8 +14,6 @@ const pills = [
   "Line items",
   "VAT & discounts",
   "PDF export",
-  "Public pay links",
-  "Stripe payments",
   "Bank details",
   "Branding",
   "Saved services",

@@ -141,7 +141,8 @@ export class InvoicePaymentService {
     );
   }
 
-  async markPaymentPending(invoiceId: string, businessId: string): Promise<void> {
+  async markPaymentPending(invoiceId: string, _businessId: string): Promise<void> {
+    void _businessId;
     await this.db.collection(COLLECTIONS.INVOICES).doc(invoiceId).update(
       withUpdatedAt({
         paymentStatus: INVOICE_PAYMENT_STATUSES.PENDING,
@@ -191,7 +192,8 @@ export class InvoicePaymentService {
     );
   }
 
-  async markPaymentRefunded(invoiceId: string, businessId: string): Promise<void> {
+  async markPaymentRefunded(invoiceId: string, _businessId: string): Promise<void> {
+    void _businessId;
     await this.db.collection(COLLECTIONS.INVOICES).doc(invoiceId).update(
       withUpdatedAt({
         paymentStatus: INVOICE_PAYMENT_STATUSES.REFUNDED,

@@ -69,8 +69,8 @@ const productColumns = [
       },
       {
         href: routes.features,
-        label: "Online payments",
-        desc: "Stripe Checkout",
+        label: "Account extras",
+        desc: "History when you log in",
       },
     ],
   },

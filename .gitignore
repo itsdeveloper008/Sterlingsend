@@ -41,3 +41,8 @@ vercel-production.env
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.phase1-refs/
+.tmp-*/
+.tmp-ref/
+.tmp-tool-test/

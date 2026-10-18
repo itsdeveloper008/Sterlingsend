@@ -1,3 +1,5 @@
+/* INVOICE PDF LOCK: template colours are fixed hex / CSS vars local to this
+ * stylesheet. Do not remap these to global --brand / --primary tokens. */
 .invoice-pdf-template {
   --pdf-primary: #0d9488;
   --pdf-accent: #14b8a6;

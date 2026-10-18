@@ -32,7 +32,7 @@ import { PageHeader, PageShell } from "@/components/design-system";
 
 export function InvoicesListPage({
   initialInvoices,
-  initialNextCursor,
+  initialNextCursor: _initialNextCursor,
   initialHasMore,
   currency,
 }: {
@@ -44,6 +44,7 @@ export function InvoicesListPage({
   const router = useRouter();
   const [invoices, setInvoices] = useState(initialInvoices);
   const [hasMore] = useState(initialHasMore);
+  void _initialNextCursor;
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<InvoiceStatus | "all">("all");
   const [sortBy, setSortBy] = useState<"issueDate" | "total">("issueDate");

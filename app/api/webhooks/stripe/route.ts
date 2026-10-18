@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { stripeService } from "@/services/stripe.service";
+import { isPaymentsEnabled } from "@/lib/config/payments";
 
 export async function POST(request: Request) {
+  if (!isPaymentsEnabled()) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
   const body = await request.text();
   const signature = request.headers.get("stripe-signature");
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;

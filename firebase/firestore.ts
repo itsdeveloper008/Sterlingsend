@@ -22,11 +22,11 @@ export function getClientDb(): Firestore {
   return db;
 }
 
-export function collectionRef<T = unknown>(name: string) {
+export function collectionRef(name: string) {
   return collection(getClientDb(), name) as ReturnType<typeof collection>;
 }
 
-export function documentRef<T = unknown>(name: string, id: string) {
+export function documentRef(name: string, id: string) {
   return doc(getClientDb(), name, id);
 }
 

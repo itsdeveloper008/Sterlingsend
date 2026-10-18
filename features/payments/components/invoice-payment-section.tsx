@@ -18,8 +18,8 @@ import {
   markInvoiceSentAction,
 } from "@/actions/payment.actions";
 import type { SerializedInvoice } from "@/features/invoices/lib/format";
-import { routes } from "@/config/routes";
 import { INVOICE_STATUSES } from "@/types";
+import { isPaymentsEnabled } from "@/lib/config/payments";
 
 function PaymentStatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
@@ -48,6 +48,10 @@ export function InvoicePaymentSection({
 }) {
   const [publicUrl, setPublicUrl] = useState(invoice.publicUrl ?? "");
   const [loading, setLoading] = useState(false);
+
+  if (!isPaymentsEnabled()) {
+    return null;
+  }
 
   async function handleCopyLink() {
     setLoading(true);

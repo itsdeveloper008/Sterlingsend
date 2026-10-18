@@ -5,12 +5,15 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { routes } from "@/config/routes";
 import { PageHeader } from "@/components/design-system/page-header";
+import { isPaymentsEnabled } from "@/lib/config/payments";
 
 const settingsLinks = [
   { href: routes.settingsBusiness, label: "Business" },
   { href: routes.settingsInvoices, label: "Invoices" },
   { href: routes.settingsBranding, label: "Branding" },
-  { href: routes.settingsPayments, label: "Payments" },
+  ...(isPaymentsEnabled()
+    ? [{ href: routes.settingsPayments, label: "Payments" }]
+    : []),
   { href: routes.settingsSecurity, label: "Security" },
 ];
 

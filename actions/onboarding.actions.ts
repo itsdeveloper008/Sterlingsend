@@ -6,6 +6,7 @@ import { getAdminDb } from "@/firebase/admin";
 import { COLLECTIONS } from "@/firebase/collections";
 import { withTimestamps } from "@/lib/firestore-utils";
 import {
+  ONBOARDING_BUSINESS_DEFAULTS,
   onboardingSchema,
   type OnboardingFormData,
 } from "@/lib/validations/onboarding";
@@ -18,7 +19,9 @@ export type OnboardingActionResult =
   | { success: true; businessId: string }
   | { success: false; error: string; fieldErrors?: Record<string, string[]> };
 
-export async function ensureUserDocument(): Promise<OnboardingActionResult | { success: true; userId: string }> {
+export async function ensureUserDocument(): Promise<
+  OnboardingActionResult | { success: true; userId: string }
+> {
   const session = await getServerSession();
   if (!session) {
     return { success: false, error: "Not authenticated" };
@@ -56,13 +59,19 @@ export async function completeOnboarding(
     return {
       success: false,
       error: "Please fix the errors below",
-      fieldErrors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
+      fieldErrors: parsed.error.flatten().fieldErrors as Record<
+        string,
+        string[]
+      >,
     };
   }
 
   const user = await userService.getById(session.uid);
   if (!user) {
-    return { success: false, error: "User profile not found. Please sign in again." };
+    return {
+      success: false,
+      error: "User profile not found. Please sign in again.",
+    };
   }
 
   if (user.businessId) {
@@ -87,18 +96,7 @@ export async function completeOnboarding(
     ownerId: session.uid,
     businessName: values.businessName.trim(),
     email: values.email.trim(),
-    phone: values.phone?.trim() || undefined,
-    website: values.website?.trim() || undefined,
-    addressLine1: values.addressLine1.trim(),
-    addressLine2: values.addressLine2?.trim() || undefined,
-    city: values.city.trim(),
-    postcode: values.postcode.trim(),
-    country: values.country.trim(),
-    vatNumber: undefined,
-    logoUrl: undefined,
-    currency: values.currency,
-    invoicePrefix: values.invoicePrefix.trim(),
-    invoiceStartingNumber: values.invoiceStartingNumber,
+    ...ONBOARDING_BUSINESS_DEFAULTS,
   });
 
   try {
@@ -110,7 +108,6 @@ export async function completeOnboarding(
       });
     });
 
-    // Ensure settings (including default invoice template) exist for this business
     await settingsService.getByBusinessId(businessRef.id);
 
     return { success: true, businessId: businessRef.id };

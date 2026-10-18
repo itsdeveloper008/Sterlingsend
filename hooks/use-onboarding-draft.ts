@@ -20,11 +20,10 @@ export function useOnboardingDraft(initialEmail?: string) {
       const raw = localStorage.getItem(DRAFT_KEY);
       if (raw) {
         const parsed = JSON.parse(raw) as Partial<OnboardingFormData>;
-        setData((current) => ({
-          ...current,
-          ...parsed,
-          email: parsed.email || initialEmail || current.email,
-        }));
+        setData({
+          businessName: parsed.businessName ?? "",
+          email: parsed.email || initialEmail || "",
+        });
       } else if (initialEmail) {
         setData((current) => ({ ...current, email: initialEmail }));
       }

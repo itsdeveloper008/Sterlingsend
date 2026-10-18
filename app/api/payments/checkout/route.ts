@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { stripeService } from "@/services/stripe.service";
+import { isPaymentsEnabled } from "@/lib/config/payments";
 
 export async function POST(request: Request) {
+  if (!isPaymentsEnabled()) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
   try {
     const body = (await request.json()) as { publicToken?: string };
     if (!body.publicToken) {

@@ -3,7 +3,7 @@ import type { CurrencyCode } from "@/config/currencies";
 export const siteConfig = {
   name: "SterlingSend",
   description:
-    "The easiest and fastest way for UK businesses to create invoices and get paid.",
+    "Create UK invoices and use PDF tools free. Log in only if you want saved invoice history.",
   url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
   locale: "en-GB",
   defaultCurrency: "GBP" satisfies CurrencyCode,

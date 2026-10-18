@@ -77,8 +77,7 @@ export function MarketingFooter() {
             © {new Date().getFullYear()} {siteConfig.name}
           </p>
           <p className="max-w-xl sm:text-right">
-            Payments powered by Stripe. SterlingSend is invoicing software - not
-            accounting or legal advice.
+            SterlingSend is invoicing software, not accounting or legal advice.
           </p>
         </div>
       </div>
