@@ -51,7 +51,17 @@ function sessionErrorMessage(error: unknown): string {
 
 export async function POST(request: Request) {
   try {
-    const { idToken } = await request.json();
+    const body = (await request.json()) as {
+      idToken?: string;
+      acquisition?: {
+        utm_source?: string;
+        utm_medium?: string;
+        utm_campaign?: string;
+        utm_term?: string;
+        utm_content?: string;
+      };
+    };
+    const { idToken, acquisition } = body;
 
     if (!idToken || typeof idToken !== "string") {
       return NextResponse.json({ error: "Missing idToken" }, { status: 400 });
@@ -66,6 +76,9 @@ export async function POST(request: Request) {
         id: decoded.uid,
         email: decoded.email ?? "",
         displayName: decoded.name ?? "",
+        ...(acquisition && Object.keys(acquisition).length > 0
+          ? { acquisition }
+          : {}),
       });
     }
 

@@ -20,6 +20,7 @@ export class UserService {
       email: input.email,
       displayName: input.displayName ?? "",
       businessId: undefined,
+      ...(input.acquisition ? { acquisition: input.acquisition } : {}),
     });
 
     await this.db.collection(COLLECTIONS.USERS).doc(input.id).set(payload);

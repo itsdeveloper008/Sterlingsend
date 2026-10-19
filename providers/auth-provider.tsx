@@ -45,10 +45,20 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 async function persistSession(user: User): Promise<string | null> {
   const idToken = await getIdToken(user, true);
+  let acquisition: Record<string, string> | undefined;
+  try {
+    const { readConsent, readPersistedUtms } = await import("@/lib/consent");
+    if (readConsent() === "accepted") {
+      const utms = readPersistedUtms();
+      if (Object.keys(utms).length > 0) acquisition = utms as Record<string, string>;
+    }
+  } catch {
+    // ignore
+  }
   const response = await fetch("/api/auth/session", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ idToken }),
+    body: JSON.stringify({ idToken, acquisition }),
     credentials: "same-origin",
   });
 

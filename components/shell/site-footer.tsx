@@ -3,6 +3,7 @@ import { siteConfig } from "@/config/site";
 import { routes } from "@/config/routes";
 import { Logo } from "@/components/design-system/logo";
 import { PDF_TOOLS } from "@/features/pdf-tools/catalog";
+import { CookieSettingsButton } from "@/components/shell/cookie-settings-button";
 
 const popularTools = PDF_TOOLS.filter((t) => t.status === "ready").slice(0, 8);
 
@@ -102,13 +103,7 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
-              <button
-                type="button"
-                className="text-sm text-muted-foreground hover-fine:hover:text-foreground"
-                data-cookie-settings
-              >
-                Cookie settings
-              </button>
+              <CookieSettingsButton />
             </li>
             <li>
               <a
