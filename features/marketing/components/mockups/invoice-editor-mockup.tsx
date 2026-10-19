@@ -10,7 +10,7 @@ function focusOn(highlight: string | undefined, keys: string[]) {
   return keys.some((k) => h.includes(k));
 }
 
-/** Classic invoice preview — marketing showcase + auth side panel. */
+/** Classic invoice preview - marketing showcase + auth side panel. */
 export function InvoiceEditorMockup({
   highlight,
   compact = false,

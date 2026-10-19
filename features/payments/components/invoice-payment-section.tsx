@@ -32,7 +32,7 @@ function PaymentStatusBadge({ status }: { status: string }) {
 
   return (
     <span
-      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium capitalize ${styles[status] ?? styles.unpaid}`}
+      className={`inline-flex rounded-[var(--radius-md)] px-2.5 py-1 text-xs font-medium capitalize ${styles[status] ?? styles.unpaid}`}
     >
       {status}
     </span>

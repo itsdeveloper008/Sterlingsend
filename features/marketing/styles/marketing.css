@@ -694,7 +694,7 @@ button.bonsai-pill {
   align-items: center;
   justify-content: center;
   border-radius: 14px;
-  background: linear-gradient(160deg, #ccfbf1 0%, #f0fdfa 55%, color-mix(in srgb, #0d9488 12%, #f0fdfa) 100%); /* clay */
+  background: #f0fdfa;
   color: var(--m-teal-hover);
   box-shadow: var(--shadow-2);
   transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
@@ -1008,7 +1008,7 @@ button.bonsai-pill {
   align-items: center;
   justify-content: center;
   border-radius: 14px;
-  background: linear-gradient(160deg, #ccfbf1 0%, #f0fdfa 55%, color-mix(in srgb, #0d9488 12%, #f0fdfa) 100%); /* clay */
+  background: #f0fdfa;
   color: var(--m-teal-hover);
   transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }

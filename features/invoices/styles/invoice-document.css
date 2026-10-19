@@ -1,4 +1,4 @@
-/* Teamcamp-style invoice document — perforated sheet, stamp, classic table */
+/* Teamcamp-style invoice document - perforated sheet, stamp, classic table */
 
 .invoice-doc-shell {
   position: relative;
@@ -24,7 +24,7 @@
     0 18px 48px rgba(15, 23, 42, 0.1);
 }
 
-/* Perforated ticket edges — decorative only; hidden in print/PDF */
+/* Perforated ticket edges - decorative only; hidden in print/PDF */
 .invoice-doc-card::before,
 .invoice-doc-card::after {
   content: "";

@@ -10,7 +10,7 @@
 export const COLLECTIONS = {
   USERS: "users",
   BUSINESSES: "businesses",
-  /** @deprecated CRM removed — do not write new docs */
+  /** @deprecated CRM removed - do not write new docs */
   CUSTOMERS: "customers",
   INVOICES: "invoices",
   PAYMENTS: "payments",

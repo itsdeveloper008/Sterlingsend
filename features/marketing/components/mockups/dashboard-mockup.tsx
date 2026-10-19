@@ -78,7 +78,7 @@ export function DashboardMockup({ highlight }: { highlight?: string }) {
             <span className="font-medium text-slate-700">{row}</span>
             <motion.span
               className={cn(
-                "rounded-full bg-emerald-50 px-2 py-0.5 text-[9px] font-medium text-emerald-700",
+                "rounded-[var(--radius-md)] bg-emerald-50 px-2 py-0.5 text-[9px] font-medium text-emerald-700",
                 focusStatus && "ring-2 ring-emerald-400/60",
               )}
               animate={

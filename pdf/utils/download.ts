@@ -56,31 +56,40 @@ function prepareElementForCanvas(source: HTMLElement): {
 
     const computed = window.getComputedStyle(srcEl);
 
+    const unsafeColor = /oklab|oklch|color-mix|lab\(|lch\(|color\(/i;
+    const safeColor = (value: string, fallback: string) =>
+      !value || value === "rgba(0, 0, 0, 0)" || unsafeColor.test(value)
+        ? fallback
+        : value;
+
     for (const prop of COLOR_PROPS) {
       const value = computed[prop as keyof CSSStyleDeclaration];
       if (typeof value === "string" && value && value !== "rgba(0, 0, 0, 0)") {
         const cssName = prop.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`);
-        dstEl.style.setProperty(cssName, value);
+        const fallback = prop.toLowerCase().includes("background")
+          ? "#ffffff"
+          : "#0f172a";
+        dstEl.style.setProperty(cssName, safeColor(value, fallback));
       }
     }
 
-    // Flatten shadows / borders that may still reference oklab via Tailwind
+    // Flatten shadows / borders that may still reference modern color fns
     const shadow = computed.boxShadow;
     dstEl.style.boxShadow =
-      !shadow || shadow === "none" || /oklab|oklch|color-mix/i.test(shadow)
+      !shadow || shadow === "none" || unsafeColor.test(shadow)
         ? "none"
         : shadow;
 
-    dstEl.style.borderTop = `${computed.borderTopWidth} ${computed.borderTopStyle} ${computed.borderTopColor}`;
-    dstEl.style.borderRight = `${computed.borderRightWidth} ${computed.borderRightStyle} ${computed.borderRightColor}`;
-    dstEl.style.borderBottom = `${computed.borderBottomWidth} ${computed.borderBottomStyle} ${computed.borderBottomColor}`;
-    dstEl.style.borderLeft = `${computed.borderLeftWidth} ${computed.borderLeftStyle} ${computed.borderLeftColor}`;
+    dstEl.style.borderTop = `${computed.borderTopWidth} ${computed.borderTopStyle} ${safeColor(computed.borderTopColor, "#e2e8f0")}`;
+    dstEl.style.borderRight = `${computed.borderRightWidth} ${computed.borderRightStyle} ${safeColor(computed.borderRightColor, "#e2e8f0")}`;
+    dstEl.style.borderBottom = `${computed.borderBottomWidth} ${computed.borderBottomStyle} ${safeColor(computed.borderBottomColor, "#e2e8f0")}`;
+    dstEl.style.borderLeft = `${computed.borderLeftWidth} ${computed.borderLeftStyle} ${safeColor(computed.borderLeftColor, "#e2e8f0")}`;
     dstEl.style.borderRadius = computed.borderRadius;
     dstEl.style.backgroundImage = "none";
 
     for (const style of Array.from(dstEl.style)) {
       const val = dstEl.style.getPropertyValue(style);
-      if (/oklab|oklch|color-mix|lab\(|lch\(/i.test(val)) {
+      if (unsafeColor.test(val)) {
         if (style.includes("background")) {
           dstEl.style.setProperty(style, "#ffffff");
         } else {
@@ -123,10 +132,10 @@ function prepareElementForCanvas(source: HTMLElement): {
 
       // Keep layout/type styles from the original field so PDF spacing
       // (e.g. invoice number under INVOICE) stays accurate.
-      const color =
-        typeof computed.color === "string" && computed.color
-          ? computed.color
-          : "#0f172a";
+      const color = safeColor(
+        typeof computed.color === "string" ? computed.color : "",
+        "#0f172a",
+      );
       text.style.cssText = [
         "display:block",
         "width:100%",
@@ -186,6 +195,16 @@ export async function downloadInvoicePdf(
       onclone: (_doc, cloned) => {
         cloned.style.color = "#0f172a";
         cloned.style.backgroundColor = "#ffffff";
+        // Lock to system stack for rasterisation so next/font Geist
+        // size-adjust metrics cannot diverge across app shells.
+        const locked =
+          'Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif';
+        cloned.style.fontFamily = locked;
+        cloned.querySelectorAll("*").forEach((node) => {
+          if (node instanceof HTMLElement) {
+            node.style.fontFamily = locked;
+          }
+        });
       },
     });
 

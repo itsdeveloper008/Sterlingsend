@@ -83,7 +83,7 @@ export function InvoiceTemplatePicker({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search templates"
-            className="h-10 w-full rounded-full border border-border bg-white pl-9 pr-3 text-sm outline-none focus:border-primary"
+            className="h-10 w-full rounded-[var(--radius-md)] border border-border bg-white pl-9 pr-3 text-sm outline-none focus:border-primary"
           />
         </div>
       </div>

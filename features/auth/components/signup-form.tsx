@@ -115,7 +115,7 @@ export function SignupForm() {
         type="button"
         disabled={loading || googleLoading}
         onClick={onGoogleSignIn}
-        className="flex h-11 w-full items-center justify-center gap-2.5 rounded-full border border-border bg-white text-sm font-semibold text-foreground transition hover:bg-muted disabled:opacity-60"
+        className="flex h-11 w-full items-center justify-center gap-2.5 rounded-[var(--radius-md)] border border-border bg-white text-sm font-semibold text-foreground transition hover:bg-muted disabled:opacity-60"
       >
         <GoogleGlyph className="h-5 w-5 shrink-0" />
         {googleLoading ? "Connecting..." : "Continue with Google"}

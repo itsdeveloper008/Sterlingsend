@@ -42,7 +42,7 @@ export function getFirebaseClientConfig() {
   };
 }
 
-/** @deprecated Prefer getFirebaseClientConfig() — authDomain is dynamic. */
+/** @deprecated Prefer getFirebaseClientConfig() - authDomain is dynamic. */
 export const firebaseClientConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY ?? "",
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ?? "",

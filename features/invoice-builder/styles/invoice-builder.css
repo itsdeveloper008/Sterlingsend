@@ -37,6 +37,9 @@
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
+  /* Pre-Phase-1 body metrics (avoid app --lh-body: 1.65) */
+  font-size: 16px;
+  line-height: 1.5;
 }
 
 .builder-page input,
@@ -49,7 +52,23 @@
 .builder-page h4 {
   font-family: inherit;
   font-style: normal;
+}
+
+/* Form controls inherit .builder-page metrics; do not override
+ * explicit field line-heights (e.g. .builder-invoice-no: 1.4). */
+.builder-page input,
+.builder-page textarea,
+.builder-page select {
   letter-spacing: normal;
+}
+
+/* Kill Fraunces / display face only - leave size/lh/tracking to classes
+ * (element `h2` rules lose to `.builder-section-title` for those). */
+.builder-page h1,
+.builder-page h2,
+.builder-page h3,
+.builder-page h4 {
+  color: inherit;
 }
 
 .builder-action-bar {
@@ -308,6 +327,63 @@ button:has(.builder-logo-preview):focus-visible {
   color: #0f766e;
 }
 
+/* Locked to pre-Phase-1 outline sm Button metrics (avoid new h-9 tokens). */
+.builder-add-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 9.6px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.builder-add-item-icon {
+  /* Pre-Phase-1 Button size-sm svg: size-3.5 (14px) + mr-1.5 */
+  width: 14px;
+  height: 14px;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+.builder-add-item:hover {
+  background: #f8fafc;
+}
+
+.builder-add-item:focus-visible {
+  outline: 2px solid #14b8a6;
+  outline-offset: 2px;
+}
+
+.builder-row-remove {
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+/* Currency select - match pre-Phase-1 rounded-md (~9.6px). */
+.builder-currency-select {
+  max-width: 11rem;
+  border-radius: 9.6px;
+  border: 1px solid #99f6e4;
+  background: #ffffff;
+  padding: 4px 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: normal;
+  color: #0f172a;
+  box-shadow: none;
+}
+
 .builder-discount-print-suffix {
   display: none;
   margin-left: 2px;
@@ -372,9 +448,12 @@ tr:hover .builder-row-remove {
   border-top: 1px solid #e2e8f0;
 }
 
-.builder-section-title {
+.builder-page .builder-section-title {
   font-size: 0.9375rem;
   font-weight: 700;
+  /* Match pre-Phase-1 global h2 (Geist + tracking-tight, ~1.5 lh) */
+  line-height: 1.5;
+  letter-spacing: -0.025em;
   color: #0f172a;
 }
 

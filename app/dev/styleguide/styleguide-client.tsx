@@ -17,6 +17,27 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+
 
 const COLOURS = [
   { name: "brand-700", value: "#0F766E", role: "buttons, links, teal text" },
@@ -29,7 +50,8 @@ const COLOURS = [
   { name: "white", value: "#FFFFFF", role: "surface" },
   { name: "slate-50", value: "#F8FAFC", role: "surface" },
   { name: "slate-100", value: "#F1F5F9", role: "accent surface" },
-  { name: "border", value: "#E2E8F0", role: "border" },
+  { name: "border-subtle", value: "#E2E8F0", role: "dividers / hairlines" },
+  { name: "border-ui", value: "#64748B", role: "controls (3:1 UI)" },
   { name: "muted", value: "#64748B", role: "muted on white" },
   { name: "muted-tinted", value: "#475569", role: "muted on tint" },
 ];
@@ -174,6 +196,40 @@ export function StyleguideClient() {
           <div className="neu-inset rounded-[var(--radius-md)] px-3 py-6 text-center type-small text-muted-foreground">
             Upload dropzone inset
           </div>
+          <label className="flex items-center gap-2 type-small">
+            <Checkbox defaultChecked />
+            Checkbox
+          </label>
+          <RadioGroup defaultValue="a" className="flex gap-4">
+            <label className="flex items-center gap-2 type-small">
+              <RadioGroupItem value="a" />
+              Radio A
+            </label>
+            <label className="flex items-center gap-2 type-small">
+              <RadioGroupItem value="b" />
+              Radio B
+            </label>
+          </RadioGroup>
+          <div className="flex flex-wrap gap-3">
+            <Popover>
+              <PopoverTrigger render={<Button variant="outline">Popover</Button>} />
+              <PopoverContent>Popover content</PopoverContent>
+            </Popover>
+            <Tooltip>
+              <TooltipTrigger render={<Button variant="outline">Tooltip</Button>} />
+              <TooltipContent>Tooltip tip</TooltipContent>
+            </Tooltip>
+          </div>
+          <Command className="rounded-[var(--radius-md)] border border-border-subtle">
+            <CommandInput placeholder="Command..." />
+            <CommandList>
+              <CommandEmpty>No results</CommandEmpty>
+              <CommandGroup heading="Actions">
+                <CommandItem>Create invoice</CommandItem>
+                <CommandItem>Open history</CommandItem>
+              </CommandGroup>
+            </CommandList>
+          </Command>
         </div>
       </section>
 

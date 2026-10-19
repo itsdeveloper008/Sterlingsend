@@ -2,7 +2,6 @@
 
 import { useRef } from "react";
 import { Plus, Trash2, Upload } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
   calculateItemsFromForm,
   calculateInvoiceTotals,
@@ -474,15 +473,14 @@ export function EditableInvoiceCard({
         </table>
 
         <div className="no-print mt-3">
-          <Button
+          <button
             type="button"
-            variant="outline"
-            size="sm"
+            className="builder-add-item"
             onClick={() => dispatch({ type: "addItem" })}
           >
-            <Plus className="mr-1.5 h-4 w-4" />
+            <Plus className="builder-add-item-icon" aria-hidden />
             Add Item
-          </Button>
+          </button>
         </div>
 
         {/* Totals */}
@@ -508,7 +506,7 @@ export function EditableInvoiceCard({
           <div className="builder-total-final">
             <div className="flex items-center gap-2">
               <select
-                className="no-print max-w-[11rem] rounded-md border border-[#99F6E4] bg-white px-2 py-1 text-sm font-semibold text-[#0F172A]"
+                className="builder-currency-select no-print"
                 value={invoice.currency}
                 onChange={(event) => {
                   const next = event.target.value;

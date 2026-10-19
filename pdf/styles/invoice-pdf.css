@@ -32,6 +32,24 @@
   overflow: hidden;
 }
 
+/* Neutralise app heading tokens (Fraunces / type scale). Pre-Phase-1
+ * headings inside the PDF sheet resolved to Geist via the old global
+ * font-heading - keep that face so templates stay visually locked. */
+.invoice-pdf-template h1,
+.invoice-pdf-template h2,
+.invoice-pdf-template h3,
+.invoice-pdf-template h4 {
+  font-family:
+    var(--font-invoice-sheet),
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    sans-serif;
+  font-style: normal;
+  line-height: 1.5;
+  color: inherit;
+}
+
 .invoice-pdf-accent {
   height: 4px;
   background: linear-gradient(90deg, var(--pdf-primary) 0%, var(--pdf-accent) 100%);
@@ -320,6 +338,8 @@
   margin: 0 0 4px;
   font-size: 18px;
   font-weight: 700;
+  /* Match pre-Phase-1 global h2 tracking-tight */
+  letter-spacing: -0.025em;
 }
 
 .invoice-pdf-customer-company {

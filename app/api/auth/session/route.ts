@@ -69,7 +69,7 @@ export async function POST(request: Request) {
       });
     }
 
-    // Always land on the marketing home after login — never the dashboard.
+    // Always land on the marketing home after login - never the dashboard.
     // Login/signup can still honor a `?redirect=` query param client-side.
     const redirectTo = routes.home;
 

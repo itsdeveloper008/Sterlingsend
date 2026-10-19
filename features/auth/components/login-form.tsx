@@ -259,7 +259,7 @@ export function LoginForm() {
                   type="submit"
                   disabled={loading || googleLoading}
                   className={cn(
-                    "flex h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-semibold text-white",
+                    "flex h-12 w-full items-center justify-center rounded-[var(--radius-md)] bg-primary text-sm font-semibold text-white",
                     "transition hover:bg-[#0d9488] disabled:opacity-60",
                   )}
                 >
@@ -271,7 +271,7 @@ export function LoginForm() {
                   disabled={loading || googleLoading}
                   onClick={onGoogleSignIn}
                   className={cn(
-                    "flex h-12 w-full items-center justify-center gap-2.5 rounded-full border border-border bg-white text-sm font-semibold text-foreground",
+                    "flex h-12 w-full items-center justify-center gap-2.5 rounded-[var(--radius-md)] border border-border bg-white text-sm font-semibold text-foreground",
                     "transition hover:bg-muted disabled:opacity-60",
                   )}
                 >
