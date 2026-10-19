@@ -2,6 +2,8 @@ export const routes = {
   home: "/",
   createInvoice: "/create-invoice",
   invoicePreview: "/invoice-preview",
+  /** Template gallery (Phase 3); redirects to builder until then */
+  templates: "/templates",
   features: "/features",
   /** @deprecated Redirects to home until a paid plan exists */
   pricing: "/pricing",

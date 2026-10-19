@@ -16,6 +16,8 @@ const nextConfig: NextConfig = {
       // No Pricing until a paid plan exists
       { source: "/pricing", destination: "/", permanent: true },
       { source: "/pricing/:path*", destination: "/", permanent: true },
+      // Templates gallery ships in Phase 3
+      { source: "/templates", destination: "/create-invoice", permanent: false },
     ];
   },
   async headers() {
