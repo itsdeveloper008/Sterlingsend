@@ -1,14 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE_NAME, routes } from "@/config/routes";
 
-/** Account-only: invoice history, settings, services, dashboard, onboarding. */
-const protectedPrefixes = [
-  "/dashboard",
-  "/onboarding",
-  "/invoices",
-  "/settings",
-  "/services",
-];
+/** Account-only: invoice history, settings, onboarding. */
+const protectedPrefixes = ["/onboarding", "/invoices", "/settings"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -44,16 +38,12 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/dashboard",
-    "/dashboard/:path*",
     "/onboarding",
     "/onboarding/:path*",
     "/invoices",
     "/invoices/:path*",
     "/settings",
     "/settings/:path*",
-    "/services",
-    "/services/:path*",
     "/login",
     "/signup",
     "/forgot-password",

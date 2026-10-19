@@ -313,9 +313,6 @@ export function MarketingHeader() {
               ) : null}
             </div>
 
-            <Link href={routes.pricing} className="bonsai-nav-link">
-              Pricing
-            </Link>
           </nav>
 
           <div ref={actionsRef} className="bonsai-header-actions">

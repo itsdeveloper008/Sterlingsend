@@ -7,7 +7,7 @@ import { siteConfig } from "@/config/site";
 import { routes } from "@/config/routes";
 
 export function Logo({
-  href = routes.dashboard,
+  href = routes.home,
   className,
   showMark = true,
   showWordmark = true,

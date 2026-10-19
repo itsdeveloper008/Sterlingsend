@@ -6,13 +6,15 @@ import { ChevronRight } from "lucide-react";
 import { routes } from "@/config/routes";
 
 const LABELS: Record<string, string> = {
-  dashboard: "Dashboard",
-  invoices: "Invoices",
-  services: "Services",
+  invoices: "History",
   settings: "Settings",
   onboarding: "Onboarding",
   new: "New",
   edit: "Edit",
+  branding: "Branding",
+  business: "Business",
+  payments: "Payments",
+  security: "Security",
 };
 
 export function Breadcrumbs() {
@@ -28,9 +30,15 @@ export function Breadcrumbs() {
   });
 
   return (
-    <nav aria-label="Breadcrumb" className="hidden min-w-0 items-center gap-1 text-sm md:flex">
-      <Link href={routes.dashboard} className="text-muted-foreground hover:text-foreground">
-        Home
+    <nav
+      aria-label="Breadcrumb"
+      className="hidden min-w-0 items-center gap-1 text-sm md:flex"
+    >
+      <Link
+        href={routes.invoices}
+        className="text-muted-foreground hover:text-foreground"
+      >
+        History
       </Link>
       {crumbs.map((crumb) => (
         <div key={crumb.href} className="flex items-center gap-1">

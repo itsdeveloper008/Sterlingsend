@@ -2,18 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  FileStack,
-  FileText,
-  LayoutDashboard,
-  Settings,
-} from "lucide-react";
+import { FileStack, History, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { routes } from "@/config/routes";
 
 const items = [
-  { href: routes.dashboard, label: "Home", icon: LayoutDashboard },
-  { href: routes.invoices, label: "Invoices", icon: FileText },
+  { href: routes.invoices, label: "History", icon: History },
   { href: routes.tools, label: "Tools", icon: FileStack },
   { href: routes.settings, label: "Settings", icon: Settings },
 ];
@@ -23,10 +17,10 @@ export function MobileNav() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur-md md:hidden"
-      aria-label="Mobile"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-border-subtle bg-background/95 backdrop-blur-md md:hidden"
+      aria-label="Account"
     >
-      <div className="grid grid-cols-4">
+      <div className="grid grid-cols-3">
         {items.map((item) => {
           const Icon = item.icon;
           const active =
@@ -37,13 +31,13 @@ export function MobileNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "relative flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition-colors",
+                "relative flex min-h-11 flex-col items-center justify-center gap-1 py-2.5 text-[10px] font-medium transition-colors",
                 active ? "text-primary" : "text-muted-foreground",
               )}
             >
               {active ? (
                 <span
-                  className="absolute inset-x-3 top-0 h-0.5 rounded-full bg-primary"
+                  className="absolute inset-x-3 top-0 h-0.5 rounded-sm bg-primary"
                   aria-hidden
                 />
               ) : null}

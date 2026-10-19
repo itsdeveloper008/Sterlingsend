@@ -6,7 +6,7 @@ import { Logo } from "@/components/design-system/logo";
 
 const navLinks = [
   { href: routes.features, label: "Features" },
-  { href: routes.pricing, label: "Pricing" },
+  { href: routes.tools, label: "PDF tools" },
 ];
 
 export function PublicLayout({ children }: { children: React.ReactNode }) {

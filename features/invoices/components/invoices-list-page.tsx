@@ -135,7 +135,7 @@ export function InvoicesListPage({
   return (
     <PageShell>
       <PageHeader
-        title="Invoices"
+        title="History"
         description="Create, send, and track invoices."
         action={
           <ButtonLink href={routes.invoicesNew} className="shadow-xs">

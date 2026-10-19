@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, Settings, User } from "lucide-react";
+import { History, LogOut, Settings, User } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -43,11 +43,20 @@ export function UserMenu() {
         <DropdownMenuItem
           className="cursor-pointer"
           onClick={() => {
+            window.location.href = routes.invoices;
+          }}
+        >
+          <History className="mr-2 h-4 w-4" />
+          History
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => {
             window.location.href = routes.settings;
           }}
         >
           <Settings className="mr-2 h-4 w-4" />
-          Settings
+          Account
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer"

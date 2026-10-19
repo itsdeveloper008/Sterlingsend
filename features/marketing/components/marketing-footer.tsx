@@ -10,7 +10,6 @@ const columns = [
       { href: routes.createInvoice, label: "Create invoice" },
       { href: routes.tools, label: "PDF Tools" },
       { href: routes.features, label: "Features" },
-      { href: routes.pricing, label: "Pricing" },
     ],
   },
   {

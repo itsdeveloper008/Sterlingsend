@@ -3,6 +3,7 @@ export const routes = {
   createInvoice: "/create-invoice",
   invoicePreview: "/invoice-preview",
   features: "/features",
+  /** @deprecated Redirects to home until a paid plan exists */
   pricing: "/pricing",
   privacy: "/privacy",
   terms: "/terms",
@@ -11,13 +12,16 @@ export const routes = {
   signup: "/signup",
   forgotPassword: "/forgot-password",
   onboarding: "/onboarding",
+  /** @deprecated Permanent redirect to /invoices (History) */
   dashboard: "/dashboard",
+  /** Saved invoice history (UI label: History) */
   invoices: "/invoices",
   invoicesNew: "/invoices/new",
   invoice: (id: string) => `/invoices/${id}`,
   invoiceEdit: (id: string) => `/invoices/${id}/edit`,
   invoicePdf: (id: string) => `/invoices/${id}/pdf`,
   publicInvoice: (token: string) => `/i/${token}`,
+  /** @deprecated Permanent redirect to /invoices */
   services: "/services",
   servicesNew: "/services/new",
   service: (id: string) => `/services/${id}`,
@@ -37,7 +41,6 @@ export const publicRoutes = [
   routes.createInvoice,
   routes.invoicePreview,
   routes.features,
-  routes.pricing,
   routes.privacy,
   routes.terms,
   routes.cookies,
@@ -53,12 +56,10 @@ export const authRoutes = [
   routes.forgotPassword,
 ] as const;
 
-/** Account-only surfaces for invoice history, services, and settings. */
+/** Account-only surfaces: History (/invoices), settings, onboarding. */
 export const protectedRoutes = [
-  routes.dashboard,
   routes.onboarding,
   routes.invoices,
-  routes.services,
   routes.settings,
 ] as const;
 
