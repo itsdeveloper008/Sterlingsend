@@ -25,7 +25,7 @@ export function MarketingShell({
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
-    <div className="marketing-page flex min-h-screen flex-col antialiased">
+    <div className="marketing-page flex min-h-screen flex-col overflow-x-hidden antialiased">
       <SkipLink />
       {showScrollProgress ? <ScrollProgress /> : null}
       <SiteHeader onOpenSearch={() => setSearchOpen(true)} />

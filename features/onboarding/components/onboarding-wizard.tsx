@@ -26,8 +26,15 @@ import { uploadBusinessLogo } from "@/firebase/storage";
 import { routes } from "@/config/routes";
 
 function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-  return <p className="text-sm text-destructive">{message}</p>;
+  return (
+    <p
+      role="alert"
+      aria-live="polite"
+      className="min-h-5 text-sm text-destructive"
+    >
+      {message || "\u00a0"}
+    </p>
+  );
 }
 
 export function OnboardingWizard({ userEmail }: { userEmail?: string }) {
@@ -36,6 +43,7 @@ export function OnboardingWizard({ userEmail }: { userEmail?: string }) {
   const [submitting, setSubmitting] = useState(false);
   const [bootstrapping, setBootstrapping] = useState(true);
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [success, setSuccess] = useState(false);
   const { data, updateField, clearDraft, hydrated } =
     useOnboardingDraft(userEmail);
 
@@ -97,9 +105,12 @@ export function OnboardingWizard({ userEmail }: { userEmail?: string }) {
     }
 
     clearDraft();
+    setSuccess(true);
     toast.success("Business profile created");
-    router.push(routes.invoicesNew);
-    router.refresh();
+    window.setTimeout(() => {
+      router.push(routes.invoicesNew);
+      router.refresh();
+    }, 400);
   }
 
   if (!hydrated || bootstrapping) {
@@ -120,7 +131,7 @@ export function OnboardingWizard({ userEmail }: { userEmail?: string }) {
   return (
     <Card className="border shadow-sm">
       <CardHeader>
-        <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+        <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] bg-primary/10 text-primary">
           <Building2 className="h-5 w-5" />
         </div>
         <CardTitle className="text-2xl">Set up your business</CardTitle>
@@ -168,7 +179,20 @@ export function OnboardingWizard({ userEmail }: { userEmail?: string }) {
             />
           </div>
 
-          <Button type="submit" className="w-full sm:w-auto" disabled={submitting}>
+          {success ? (
+            <p
+              role="status"
+              aria-live="polite"
+              className="text-sm text-[var(--success-foreground)]"
+            >
+              Profile saved. Opening invoices...
+            </p>
+          ) : null}
+          <Button
+            type="submit"
+            className="w-full sm:w-auto"
+            disabled={submitting || success}
+          >
             {submitting ? "Saving..." : "Continue to invoices"}
           </Button>
         </form>

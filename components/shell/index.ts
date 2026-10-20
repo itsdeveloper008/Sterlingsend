@@ -9,3 +9,5 @@ export { CookieBanner } from "./cookie-banner";
 export { UtmCapture } from "./utm-capture";
 export { ScrollProgress } from "./scroll-progress";
 export { CookieSettingsButton } from "./cookie-settings-button";
+export { SessionLoader } from "./session-loader";
+export { RouteProgress } from "./route-progress";

@@ -8,13 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/design-system/logo";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EditableInvoiceCard } from "@/features/invoice-builder/components/editable-invoice-card";
+import { UnsavedChangesGuard } from "@/features/invoice-builder/components/unsaved-changes-guard";
 import { useInvoiceBuilder } from "@/features/invoice-builder/hooks/use-invoice-builder";
 import { downloadBuilderInvoicePdf } from "@/pdf/utils/download-builder-with-template";
 import { routes } from "@/config/routes";
 import "@/features/invoice-builder/styles/invoice-builder.css";
 
 export function InvoiceBuilderPage() {
-  const { invoice, hydrated, dispatch, setLogoFromFile } = useInvoiceBuilder();
+  const { invoice, hydrated, dirty, dispatch, setLogoFromFile } =
+    useInvoiceBuilder();
   const cardRef = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
 
@@ -48,6 +50,7 @@ export function InvoiceBuilderPage() {
 
   return (
     <div className="builder-page">
+      <UnsavedChangesGuard dirty={dirty} />
       <div className="builder-action-bar no-print">
         <div className="mx-auto flex max-w-[1100px] items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <Logo href={routes.home} size={48} />

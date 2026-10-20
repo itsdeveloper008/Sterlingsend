@@ -64,14 +64,6 @@ export function SiteFooter() {
                 PDF tools
               </Link>
             </li>
-            <li>
-              <Link
-                href={routes.features}
-                className="text-sm text-muted-foreground hover-fine:hover:text-foreground"
-              >
-                Features
-              </Link>
-            </li>
           </ul>
         </div>
 
@@ -108,7 +100,7 @@ export function SiteFooter() {
             <li>
               <a
                 href={`mailto:${siteConfig.supportEmail}`}
-                className="text-sm text-muted-foreground hover-fine:hover:text-foreground"
+                className="break-all text-sm text-muted-foreground hover-fine:hover:text-foreground"
               >
                 {siteConfig.supportEmail}
               </a>

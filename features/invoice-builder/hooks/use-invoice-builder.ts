@@ -70,12 +70,18 @@ export function useInvoiceBuilder(options?: { seed?: "empty" | "demo" }) {
     seed === "demo" ? createLandingDemoInvoice : createDefaultBuilderInvoice,
   );
   const [hydrated, setHydrated] = useState(false);
+  const [dirty, setDirty] = useState(false);
   const logoObjectUrl = useRef<string | null>(null);
 
   useEffect(() => {
     // Wipe any previously saved drafts so refresh never shows old client data
     clearBuilderInvoice();
     setHydrated(true);
+  }, []);
+
+  const dispatchTracked = useCallback((action: BuilderInvoiceAction) => {
+    if (action.type !== "hydrate") setDirty(true);
+    dispatch(action);
   }, []);
 
   useEffect(() => {
@@ -93,20 +99,21 @@ export function useInvoiceBuilder(options?: { seed?: "empty" | "demo" }) {
     }
 
     if (!file) {
-      dispatch({ type: "setLogo", logoDataUrl: undefined });
+      dispatchTracked({ type: "setLogo", logoDataUrl: undefined });
       return;
     }
 
     const reader = new FileReader();
     reader.onload = () => {
       const result = typeof reader.result === "string" ? reader.result : undefined;
-      dispatch({ type: "setLogo", logoDataUrl: result });
+      dispatchTracked({ type: "setLogo", logoDataUrl: result });
     };
     reader.readAsDataURL(file);
-  }, []);
+  }, [dispatchTracked]);
 
   const resetInvoice = useCallback(() => {
     clearBuilderInvoice();
+    setDirty(false);
     dispatch({
       type: "hydrate",
       invoice:
@@ -119,9 +126,10 @@ export function useInvoiceBuilder(options?: { seed?: "empty" | "demo" }) {
   return {
     invoice,
     hydrated,
+    dirty,
     draftRestored: false,
     dismissDraftNotice: () => undefined,
-    dispatch,
+    dispatch: dispatchTracked,
     setLogoFromFile,
     resetInvoice,
   };

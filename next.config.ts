@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: import.meta.dirname,
   async redirects() {
     return [
-      // No dashboard / CRM / services — History lives at /invoices
+      // No dashboard / CRM / services - History lives at /invoices
       { source: "/dashboard", destination: "/invoices", permanent: true },
       { source: "/dashboard/:path*", destination: "/invoices", permanent: true },
       { source: "/customers", destination: "/invoices", permanent: true },

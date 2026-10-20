@@ -4,8 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  FloatingLabelField,
+  FormStatus,
+} from "@/components/ui/form-field";
 import { useAuth } from "@/hooks/use-auth";
 import { routes } from "@/config/routes";
 import { getAuthErrorMessage } from "@/features/auth/lib/auth-errors";
@@ -20,18 +22,37 @@ export function SignupForm() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [formError, setFormError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  function validate(): boolean {
+    const next: Record<string, string> = {};
+    if (!email.trim()) next.email = "Enter your email.";
+    if (password.length < 8) next.password = "Password must be at least 8 characters.";
+    setFieldErrors(next);
+    return Object.keys(next).length === 0;
+  }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setFormError(null);
+    if (!validate()) return;
     setLoading(true);
 
     try {
       const redirectTo = await signUp(email, password, displayName);
+      setSuccess(true);
       toast.success("Account created");
-      window.location.assign(redirectTo ?? routes.home);
+      window.setTimeout(() => {
+        window.location.assign(redirectTo ?? routes.home);
+      }, 400);
     } catch (error) {
-      toast.error(
-        getAuthErrorMessage(error, "Could not create account. Try a different email."),
+      setFormError(
+        getAuthErrorMessage(
+          error,
+          "Could not create account. Try a different email.",
+        ),
       );
       setLoading(false);
     }
@@ -40,16 +61,18 @@ export function SignupForm() {
   async function onGoogleSignIn() {
     if (loading || googleLoading) return;
     setGoogleLoading(true);
+    setFormError(null);
 
     try {
       sessionStorage.removeItem(AUTH_POST_LOGIN_KEY);
       const result = await signInWithGoogle();
       if (result === "redirecting") return;
 
+      setSuccess(true);
       toast.success("Welcome to SterlingSend");
       window.location.assign(result ?? routes.home);
     } catch (error) {
-      toast.error(getAuthErrorMessage(error, "Could not continue with Google"));
+      setFormError(getAuthErrorMessage(error, "Could not continue with Google"));
       setGoogleLoading(false);
     }
   }
@@ -64,40 +87,57 @@ export function SignupForm() {
           login.
         </PageDescription>
       </div>
-      <form onSubmit={onSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="displayName">Your name</Label>
-          <Input
-            id="displayName"
-            autoComplete="name"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
-            type="password"
-            autoComplete="new-password"
-            minLength={8}
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <Button type="submit" className="w-full" disabled={loading || googleLoading}>
+      <form onSubmit={onSubmit} className="space-y-3" noValidate>
+        <FloatingLabelField
+          id="displayName"
+          label="Your name"
+          autoComplete="name"
+          value={displayName}
+          onChange={(v) => {
+            setDisplayName(v);
+            setFieldErrors((e) => ({ ...e, displayName: "" }));
+          }}
+          error={fieldErrors.displayName}
+        />
+        <FloatingLabelField
+          id="email"
+          label="Email"
+          type="email"
+          autoComplete="email"
+          required
+          value={email}
+          onChange={(v) => {
+            setEmail(v);
+            setFieldErrors((e) => ({ ...e, email: "" }));
+            setFormError(null);
+          }}
+          error={fieldErrors.email}
+        />
+        <FloatingLabelField
+          id="password"
+          label="Password"
+          type="password"
+          autoComplete="new-password"
+          minLength={8}
+          required
+          showPasswordToggle
+          value={password}
+          onChange={(v) => {
+            setPassword(v);
+            setFieldErrors((e) => ({ ...e, password: "" }));
+            setFormError(null);
+          }}
+          error={fieldErrors.password}
+        />
+        <FormStatus
+          message={success ? "Account created. Taking you in..." : formError}
+          tone={success ? "success" : "error"}
+        />
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={loading || googleLoading || success}
+        >
           {loading ? "Creating account..." : "Create account"}
         </Button>
       </form>
@@ -113,9 +153,9 @@ export function SignupForm() {
 
       <button
         type="button"
-        disabled={loading || googleLoading}
-        onClick={onGoogleSignIn}
-        className="flex h-11 w-full items-center justify-center gap-2.5 rounded-[var(--radius-md)] border border-border bg-white text-sm font-semibold text-foreground transition hover:bg-muted disabled:opacity-60"
+        disabled={loading || googleLoading || success}
+        onClick={() => void onGoogleSignIn()}
+        className="flex h-11 w-full items-center justify-center gap-2.5 rounded-[var(--radius-md)] border border-border bg-white text-sm font-semibold text-foreground transition-[transform,box-shadow,background-color] duration-[var(--duration-150)] hover-fine:hover:-translate-y-0.5 hover-fine:hover:bg-muted disabled:opacity-60"
       >
         <GoogleGlyph className="h-5 w-5 shrink-0" />
         {googleLoading ? "Connecting..." : "Continue with Google"}
@@ -123,7 +163,7 @@ export function SignupForm() {
 
       <p className="text-center text-sm text-muted-foreground">
         Already have an account?{" "}
-        <Link href={routes.login} className="font-medium text-foreground">
+        <Link href={routes.login} className="ss-link-underline font-medium text-foreground">
           Log in
         </Link>
       </p>

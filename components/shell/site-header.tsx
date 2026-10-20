@@ -70,7 +70,7 @@ export function SiteHeader({
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "rounded-[var(--radius-md)] px-3 py-2 text-sm font-medium transition-[color,background-color] duration-[var(--duration-150)]",
+                  "ss-link-underline rounded-[var(--radius-md)] px-3 py-2 text-sm font-medium transition-[color,background-color] duration-[var(--duration-150)]",
                   active
                     ? "text-[var(--brand-700)]"
                     : "text-muted-foreground hover-fine:hover:bg-muted hover-fine:hover:text-foreground",

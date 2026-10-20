@@ -41,6 +41,7 @@ export function LoginForm() {
     null,
   );
   const [authError, setAuthError] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const errorShakeLock = useRef(false);
   const errorClearTimer = useRef<number | null>(null);
@@ -60,6 +61,7 @@ export function LoginForm() {
   }, [authError, focusField, showPassword, success]);
 
   function clearError() {
+    setFormError(null);
     if (!authError) return;
     setAuthError(false);
     errorShakeLock.current = false;
@@ -88,6 +90,8 @@ export function LoginForm() {
       }, 480);
     } catch (error) {
       setSuccess(false);
+      const message = getAuthErrorMessage(error, "Invalid email or password");
+      setFormError(message);
       // Fire shake + worried mouth once per failed attempt
       if (!errorShakeLock.current) {
         errorShakeLock.current = true;
@@ -98,7 +102,7 @@ export function LoginForm() {
           errorClearTimer.current = null;
         }, 2000);
       }
-      toast.error(getAuthErrorMessage(error, "Invalid email or password"));
+      toast.error(message);
       setLoading(false);
     }
   }
@@ -127,7 +131,9 @@ export function LoginForm() {
       }, 480);
     } catch (error) {
       setSuccess(false);
-      toast.error(getAuthErrorMessage(error, "Could not sign in with Google"));
+      const message = getAuthErrorMessage(error, "Could not sign in with Google");
+      setFormError(message);
+      toast.error(message);
       setGoogleLoading(false);
     }
   }
@@ -248,19 +254,38 @@ export function LoginForm() {
               <div className="flex items-center justify-end pt-1">
                 <Link
                   href={routes.forgotPassword}
-                  className="shrink-0 text-sm text-muted-foreground transition-colors hover:text-primary"
+                  className="ss-link-underline shrink-0 text-sm text-muted-foreground transition-colors hover:text-primary"
                 >
                   Forgot password?
                 </Link>
               </div>
 
+              <p
+                role="alert"
+                aria-live="polite"
+                className={cn(
+                  "min-h-5 text-sm",
+                  formError
+                    ? "text-destructive"
+                    : success
+                      ? "text-[var(--success-foreground)]"
+                      : "invisible",
+                )}
+              >
+                {success
+                  ? "Signed in. Taking you in..."
+                  : formError || "\u00a0"}
+              </p>
+
               <div className="space-y-3 pt-2">
                 <button
                   type="submit"
-                  disabled={loading || googleLoading}
+                  disabled={loading || googleLoading || success}
                   className={cn(
                     "flex h-12 w-full items-center justify-center rounded-[var(--radius-md)] bg-primary text-sm font-semibold text-white",
-                    "transition hover:bg-[#0d9488] disabled:opacity-60",
+                    "transition-[transform,box-shadow,background-color] duration-[var(--duration-150)]",
+                    "hover-fine:hover:-translate-y-0.5 hover-fine:hover:bg-[#0d9488] hover-fine:hover:shadow-[var(--shadow-2)]",
+                    "active:translate-y-px disabled:opacity-60",
                   )}
                 >
                   {loading ? "Signing in..." : "Log in"}

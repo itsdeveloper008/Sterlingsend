@@ -384,6 +384,34 @@
     outline-offset: 2px;
   }
 
+  /* Link underline draws left → right on fine pointers */
+  .ss-link-underline {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    background-size: 0 1px;
+    transition: background-size var(--duration-150) var(--ease);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .ss-link-underline:hover {
+      background-size: 100% 1px;
+    }
+  }
+
+  .ss-card-lift {
+    transition:
+      transform var(--duration-150) var(--ease),
+      box-shadow var(--duration-150) var(--ease);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .ss-card-lift:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-3);
+    }
+  }
+
   .ss-surface {
     border-radius: var(--radius-lg);
     border: 1px solid var(--border);
