@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/design-system/logo";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EditableInvoiceCard } from "@/features/invoice-builder/components/editable-invoice-card";
+import { InvoiceSheetScroller } from "@/features/invoice-builder/components/invoice-sheet-scroller";
 import { UnsavedChangesGuard } from "@/features/invoice-builder/components/unsaved-changes-guard";
 import { useInvoiceBuilder } from "@/features/invoice-builder/hooks/use-invoice-builder";
 import { downloadBuilderInvoicePdf } from "@/pdf/utils/download-builder-with-template";
@@ -85,11 +86,13 @@ export function InvoiceBuilderPage() {
         className="builder-sheet mx-auto max-w-[1100px] space-y-6 px-4 py-8 sm:px-6 sm:py-10"
         ref={cardRef}
       >
-        <EditableInvoiceCard
-          invoice={invoice}
-          dispatch={dispatch}
-          onLogoFile={setLogoFromFile}
-        />
+        <InvoiceSheetScroller>
+          <EditableInvoiceCard
+            invoice={invoice}
+            dispatch={dispatch}
+            onLogoFile={setLogoFromFile}
+          />
+        </InvoiceSheetScroller>
 
         <p className="builder-login-hint no-print mt-6">
           Want to keep a history of invoices you create?{" "}

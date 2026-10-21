@@ -56,45 +56,49 @@ function prepareElementForCanvas(source: HTMLElement): {
 
     const computed = window.getComputedStyle(srcEl);
 
-    const unsafeColor = /oklab|oklch|color-mix|lab\(|lch\(|color\(/i;
-    const safeColor = (value: string, fallback: string) =>
-      !value || value === "rgba(0, 0, 0, 0)" || unsafeColor.test(value)
-        ? fallback
-        : value;
+    const unparseable = /oklab|oklch|color-mix|lab\(|lch\(/i;
+    const safeColor = (value: string, fallback: string) => {
+      if (!value || value === "rgba(0, 0, 0, 0)") return fallback;
+      const srgb = value.match(
+        /color\(\s*srgb\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)/i,
+      );
+      if (srgb) {
+        return `rgb(${Math.round(Number(srgb[1]) * 255)}, ${Math.round(Number(srgb[2]) * 255)}, ${Math.round(Number(srgb[3]) * 255)})`;
+      }
+      if (unparseable.test(value)) return fallback;
+      return value;
+    };
+
 
     for (const prop of COLOR_PROPS) {
       const value = computed[prop as keyof CSSStyleDeclaration];
       if (typeof value === "string" && value && value !== "rgba(0, 0, 0, 0)") {
         const cssName = prop.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`);
-        const fallback = prop.toLowerCase().includes("background")
-          ? "#ffffff"
-          : "#0f172a";
-        dstEl.style.setProperty(cssName, safeColor(value, fallback));
+        dstEl.style.setProperty(cssName, safeColor(value, value));
       }
     }
 
-    // Flatten shadows / borders that may still reference modern color fns
+    // Flatten shadows / borders that may still reference oklab via Tailwind
     const shadow = computed.boxShadow;
     dstEl.style.boxShadow =
-      !shadow || shadow === "none" || unsafeColor.test(shadow)
+      !shadow || shadow === "none" || unparseable.test(shadow)
         ? "none"
         : shadow;
 
-    dstEl.style.borderTop = `${computed.borderTopWidth} ${computed.borderTopStyle} ${safeColor(computed.borderTopColor, "#e2e8f0")}`;
-    dstEl.style.borderRight = `${computed.borderRightWidth} ${computed.borderRightStyle} ${safeColor(computed.borderRightColor, "#e2e8f0")}`;
-    dstEl.style.borderBottom = `${computed.borderBottomWidth} ${computed.borderBottomStyle} ${safeColor(computed.borderBottomColor, "#e2e8f0")}`;
-    dstEl.style.borderLeft = `${computed.borderLeftWidth} ${computed.borderLeftStyle} ${safeColor(computed.borderLeftColor, "#e2e8f0")}`;
+    dstEl.style.borderTop = `${computed.borderTopWidth} ${computed.borderTopStyle} ${safeColor(computed.borderTopColor, computed.borderTopColor)}`;
+    dstEl.style.borderRight = `${computed.borderRightWidth} ${computed.borderRightStyle} ${safeColor(computed.borderRightColor, computed.borderRightColor)}`;
+    dstEl.style.borderBottom = `${computed.borderBottomWidth} ${computed.borderBottomStyle} ${safeColor(computed.borderBottomColor, computed.borderBottomColor)}`;
+    dstEl.style.borderLeft = `${computed.borderLeftWidth} ${computed.borderLeftStyle} ${safeColor(computed.borderLeftColor, computed.borderLeftColor)}`;
     dstEl.style.borderRadius = computed.borderRadius;
     dstEl.style.backgroundImage = "none";
 
     for (const style of Array.from(dstEl.style)) {
       const val = dstEl.style.getPropertyValue(style);
-      if (unsafeColor.test(val)) {
-        if (style.includes("background")) {
-          dstEl.style.setProperty(style, "#ffffff");
-        } else {
-          dstEl.style.setProperty(style, "#0f172a");
-        }
+      if (unparseable.test(val) || /color\(\s*srgb/i.test(val)) {
+        dstEl.style.setProperty(
+          style,
+          safeColor(val, style.includes("background") ? "#ffffff" : "#0f172a"),
+        );
       }
     }
 
@@ -132,10 +136,10 @@ function prepareElementForCanvas(source: HTMLElement): {
 
       // Keep layout/type styles from the original field so PDF spacing
       // (e.g. invoice number under INVOICE) stays accurate.
-      const color = safeColor(
-        typeof computed.color === "string" ? computed.color : "",
-        "#0f172a",
-      );
+      const color =
+        typeof computed.color === "string" && computed.color
+          ? computed.color
+          : "#0f172a";
       text.style.cssText = [
         "display:block",
         "width:100%",
@@ -195,16 +199,6 @@ export async function downloadInvoicePdf(
       onclone: (_doc, cloned) => {
         cloned.style.color = "#0f172a";
         cloned.style.backgroundColor = "#ffffff";
-        // Lock to system stack for rasterisation so next/font Geist
-        // size-adjust metrics cannot diverge across app shells.
-        const locked =
-          'Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif';
-        cloned.style.fontFamily = locked;
-        cloned.querySelectorAll("*").forEach((node) => {
-          if (node instanceof HTMLElement) {
-            node.style.fontFamily = locked;
-          }
-        });
       },
     });
 

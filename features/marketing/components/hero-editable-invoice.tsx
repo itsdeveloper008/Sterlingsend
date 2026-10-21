@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EditableInvoiceCard } from "@/features/invoice-builder/components/editable-invoice-card";
+import { InvoiceSheetScroller } from "@/features/invoice-builder/components/invoice-sheet-scroller";
 import { useInvoiceBuilder } from "@/features/invoice-builder/hooks/use-invoice-builder";
 import { downloadBuilderInvoicePdf } from "@/pdf/utils/download-builder-with-template";
 import { routes } from "@/config/routes";
@@ -39,11 +40,13 @@ export function HeroEditableInvoice() {
 
   return (
     <div id="try-invoice" className="builder-sheet mx-auto w-full max-w-3xl space-y-4" ref={cardRef}>
-      <EditableInvoiceCard
-        invoice={invoice}
-        dispatch={dispatch}
-        onLogoFile={setLogoFromFile}
-      />
+      <InvoiceSheetScroller>
+        <EditableInvoiceCard
+          invoice={invoice}
+          dispatch={dispatch}
+          onLogoFile={setLogoFromFile}
+        />
+      </InvoiceSheetScroller>
 
       <div className="no-print mt-4 flex flex-wrap items-center justify-center gap-2">
         <Button

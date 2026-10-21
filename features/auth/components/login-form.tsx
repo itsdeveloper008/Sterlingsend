@@ -49,8 +49,21 @@ export function LoginForm() {
   /**
    * Single active state - priority:
    * success > password-error > password focus/visible > email-focus > idle
+   * Optional ?mascotPreview=<state> for visual QA screenshots only.
    */
   const mascotState: MascotState = useMemo(() => {
+    const preview = searchParams.get("mascotPreview");
+    const allowed: MascotState[] = [
+      "idle",
+      "email-focus",
+      "password-focus",
+      "password-visible",
+      "password-error",
+      "success",
+    ];
+    if (preview && (allowed as string[]).includes(preview)) {
+      return preview as MascotState;
+    }
     if (success) return "success";
     if (authError) return "password-error";
     if (focusField === "password") {
@@ -58,7 +71,7 @@ export function LoginForm() {
     }
     if (focusField === "email") return "email-focus";
     return "idle";
-  }, [authError, focusField, showPassword, success]);
+  }, [authError, focusField, searchParams, showPassword, success]);
 
   function clearError() {
     setFormError(null);

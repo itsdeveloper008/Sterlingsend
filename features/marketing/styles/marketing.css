@@ -707,6 +707,9 @@ button.bonsai-pill {
 /* Logo / social proof marquee */
 .bonsai-logo-marquee {
   overflow: hidden;
+  max-width: 100%;
+  /* Keep marquee track from expanding document scrollWidth */
+  contain: paint;
   -webkit-mask-image: linear-gradient(
     to right,
     transparent,

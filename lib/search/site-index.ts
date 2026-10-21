@@ -40,13 +40,6 @@ export function buildSiteSearchIndex(): SiteSearchItem[] {
       group: "Pages",
     },
     {
-      id: "page-features",
-      title: "Features",
-      description: "What SterlingSend includes",
-      href: routes.features,
-      group: "Pages",
-    },
-    {
       id: "page-privacy",
       title: "Privacy",
       description: "Privacy policy",

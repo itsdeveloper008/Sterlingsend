@@ -32,16 +32,20 @@
   overflow: hidden;
 }
 
-/* Neutralise app heading tokens (Fraunces / type scale). Pre-Phase-1
- * headings inside the PDF sheet resolved to Geist via the old global
- * font-heading - keep that face so templates stay visually locked. */
+/* Isolate from app Tailwind preflight border-color (--border-ui). */
+.invoice-pdf-template,
+.invoice-pdf-template * {
+  border-color: var(--pdf-border);
+}
+
+/* Headings: match baseline (global h1 used Geist via font-heading).
+ * Use --font-invoice-sheet (Geist) so Fraunces cannot steal the face. */
 .invoice-pdf-template h1,
 .invoice-pdf-template h2,
 .invoice-pdf-template h3,
 .invoice-pdf-template h4 {
   font-family:
     var(--font-invoice-sheet),
-    Inter,
     ui-sans-serif,
     system-ui,
     sans-serif;

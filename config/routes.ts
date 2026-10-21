@@ -42,7 +42,6 @@ export const publicRoutes = [
   routes.home,
   routes.createInvoice,
   routes.invoicePreview,
-  routes.features,
   routes.privacy,
   routes.terms,
   routes.cookies,
