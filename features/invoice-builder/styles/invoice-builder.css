@@ -262,13 +262,35 @@
 }
 
 /* Layout variants (match PDF catalog look on the live sheet) */
+.builder-card[data-layout="classic"] .builder-accent {
+  height: 6px;
+}
+.builder-card[data-layout="classic"] .builder-title {
+  letter-spacing: -0.03em;
+}
+.builder-card[data-layout="classic"] .builder-billed {
+  border-left: 3px solid var(--inv-accent);
+}
+
 .builder-card[data-layout="modern"] .builder-header {
-  margin: -8px -8px 8px;
-  padding: 12px;
-  border-radius: 12px;
-  background: #f8fafc;
+  margin: -12px -12px 16px;
+  padding: 18px 16px;
+  border-radius: 14px;
+  background: linear-gradient(
+    180deg,
+    var(--inv-primary-soft) 0%,
+    #f8fafc 100%
+  );
+  border: 1px solid #e2e8f0;
+}
+.builder-card[data-layout="modern"] .builder-accent {
+  height: 0;
 }
 .builder-card[data-layout="modern"] .builder-invoice-no {
+  color: var(--inv-primary);
+  font-weight: 700;
+}
+.builder-card[data-layout="modern"] .builder-title {
   color: var(--inv-primary);
 }
 
