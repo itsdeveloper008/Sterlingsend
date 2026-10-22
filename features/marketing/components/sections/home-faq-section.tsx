@@ -31,30 +31,30 @@ const FAQS = [
 /** Server section; MotionReveal is the only client island. */
 export function HomeFaqSection() {
   return (
-    <section className="bg-background py-16 sm:py-20">
-      <div className="mx-auto w-full max-w-3xl px-4 sm:px-6">
+    <section className="ss-section bg-[var(--surface-muted)]">
+      <div className="mx-auto w-full max-w-[760px] px-[var(--gutter)]">
         <MotionReveal>
-          <h2 className="type-h2 text-foreground">Questions</h2>
-          <p className="mt-2 text-muted-foreground">
+          <h2 className="bonsai-h2">Questions</h2>
+          <p className="marketing-body mt-3">
             Short answers about how the product works today.
           </p>
         </MotionReveal>
         <MotionReveal delayMs={60}>
           <div className="mt-8 divide-y divide-border-subtle border-y border-border-subtle">
             {FAQS.map((item) => (
-              <details key={item.q} className="group py-4">
-                <summary className="cursor-pointer list-none text-sm font-semibold text-foreground marker:content-none">
+              <details key={item.q} className="group py-5">
+                <summary className="cursor-pointer list-none text-lg font-semibold text-[var(--ink)] marker:content-none">
                   <span className="flex items-center justify-between gap-4">
                     {item.q}
                     <span
                       aria-hidden
-                      className="text-muted-foreground transition-transform duration-[var(--duration-150)] group-open:rotate-45"
+                      className="text-[var(--secondary-text)] transition-transform duration-[var(--duration-150)] group-open:rotate-45"
                     >
                       +
                     </span>
                   </span>
                 </summary>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                <p className="mt-3 text-base leading-relaxed text-[var(--body-text)]">
                   {item.a}
                 </p>
               </details>

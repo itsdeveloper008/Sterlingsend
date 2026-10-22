@@ -9,13 +9,12 @@ import {
 import { routes } from "@/config/routes";
 import { MotionReveal } from "@/features/marketing/lib/motion-reveal";
 
+/** One preview per distinct layout family. */
 const PREVIEW_IDS = [
   "classic-teal",
-  "bold-navy",
+  "modern-navy",
+  "bold-rose",
   "sidebar-slate",
-  "modern-emerald",
-  "minimal-indigo",
-  "band-rose",
 ] as const;
 
 export function HomeTemplatesSection() {
@@ -24,54 +23,42 @@ export function HomeTemplatesSection() {
   ).filter(Boolean);
 
   return (
-    <section className="relative overflow-hidden border-b border-border-subtle bg-background py-16 sm:py-20">
-      <div
-        className="ss-float ss-parallax-clay pointer-events-none absolute right-8 top-10 size-14 rounded-[30%] clay opacity-40"
-        aria-hidden
-      />
-      <div className="relative mx-auto w-full max-w-6xl px-4 sm:px-6">
+    <section className="ss-section relative border-b border-border-subtle bg-background">
+      <div className="bonsai-container relative">
         <MotionReveal>
-          <h2 className="type-h2 text-foreground">Invoice templates</h2>
-          <p className="mt-2 max-w-2xl text-muted-foreground">
-            Pick a layout and colour. The template applies to the PDF you download.
+          <h2 className="bonsai-h2">Invoice templates</h2>
+          <p className="marketing-body mt-3 max-w-2xl">
+            Four layout styles with the same sample data. Open the gallery for
+            all {INVOICE_TEMPLATE_COUNT} colour combinations.
           </p>
         </MotionReveal>
-        <ul className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <ul className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
           {previews.map((template, index) => {
             if (!template) return null;
             return (
               <li key={template.id}>
-                <MotionReveal delayMs={Math.min(index, 5) * 60}>
+                <MotionReveal delayMs={Math.min(index, 3) * 60}>
                   <Link
                     href={routes.templates}
                     data-ss-tilt="card"
-                    className="ss-card-lift ss-card-tilt ss-card-spotlight group block overflow-hidden rounded-[var(--radius-lg)] border border-border-subtle bg-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-500)]"
-                    onPointerMove={(event) => {
-                      const node = event.currentTarget;
-                      const rect = node.getBoundingClientRect();
-                      node.style.setProperty(
-                        "--ss-spot-x",
-                        `${((event.clientX - rect.left) / rect.width) * 100}%`,
-                      );
-                      node.style.setProperty(
-                        "--ss-spot-y",
-                        `${((event.clientY - rect.top) / rect.height) * 100}%`,
-                      );
-                    }}
+                    className="ss-card-lift ss-card-tilt ss-card-spotlight group block h-full overflow-hidden rounded-2xl border border-border-subtle bg-card shadow-[var(--shadow-1)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-500)]"
                   >
-                    <div className="relative aspect-[3/4] w-full bg-muted">
+                    <div className="relative aspect-[1/1.414] w-full bg-[var(--surface-muted)]">
                       <Image
                         src={`/templates/${template.id}.webp`}
                         alt={`${template.name} template preview`}
                         width={480}
-                        height={640}
+                        height={678}
                         loading="lazy"
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-cover object-top"
                       />
                     </div>
-                    <div className="border-t border-border-subtle px-3 py-2">
-                      <p className="text-sm font-medium text-foreground">
-                        {template.name}
+                    <div className="border-t border-border-subtle px-4 py-3">
+                      <p className="text-lg font-semibold text-[var(--ink)]">
+                        {template.category}
+                      </p>
+                      <p className="mt-0.5 line-clamp-2 text-[0.9375rem] text-[var(--body-text)]">
+                        {template.description}
                       </p>
                     </div>
                   </Link>
@@ -80,14 +67,14 @@ export function HomeTemplatesSection() {
             );
           })}
         </ul>
-        <p className="mt-8">
+        <div className="mt-10">
           <Link
             href={routes.templates}
-            className="ss-link-underline text-sm font-semibold text-[var(--brand-700)]"
+            className="bonsai-btn-secondary bonsai-btn-secondary--sm"
           >
-            See all {INVOICE_TEMPLATE_COUNT} templates
+            See all templates
           </Link>
-        </p>
+        </div>
       </div>
     </section>
   );

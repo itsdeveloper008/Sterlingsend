@@ -47,16 +47,16 @@ export function HomePopularToolsSection() {
   }).filter(Boolean);
 
   return (
-    <section className="border-b border-border-subtle bg-background py-16 sm:py-20">
-      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+    <section className="ss-section border-b border-border-subtle bg-[var(--surface-muted)]">
+      <div className="bonsai-container">
         <MotionReveal>
-          <h2 className="type-h2 text-foreground">Popular PDF tools</h2>
-          <p className="mt-2 max-w-2xl text-muted-foreground">
-            Eight tools people use most. All {toolCount} tools are listed on the
-            tools page.
+          <h2 className="bonsai-h2">Popular PDF tools</h2>
+          <p className="marketing-body mt-3 max-w-2xl">
+            Eight tools people use most. Open any tool and run it in your
+            browser.
           </p>
         </MotionReveal>
-        <ul className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
+        <ul className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
           {tools.map((tool, index) => {
             if (!tool) return null;
             const Icon = tool.Icon;
@@ -64,15 +64,15 @@ export function HomePopularToolsSection() {
               <Link
                 href={routes.tool(tool.slug)}
                 data-ss-tilt="card"
-                className="ss-card-lift ss-card-tilt ss-card-spotlight group flex h-full flex-col gap-3 rounded-[var(--radius-lg)] p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-500)]"
+                className="ss-card-lift ss-card-tilt ss-card-spotlight group flex h-full flex-col gap-3 rounded-2xl border border-border-subtle bg-card p-6 shadow-[var(--shadow-1)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-500)]"
               >
                 <span className="clay ss-icon-tilt flex h-12 w-12 items-center justify-center text-[var(--brand-700)]">
                   <Icon className="h-5 w-5" aria-hidden />
                 </span>
-                <span className="text-sm font-semibold text-foreground">
+                <span className="text-lg font-semibold text-[var(--ink)]">
                   {tool.title}
                 </span>
-                <span className="text-xs text-muted-foreground">
+                <span className="line-clamp-2 text-[0.9375rem] leading-snug text-[var(--body-text)]">
                   {tool.description}
                 </span>
               </Link>
@@ -88,14 +88,11 @@ export function HomePopularToolsSection() {
             );
           })}
         </ul>
-        <p className="mt-8">
-          <Link
-            href={routes.tools}
-            className="ss-link-underline text-sm font-semibold text-[var(--brand-700)]"
-          >
+        <div className="mt-10">
+          <Link href={routes.tools} className="bonsai-btn-secondary bonsai-btn-secondary--sm">
             See all {toolCount} tools
           </Link>
-        </p>
+        </div>
       </div>
     </section>
   );

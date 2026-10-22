@@ -194,7 +194,7 @@ export function MarketingHeader() {
     >
       <div className="bonsai-container">
         <div className="bonsai-header-shell">
-          <Logo href={routes.home} size={64} />
+          <Logo href={routes.home} size={40} />
 
           <nav
             ref={navRef}
