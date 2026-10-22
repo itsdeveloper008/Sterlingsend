@@ -2,11 +2,12 @@
 .hero-sheet-frame {
   container-type: inline-size;
   container-name: hero-sheet;
+  overflow: visible;
 }
 
 .hero-sheet-scaled {
-  aspect-ratio: 720 / 828;
-  overflow: hidden;
+  aspect-ratio: 720 / 900;
+  overflow: visible;
 }
 
 .hero-sheet-design {
@@ -15,8 +16,14 @@
   transform-origin: top left;
 }
 
-.hero-sheet-fade {
-  display: none;
+.hero-sheet-design .builder-card,
+.hero-builder-card {
+  border-radius: 16px !important;
+  box-shadow: 0 30px 70px rgba(15, 23, 42, 0.14) !important;
+}
+
+.hero-sheet-design .builder-card-inner {
+  padding: 36px 40px !important;
 }
 
 .hero-compact-cta {
@@ -26,7 +33,8 @@
 @container hero-sheet (max-width: 539px) {
   .hero-sheet-scaled {
     aspect-ratio: auto;
-    max-height: 420px;
+    max-height: none;
+    overflow: visible;
   }
 
   .hero-sheet-design {
@@ -36,10 +44,6 @@
 
   .hero-sheet-design > * {
     min-width: 0;
-  }
-
-  .hero-sheet-fade {
-    display: block;
   }
 
   .hero-compact-cta {

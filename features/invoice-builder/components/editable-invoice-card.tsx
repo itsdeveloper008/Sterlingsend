@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef } from "react";
-import { Plus, Trash2, Upload } from "lucide-react";
+import { useRef, type ReactNode } from "react";
+import { Calendar, Plus, Trash2, Upload } from "lucide-react";
 import {
   calculateItemsFromForm,
   calculateInvoiceTotals,
@@ -37,6 +37,7 @@ export function EditableInvoiceCard({
   dispatch,
   onLogoFile,
   className,
+  currencySelect,
   stampRepositioning = false,
   onStampChange,
   onExitStampReposition,
@@ -46,6 +47,7 @@ export function EditableInvoiceCard({
   dispatch: React.Dispatch<BuilderInvoiceAction>;
   onLogoFile: (file: File | null) => void;
   className?: string;
+  currencySelect?: ReactNode;
   stampRepositioning?: boolean;
   onStampChange?: (stamp: InvoiceStamp) => void;
   onExitStampReposition?: () => void;
@@ -112,7 +114,7 @@ export function EditableInvoiceCard({
           stampRepositioning && "builder-card-inner--inert",
         )}
       >
-        {/* Header: logo + company */}
+        {/* Top row: logo + company */}
         <header className="builder-header flex flex-wrap items-start justify-between gap-6">
           <div className="min-w-0">
             <input
@@ -155,24 +157,10 @@ export function EditableInvoiceCard({
                 className="builder-logo-box"
                 onClick={() => fileRef.current?.click()}
               >
-                <Upload className="h-6 w-6" aria-hidden />
-                Click to upload
+                <Upload className="h-5 w-5" aria-hidden />
+                Click to upload logo
               </button>
             )}
-
-            <h1 className="builder-title">INVOICE</h1>
-            <input
-              className="builder-field builder-invoice-no"
-              value={invoice.invoiceNumber}
-              onChange={(event) =>
-                dispatch({
-                  type: "patch",
-                  patch: { invoiceNumber: event.target.value },
-                })
-              }
-              placeholder="INV-001"
-              aria-label="Invoice number"
-            />
           </div>
 
           <div className="builder-company min-w-[200px] flex-1 sm:max-w-xs">
@@ -212,7 +200,7 @@ export function EditableInvoiceCard({
                   patch: { email: event.target.value },
                 })
               }
-              placeholder="Business email"
+              placeholder="business@email.com"
               aria-label="Business email"
             />
             <input
@@ -231,33 +219,42 @@ export function EditableInvoiceCard({
               placeholder="Phone (optional)"
               aria-label="Phone (optional)"
             />
-            <div
+            <input
               className={cn(
-                "builder-vat-row mt-0.5 flex items-baseline justify-end gap-1.5 text-sm text-[#64748B]",
+                "builder-field builder-field--muted",
                 !invoice.business.vatNumber.trim() && "builder-empty-print",
               )}
-            >
-              <span className="shrink-0 font-medium not-italic">VAT:</span>
-              <input
-                className="builder-field builder-field--muted w-auto min-w-[8rem] text-right not-italic"
-                value={invoice.business.vatNumber}
-                onChange={(event) =>
-                  dispatch({
-                    type: "patchBusiness",
-                    patch: { vatNumber: event.target.value },
-                  })
-                }
-                placeholder="VAT number (optional)"
-                aria-label="VAT number (optional)"
-              />
-            </div>
+              value={invoice.business.vatNumber}
+              onChange={(event) =>
+                dispatch({
+                  type: "patchBusiness",
+                  patch: { vatNumber: event.target.value },
+                })
+              }
+              placeholder="VAT number (optional)"
+              aria-label="VAT number (optional)"
+            />
           </div>
         </header>
+
+        <h1 className="builder-title">INVOICE</h1>
+        <input
+          className="builder-field builder-invoice-no"
+          value={invoice.invoiceNumber}
+          onChange={(event) =>
+            dispatch({
+              type: "patch",
+              patch: { invoiceNumber: event.target.value },
+            })
+          }
+          placeholder="INV-001"
+          aria-label="Invoice number"
+        />
 
         {/* Billed To + dates */}
         <div className="builder-billed">
           <div>
-            <p className="builder-label">Billed To</p>
+            <p className="builder-label">Billed to</p>
             <input
               className="builder-field mt-2 font-semibold text-[#0F172A]"
               value={invoice.customer.name}
@@ -294,41 +291,53 @@ export function EditableInvoiceCard({
                   patch: { email: event.target.value },
                 })
               }
-              placeholder="Client email"
+              placeholder="client@email.com"
               aria-label="Client email"
             />
           </div>
 
           <div>
-            <p className="builder-label">Issue Date</p>
-            <input
-              className="builder-field mt-2 font-medium text-[#0F172A]"
-              type="date"
-              value={invoice.issueDate}
-              onChange={(event) =>
-                dispatch({
-                  type: "patch",
-                  patch: { issueDate: event.target.value },
-                })
-              }
-              aria-label="Issue date"
-            />
+            <p className="builder-label">Issue date</p>
+            <div className="builder-date-field mt-2">
+              <input
+                className="builder-field font-medium text-[#0F172A]"
+                type="date"
+                value={invoice.issueDate}
+                onChange={(event) =>
+                  dispatch({
+                    type: "patch",
+                    patch: { issueDate: event.target.value },
+                  })
+                }
+                aria-label="Issue date"
+              />
+              <Calendar
+                className="builder-date-icon no-print"
+                aria-hidden
+              />
+            </div>
           </div>
 
           <div>
-            <p className="builder-label">Due Date</p>
-            <input
-              className="builder-field mt-2 font-medium text-[#0F172A]"
-              type="date"
-              value={invoice.dueDate}
-              onChange={(event) =>
-                dispatch({
-                  type: "patch",
-                  patch: { dueDate: event.target.value },
-                })
-              }
-              aria-label="Due date"
-            />
+            <p className="builder-label">Due date</p>
+            <div className="builder-date-field mt-2">
+              <input
+                className="builder-field font-medium text-[#0F172A]"
+                type="date"
+                value={invoice.dueDate}
+                onChange={(event) =>
+                  dispatch({
+                    type: "patch",
+                    patch: { dueDate: event.target.value },
+                  })
+                }
+                aria-label="Due date"
+              />
+              <Calendar
+                className="builder-date-icon no-print"
+                aria-hidden
+              />
+            </div>
           </div>
         </div>
 
@@ -567,7 +576,13 @@ export function EditableInvoiceCard({
             </dd>
           </div>
           <div className="builder-total-final">
-            <dt className="text-sm font-semibold text-[#0F172A]">Total</dt>
+            <dt className="builder-total-final-currency">
+              {currencySelect ?? (
+                <span className="text-sm font-semibold text-[#0F172A]">
+                  Total
+                </span>
+              )}
+            </dt>
             <dd className="builder-total-final-amount tabular-nums">
               {currencySymbol}{" "}
               {totals.total.toLocaleString("en-GB", {
@@ -613,7 +628,7 @@ export function EditableInvoiceCard({
                   patch: { accountHolder: event.target.value },
                 })
               }
-              placeholder="Account name"
+              placeholder="e.g. John Doe"
             />
             <span className="builder-payment-label">Bank Name</span>
             <input
@@ -625,7 +640,7 @@ export function EditableInvoiceCard({
                   patch: { bankName: event.target.value },
                 })
               }
-              placeholder="Bank name"
+              placeholder="e.g. Global Bank"
             />
             <span className="builder-payment-label">Account/IBAN</span>
             <input
@@ -637,7 +652,7 @@ export function EditableInvoiceCard({
                   patch: { accountIban: event.target.value },
                 })
               }
-              placeholder="Account number or IBAN"
+              placeholder="e.g. 12345678"
             />
             <span className="builder-payment-label">Sort Code/SWIFT</span>
             <input
@@ -649,7 +664,7 @@ export function EditableInvoiceCard({
                   patch: { sortSwift: event.target.value },
                 })
               }
-              placeholder="Sort code or SWIFT"
+              placeholder="e.g. 12-34-56"
             />
           </div>
         </section>
@@ -661,11 +676,11 @@ export function EditableInvoiceCard({
               {invoice.business.name.trim() || "Your business name"}
             </p>
             <p className="text-sm text-[#64748B]">
-              {invoice.business.email.trim() || "Business email"}
+              {invoice.business.email.trim() || "business@email.com"}
             </p>
           </div>
           <div className="builder-footer-meta">
-            <span className="builder-label">Invoice No.</span>
+            <span className="builder-label">Invoice no.</span>
             <p className="builder-footer-no">
               {invoice.invoiceNumber.trim() || "INV-001"}
             </p>

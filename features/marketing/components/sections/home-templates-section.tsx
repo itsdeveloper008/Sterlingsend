@@ -23,16 +23,28 @@ export function HomeTemplatesSection() {
   ).filter(Boolean);
 
   return (
-    <section className="ss-section relative border-b border-border-subtle bg-background">
+    <section className="border-b border-[#E2E8F0] bg-[#F8FAFC] px-4 py-24 dark:border-[#1E293B] dark:bg-[#0F1A28] sm:px-6">
       <div className="bonsai-container relative">
         <MotionReveal>
-          <h2 className="bonsai-h2">Invoice templates</h2>
-          <p className="marketing-body mt-3 max-w-2xl">
-            Four layout styles with the same sample data. Open the gallery for
-            all {INVOICE_TEMPLATE_COUNT} colour combinations.
-          </p>
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h2 className="font-[family-name:var(--font-display)] text-[40px] font-bold leading-tight text-[#0F172A] dark:text-white">
+                Invoice templates
+              </h2>
+              <p className="mt-3 max-w-2xl text-base text-[#475569] dark:text-[#CBD5E1]">
+                Four layout styles with the same sample data. Open the gallery
+                for all {INVOICE_TEMPLATE_COUNT} colour combinations.
+              </p>
+            </div>
+            <Link
+              href={routes.templates}
+              className="inline-flex h-11 items-center justify-center rounded-xl border-[1.5px] border-[#94A3B8] bg-white px-4 text-[15px] font-bold text-[#0F172A] transition-transform hover:-translate-y-0.5 dark:bg-[#13202F] dark:text-white"
+            >
+              See all templates
+            </Link>
+          </div>
         </MotionReveal>
-        <ul className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
+        <ul className="mt-10 grid grid-cols-2 gap-6 md:grid-cols-4">
           {previews.map((template, index) => {
             if (!template) return null;
             return (
@@ -41,9 +53,9 @@ export function HomeTemplatesSection() {
                   <Link
                     href={routes.templates}
                     data-ss-tilt="card"
-                    className="ss-card-lift ss-card-tilt ss-card-spotlight group block h-full overflow-hidden rounded-2xl border border-border-subtle bg-card shadow-[var(--shadow-1)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-500)]"
+                    className="ss-card-lift ss-card-tilt ss-card-spotlight group block h-full overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white p-5 transition-transform hover:-translate-y-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#14B8A6] dark:border-[#1E293B] dark:bg-[#13202F]"
                   >
-                    <div className="relative aspect-[1/1.414] w-full bg-[var(--surface-muted)]">
+                    <div className="relative aspect-[1/1.414] w-full overflow-hidden rounded-xl bg-[#F1F5F9]">
                       <Image
                         src={`/templates/${template.id}.webp`}
                         alt={`${template.name} template preview`}
@@ -53,28 +65,18 @@ export function HomeTemplatesSection() {
                         className="h-full w-full object-cover object-top"
                       />
                     </div>
-                    <div className="border-t border-border-subtle px-4 py-3">
-                      <p className="text-lg font-semibold text-[var(--ink)]">
-                        {template.category}
-                      </p>
-                      <p className="mt-0.5 line-clamp-2 text-[0.9375rem] text-[var(--body-text)]">
-                        {template.description}
-                      </p>
-                    </div>
+                    <p className="mt-3 text-base font-bold text-[#0F172A] dark:text-white">
+                      {template.name}
+                    </p>
+                    <p className="mt-0.5 line-clamp-2 text-[15px] text-[#475569] dark:text-[#CBD5E1]">
+                      {template.description}
+                    </p>
                   </Link>
                 </MotionReveal>
               </li>
             );
           })}
         </ul>
-        <div className="mt-10">
-          <Link
-            href={routes.templates}
-            className="bonsai-btn-secondary bonsai-btn-secondary--sm"
-          >
-            See all templates
-          </Link>
-        </div>
       </div>
     </section>
   );

@@ -47,16 +47,28 @@ export function HomePopularToolsSection() {
   }).filter(Boolean);
 
   return (
-    <section className="ss-section border-b border-border-subtle bg-[var(--surface-muted)]">
+    <section className="border-b border-[#E2E8F0] bg-white px-4 py-24 dark:border-[#1E293B] dark:bg-[#0B1220] sm:px-6">
       <div className="bonsai-container">
         <MotionReveal>
-          <h2 className="bonsai-h2">Popular PDF tools</h2>
-          <p className="marketing-body mt-3 max-w-2xl">
-            Eight tools people use most. Open any tool and run it in your
-            browser.
-          </p>
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h2 className="font-[family-name:var(--font-display)] text-[40px] font-bold leading-tight text-[#0F172A] dark:text-white">
+                Popular PDF tools
+              </h2>
+              <p className="mt-3 max-w-2xl text-base text-[#475569] dark:text-[#CBD5E1]">
+                Eight tools people use most. Open any tool and run it in your
+                browser.
+              </p>
+            </div>
+            <Link
+              href={routes.tools}
+              className="inline-flex h-11 items-center justify-center rounded-xl border-[1.5px] border-[#94A3B8] bg-white px-4 text-[15px] font-bold text-[#0F172A] transition-transform hover:-translate-y-0.5 dark:bg-[#13202F] dark:text-white"
+            >
+              See all {toolCount} tools
+            </Link>
+          </div>
         </MotionReveal>
-        <ul className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
+        <ul className="mt-10 grid grid-cols-2 gap-6 md:grid-cols-4">
           {tools.map((tool, index) => {
             if (!tool) return null;
             const Icon = tool.Icon;
@@ -64,15 +76,15 @@ export function HomePopularToolsSection() {
               <Link
                 href={routes.tool(tool.slug)}
                 data-ss-tilt="card"
-                className="ss-card-lift ss-card-tilt ss-card-spotlight group flex h-full flex-col gap-3 rounded-2xl border border-border-subtle bg-card p-6 shadow-[var(--shadow-1)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-500)]"
+                className="ss-card-lift ss-card-tilt ss-card-spotlight group flex h-full flex-col gap-3 rounded-2xl border border-[#E2E8F0] bg-white p-6 transition-transform hover:-translate-y-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#14B8A6] dark:border-[#1E293B] dark:bg-[#13202F]"
               >
-                <span className="clay ss-icon-tilt flex h-12 w-12 items-center justify-center text-[var(--brand-700)]">
+                <span className="flex h-[52px] w-[52px] items-center justify-center rounded-2xl bg-[#CCFBF1] text-[#0F766E] shadow-[inset_0_3px_0_#fff,0_8px_16px_rgba(15,23,42,.08)]">
                   <Icon className="h-5 w-5" aria-hidden />
                 </span>
-                <span className="text-lg font-semibold text-[var(--ink)]">
+                <span className="text-lg font-bold text-[#0F172A] dark:text-white">
                   {tool.title}
                 </span>
-                <span className="line-clamp-2 text-[0.9375rem] leading-snug text-[var(--body-text)]">
+                <span className="line-clamp-1 text-[15px] leading-snug text-[#475569] dark:text-[#CBD5E1]">
                   {tool.description}
                 </span>
               </Link>
@@ -88,11 +100,6 @@ export function HomePopularToolsSection() {
             );
           })}
         </ul>
-        <div className="mt-10">
-          <Link href={routes.tools} className="bonsai-btn-secondary bonsai-btn-secondary--sm">
-            See all {toolCount} tools
-          </Link>
-        </div>
       </div>
     </section>
   );

@@ -19,16 +19,18 @@ const POINTS = [
 
 export function HomeFilesSection() {
   return (
-    <section className="ss-section bg-[var(--dark-band)] text-white">
+    <section className="bg-[#07111F] px-4 py-24 text-[#CBD5E1] sm:px-6">
       <div className="bonsai-container">
         <MotionReveal>
-          <h2 className="bonsai-h2 text-white">How your files are handled</h2>
-          <p className="mt-3 max-w-2xl text-[1.125rem] leading-relaxed text-slate-300">
+          <h2 className="font-[family-name:var(--font-display)] text-[40px] font-bold leading-tight text-white">
+            How your files are handled
+          </h2>
+          <p className="mt-3 max-w-2xl text-[17px] leading-relaxed text-[#CBD5E1]">
             What happens when you use a PDF tool on this site. Full detail is in
             the{" "}
             <Link
               href={routes.privacy}
-              className="font-medium text-white underline underline-offset-2"
+              className="font-semibold text-[#5EEAD4] underline-offset-2 hover:underline"
             >
               privacy policy
             </Link>
@@ -42,7 +44,7 @@ export function HomeFilesSection() {
                 <h3 className="text-lg font-semibold text-white">
                   {point.title}
                 </h3>
-                <p className="mt-3 text-base leading-relaxed text-slate-300">
+                <p className="mt-3 text-base leading-relaxed text-[#CBD5E1]">
                   {point.body}
                 </p>
               </div>

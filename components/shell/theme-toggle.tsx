@@ -16,32 +16,19 @@ export function ThemeToggle({ className }: { className?: string }) {
   return (
     <button
       type="button"
-      className={cn(
-        "neu relative inline-flex h-10 w-[3.25rem] shrink-0 items-center rounded-[var(--radius-md)] px-1",
-        "text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-500)]",
-        className,
-      )}
+      className={cn("ss-theme-toggle", className)}
       aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
       onClick={() => setTheme(isDark ? "light" : "dark")}
     >
-      <span
-        className={cn(
-          "absolute left-1 flex size-7 items-center justify-center rounded-[calc(var(--radius-md)-2px)] bg-background shadow-[var(--shadow-1)]",
-          "transition-transform duration-[var(--duration-200)] ease-[var(--ease)]",
-          isDark && "translate-x-[1.35rem]",
-        )}
-        aria-hidden
-      >
-        {mounted ? (
-          isDark ? (
-            <Moon className="h-3.5 w-3.5" />
-          ) : (
-            <Sun className="h-3.5 w-3.5" />
-          )
+      {mounted ? (
+        isDark ? (
+          <Moon className="h-4 w-4" aria-hidden />
         ) : (
-          <span className="h-3.5 w-3.5" />
-        )}
-      </span>
+          <Sun className="h-4 w-4" aria-hidden />
+        )
+      ) : (
+        <span className="h-4 w-4" aria-hidden />
+      )}
       <span className="sr-only">
         {isDark ? "Dark theme" : "Light theme"}
       </span>

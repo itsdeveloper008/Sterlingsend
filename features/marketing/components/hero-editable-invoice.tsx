@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Download, Loader2, Printer } from "lucide-react";
 import { toast } from "sonner";
@@ -8,10 +8,18 @@ import { EditableInvoiceCard } from "@/features/invoice-builder/components/edita
 import { InvoiceSheetScroller } from "@/features/invoice-builder/components/invoice-sheet-scroller";
 import { useInvoiceBuilder } from "@/features/invoice-builder/hooks/use-invoice-builder";
 import { routes } from "@/config/routes";
+import type { InvoiceStamp } from "@/features/invoice-builder/lib/stamps";
 import "@/features/invoice-builder/styles/invoice-builder.css";
 import "@/features/marketing/styles/hero-sheet.css";
 
 const SHEET_DESIGN_WIDTH = 720;
+
+const DEMO_STAMP: InvoiceStamp = {
+  type: "approved",
+  x: 72,
+  y: 14,
+  size: "M",
+};
 
 /** Landing hero - editable invoice. CSS container scaling only (no JS measure). */
 export function HeroEditableInvoice() {
@@ -20,13 +28,21 @@ export function HeroEditableInvoice() {
   });
   const [busy, setBusy] = useState(false);
 
+  const displayInvoice = useMemo(
+    () => ({
+      ...invoice,
+      stamp: invoice.stamp ?? DEMO_STAMP,
+    }),
+    [invoice],
+  );
+
   async function handleDownloadPdf() {
     try {
       setBusy(true);
       const { downloadBuilderInvoicePdf } = await import(
         "@/pdf/utils/download-builder-with-template"
       );
-      await downloadBuilderInvoicePdf(invoice);
+      await downloadBuilderInvoicePdf(displayInvoice);
       toast.success("PDF downloaded");
     } catch (error) {
       console.error("[hero-pdf]", error);
@@ -38,24 +54,21 @@ export function HeroEditableInvoice() {
 
   return (
     <div id="try-invoice" className="w-full space-y-4" data-lcp="hero-invoice">
-      <div className="hero-sheet-frame relative w-full overflow-hidden rounded-2xl border border-border-subtle bg-[var(--surface-muted)] p-3 shadow-[var(--shadow-3)] sm:p-4">
+      <div className="hero-sheet-frame relative w-full">
         <div className="hero-sheet-scaled ss-tilt-host" data-ss-tilt="hero">
           <div className="hero-sheet-design">
             <InvoiceSheetScroller className="!overflow-visible">
               <div style={{ width: SHEET_DESIGN_WIDTH }}>
                 <EditableInvoiceCard
-                  invoice={invoice}
+                  invoice={displayInvoice}
                   dispatch={dispatch}
                   onLogoFile={setLogoFromFile}
+                  className="hero-builder-card"
                 />
               </div>
             </InvoiceSheetScroller>
           </div>
         </div>
-        <div
-          className="hero-sheet-fade pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[var(--surface-muted)] to-transparent"
-          aria-hidden
-        />
       </div>
 
       <div className="no-print flex flex-wrap items-center justify-center gap-3">

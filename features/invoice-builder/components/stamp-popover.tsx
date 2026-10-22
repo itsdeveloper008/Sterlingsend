@@ -18,12 +18,14 @@ export function StampPopover({
   onStampChange,
   onRepositionToggle,
   disabled,
+  triggerClassName,
 }: {
   stamp: InvoiceStamp | undefined;
   repositioning: boolean;
   onStampChange: (next: InvoiceStamp | undefined) => void;
   onRepositionToggle: (on: boolean) => void;
   disabled?: boolean;
+  triggerClassName?: string;
 }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
@@ -88,23 +90,38 @@ export function StampPopover({
       <span id={liveId} className="sr-only" aria-live="polite">
         {announce}
       </span>
-      <Button
-        type="button"
-        variant="outline"
-        disabled={disabled}
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        aria-controls={panelId}
-        onClick={() => setOpen((v) => !v)}
-      >
-        <Stamp className="mr-2 h-4 w-4" />
-        Stamp
-        {stamp ? (
-          <span className="ml-1 hidden text-[var(--secondary-text)] lg:inline">
-            ({INVOICE_STAMPS.find((s) => s.type === stamp.type)?.label})
-          </span>
-        ) : null}
-      </Button>
+      {triggerClassName ? (
+        <button
+          type="button"
+          className={triggerClassName}
+          disabled={disabled}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          aria-controls={panelId}
+          onClick={() => setOpen((v) => !v)}
+        >
+          <Stamp className="h-4 w-4" aria-hidden />
+          Stamp
+        </button>
+      ) : (
+        <Button
+          type="button"
+          variant="outline"
+          disabled={disabled}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          aria-controls={panelId}
+          onClick={() => setOpen((v) => !v)}
+        >
+          <Stamp className="mr-2 h-4 w-4" />
+          Stamp
+          {stamp ? (
+            <span className="ml-1 hidden text-[var(--secondary-text)] lg:inline">
+              ({INVOICE_STAMPS.find((s) => s.type === stamp.type)?.label})
+            </span>
+          ) : null}
+        </Button>
+      )}
       {open ? (
         <div
           id={panelId}

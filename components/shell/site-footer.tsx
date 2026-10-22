@@ -11,24 +11,64 @@ export function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-auto border-t border-border-subtle bg-background">
+    <footer className="mt-auto border-t border-[#E2E8F0] bg-[#F8FAFC] dark:border-[#1E293B] dark:bg-[#0F1A28]">
       <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-4">
         <div className="md:col-span-1">
-          <Logo href={routes.home} size={48} />
-          <p className="mt-3 max-w-xs text-sm text-muted-foreground">
+          <Logo href={routes.home} size={48} showMark={false} />
+          <p className="mt-3 max-w-xs text-[15px] text-[#475569] dark:text-[#CBD5E1]">
             Free invoice maker and PDF tools. Log in only if you want saved
             history.
           </p>
+          <a
+            href={`mailto:${siteConfig.supportEmail}`}
+            className="mt-3 inline-block break-all text-[15px] font-semibold text-[#0F766E] hover:underline"
+          >
+            {siteConfig.supportEmail}
+          </a>
         </div>
 
         <div>
-          <h2 className="text-sm font-semibold text-foreground">Popular tools</h2>
+          <h2 className="text-sm font-semibold text-[#0F172A] dark:text-white">
+            Product
+          </h2>
+          <ul className="mt-3 space-y-2">
+            <li>
+              <Link
+                href={routes.createInvoice}
+                className="text-[15px] text-[#475569] hover:text-[#0F172A] dark:text-[#CBD5E1]"
+              >
+                Create invoice
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={routes.templates}
+                className="text-[15px] text-[#475569] hover:text-[#0F172A] dark:text-[#CBD5E1]"
+              >
+                Templates
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={routes.tools}
+                className="text-[15px] text-[#475569] hover:text-[#0F172A] dark:text-[#CBD5E1]"
+              >
+                PDF tools
+              </Link>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h2 className="text-sm font-semibold text-[#0F172A] dark:text-white">
+            Popular tools
+          </h2>
           <ul className="mt-3 space-y-2">
             {popularTools.map((tool) => (
               <li key={tool.slug}>
                 <Link
                   href={routes.tool(tool.slug)}
-                  className="text-sm text-muted-foreground transition-colors hover-fine:hover:text-foreground"
+                  className="text-[15px] text-[#475569] hover:text-[#0F172A] dark:text-[#CBD5E1]"
                 >
                   {tool.title}
                 </Link>
@@ -38,42 +78,14 @@ export function SiteFooter() {
         </div>
 
         <div>
-          <h2 className="text-sm font-semibold text-foreground">Product</h2>
-          <ul className="mt-3 space-y-2">
-            <li>
-              <Link
-                href={routes.createInvoice}
-                className="text-sm text-muted-foreground hover-fine:hover:text-foreground"
-              >
-                Create invoice
-              </Link>
-            </li>
-            <li>
-              <Link
-                href={routes.templates}
-                className="text-sm text-muted-foreground hover-fine:hover:text-foreground"
-              >
-                Templates
-              </Link>
-            </li>
-            <li>
-              <Link
-                href={routes.tools}
-                className="text-sm text-muted-foreground hover-fine:hover:text-foreground"
-              >
-                PDF tools
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        <div>
-          <h2 className="text-sm font-semibold text-foreground">Legal</h2>
+          <h2 className="text-sm font-semibold text-[#0F172A] dark:text-white">
+            Legal
+          </h2>
           <ul className="mt-3 space-y-2">
             <li>
               <Link
                 href={routes.privacy}
-                className="text-sm text-muted-foreground hover-fine:hover:text-foreground"
+                className="text-[15px] text-[#475569] hover:text-[#0F172A] dark:text-[#CBD5E1]"
               >
                 Privacy
               </Link>
@@ -81,7 +93,7 @@ export function SiteFooter() {
             <li>
               <Link
                 href={routes.terms}
-                className="text-sm text-muted-foreground hover-fine:hover:text-foreground"
+                className="text-[15px] text-[#475569] hover:text-[#0F172A] dark:text-[#CBD5E1]"
               >
                 Terms
               </Link>
@@ -89,7 +101,7 @@ export function SiteFooter() {
             <li>
               <Link
                 href={routes.cookies}
-                className="text-sm text-muted-foreground hover-fine:hover:text-foreground"
+                className="text-[15px] text-[#475569] hover:text-[#0F172A] dark:text-[#CBD5E1]"
               >
                 Cookies
               </Link>
@@ -97,20 +109,12 @@ export function SiteFooter() {
             <li>
               <CookieSettingsButton />
             </li>
-            <li>
-              <a
-                href={`mailto:${siteConfig.supportEmail}`}
-                className="break-all text-sm text-muted-foreground hover-fine:hover:text-foreground"
-              >
-                {siteConfig.supportEmail}
-              </a>
-            </li>
           </ul>
         </div>
       </div>
 
-      <div className="border-t border-border-subtle">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 py-4 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
+      <div className="border-t border-[#E2E8F0] dark:border-[#1E293B]">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 py-4 text-xs text-[#475569] sm:flex-row sm:items-center sm:justify-between sm:px-6 dark:text-[#94A3B8]">
           <p>
             © {year} {siteConfig.name}
           </p>

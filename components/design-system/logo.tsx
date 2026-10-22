@@ -39,7 +39,7 @@ export function Logo({
         />
       ) : null}
       {showWordmark ? (
-        <span className="text-[1.25rem] font-bold leading-none sm:text-[1.375rem]">
+        <span className="text-[21px] font-extrabold leading-none tracking-tight text-[#0F172A]">
           Sterling<span className="text-[#0D9488]">Send</span>
         </span>
       ) : null}

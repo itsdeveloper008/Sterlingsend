@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   Check,
   Download,
-  LayoutTemplate,
   Loader2,
   MoreHorizontal,
   Printer,
@@ -13,7 +12,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Logo } from "@/components/design-system/logo";
+import { SiteHeader } from "@/components/shell";
 import { EditableInvoiceCard } from "@/features/invoice-builder/components/editable-invoice-card";
 import { InvoiceSheetScroller } from "@/features/invoice-builder/components/invoice-sheet-scroller";
 import dynamic from "next/dynamic";
@@ -91,7 +90,6 @@ export function InvoiceBuilderPage({
   const skipClearOnMount = Boolean(initialInvoice);
   const { invoice, hydrated, dirty, dispatch, setLogoFromFile } =
     useInvoiceBuilder({ skipClearOnMount });
-  const cardRef = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [showLoginHint, setShowLoginHint] = useState(true);
@@ -243,7 +241,7 @@ export function InvoiceBuilderPage({
 
   const currencySelect = (
     <select
-      className="builder-toolbar-currency"
+      className="builder-currency-select no-print"
       value={invoice.currency}
       onChange={(event) => {
         const next = event.target.value;
@@ -261,141 +259,112 @@ export function InvoiceBuilderPage({
     </select>
   );
 
+  const desktopActions = (
+    <div className="builder-actions-row no-print">
+      <button
+        type="button"
+        className="builder-btn-secondary"
+        onClick={() => setPickerOpen(true)}
+        disabled={busy}
+      >
+        Template: {template.name}
+      </button>
+      <StampPopover
+        stamp={invoice.stamp}
+        repositioning={stampRepositioning}
+        onStampChange={handleStampChange}
+        onRepositionToggle={setStampRepositioning}
+        disabled={busy}
+        triggerClassName="builder-btn-secondary"
+      />
+      {isLoggedIn ? (
+        <button
+          type="button"
+          className="builder-btn-secondary"
+          onClick={() => void persist("manual")}
+          disabled={busy || saveStatus === "saving"}
+        >
+          {saveStatus === "saving" ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+          ) : saveStatus === "saved" ? (
+            <Check className="h-4 w-4" aria-hidden strokeWidth={2.5} />
+          ) : (
+            <Save className="h-4 w-4" aria-hidden />
+          )}
+          Save
+        </button>
+      ) : null}
+      <button
+        type="button"
+        className="builder-btn-secondary"
+        onClick={() => void handlePrint()}
+        disabled={busy}
+      >
+        <Printer className="h-4 w-4" aria-hidden />
+        Print
+      </button>
+      <button
+        type="button"
+        className="builder-btn-primary"
+        onClick={() => void handleDownloadPdf()}
+        disabled={busy}
+      >
+        {busy ? (
+          <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+        ) : (
+          <Download className="h-4 w-4" aria-hidden />
+        )}
+        Download PDF
+      </button>
+    </div>
+  );
+
   return (
     <div className="builder-page ss-calm-zone">
       <UnsavedChangesGuard dirty={dirty && !savedId} />
-      <div className="builder-action-bar no-print">
-        <div className="builder-toolbar-inner">
-          <Logo href={routes.home} size={40} />
-          <div className="builder-toolbar-desktop">
-            {isLoggedIn ? (
-              <span
-                className="mr-1 flex min-w-[5.5rem] items-center gap-1.5 text-sm text-[var(--secondary-text)]"
-                aria-live="polite"
-              >
-                {saveStatus === "saving" ? (
-                  <>
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    Saving
-                  </>
-                ) : null}
-                {saveStatus === "saved" ? (
-                  <>
-                    <Check
-                      className="h-3.5 w-3.5 text-[var(--brand-700)] motion-safe:animate-[ss-check-pop_0.35s_ease]"
-                      strokeWidth={2.5}
-                    />
-                    Saved
-                  </>
-                ) : null}
-                {saveStatus === "error" ? (
-                  <>
-                    Could not save
-                    <button
-                      type="button"
-                      className="font-semibold text-[var(--brand-700)] underline-offset-2 hover:underline"
-                      onClick={() => void persist("manual")}
-                    >
-                      Retry
-                    </button>
-                  </>
-                ) : null}
-              </span>
-            ) : null}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setPickerOpen(true)}
-              disabled={busy}
-            >
-              <LayoutTemplate className="mr-2 h-4 w-4" />
-              Template
-              <span className="ml-1 hidden text-[var(--secondary-text)] lg:inline">
-                ({template.name})
-              </span>
-            </Button>
-            {currencySelect}
-            <StampPopover
-              stamp={invoice.stamp}
-              repositioning={stampRepositioning}
-              onStampChange={handleStampChange}
-              onRepositionToggle={setStampRepositioning}
-              disabled={busy}
-            />
-            {isLoggedIn ? (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => void persist("manual")}
-                disabled={busy || saveStatus === "saving"}
-              >
-                <Save className="mr-2 h-4 w-4" />
-                Save
-              </Button>
-            ) : null}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => void handlePrint()}
-              disabled={busy}
-            >
-              <Printer className="mr-2 h-4 w-4" />
-              Print
-            </Button>
-            <Button
-              type="button"
-              onClick={() => void handleDownloadPdf()}
-              disabled={busy}
-              className="bg-[var(--brand-700)] text-white hover:bg-[var(--primary-hover)]"
-            >
-              {busy ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Download className="mr-2 h-4 w-4" />
-              )}
-              Download PDF
-            </Button>
-          </div>
-        </div>
+      <SiteHeader />
 
-        {showLoginHint && isGuest ? (
-          <div
-            className="builder-login-banner"
-            role="status"
-          >
-            <p>
-              Log in to save this invoice to your history.{" "}
-              <button
-                type="button"
-                className="font-semibold underline-offset-2 hover:underline"
-                onClick={goToLoginFromPrompt}
-              >
-                Log in
-              </button>
-              {" · "}
-              <button
-                type="button"
-                className="font-semibold underline-offset-2 hover:underline"
-                onClick={goToSignupFromPrompt}
-              >
-                Sign up
-              </button>
-            </p>
+      {showLoginHint && isGuest ? (
+        <div className="builder-login-banner no-print" role="status">
+          <p>
+            Log in to save this invoice to your history.{" "}
             <button
               type="button"
-              className="text-[var(--secondary-text)] underline-offset-2 hover:underline"
-              onClick={() => setShowLoginHint(false)}
+              className="font-semibold underline-offset-2 hover:underline"
+              onClick={goToLoginFromPrompt}
             >
-              Dismiss
+              Log in
             </button>
-          </div>
-        ) : null}
+            {" · "}
+            <button
+              type="button"
+              className="font-semibold underline-offset-2 hover:underline"
+              onClick={goToSignupFromPrompt}
+            >
+              Sign up
+            </button>
+          </p>
+          <button
+            type="button"
+            className="text-[#475569] underline-offset-2 hover:underline"
+            onClick={() => setShowLoginHint(false)}
+          >
+            Dismiss
+          </button>
+        </div>
+      ) : null}
+
+      <div className="builder-intro no-print">
+        <h1>Create an invoice</h1>
+        <p>
+          Fill it in, pick a template, download the PDF. No signup needed.
+        </p>
       </div>
 
-      <div className="builder-sheet mx-auto space-y-6 px-4 py-8 pb-28 sm:px-6 sm:py-10 md:pb-10" ref={cardRef}>
+      <div className="builder-sheet-wrap">
         {showRestoredBanner && isLoggedIn ? (
           <p
-            className="no-print rounded-[var(--radius-md)] border border-[var(--brand-soft)] bg-[var(--brand-tint)] px-4 py-3 text-sm text-[var(--brand-700)]"
+            className="no-print mb-4 rounded-[14px] border border-[#A7F3D0] bg-[#ECFDF5] px-4 py-3 text-sm text-[#065F46]"
             role="status"
           >
             Your draft is back.{" "}
@@ -411,7 +380,7 @@ export function InvoiceBuilderPage({
 
         {showOnboardingPrompt ? (
           <p
-            className="no-print flex flex-wrap items-center justify-between gap-2 rounded-[var(--radius-md)] border border-border-subtle bg-card px-4 py-3 text-sm text-foreground"
+            className="no-print mb-4 flex flex-wrap items-center justify-between gap-2 rounded-[14px] border border-[#E2E8F0] bg-white px-4 py-3 text-sm text-[#0F172A]"
             role="status"
           >
             <span>
@@ -420,13 +389,13 @@ export function InvoiceBuilderPage({
             <span className="flex gap-2">
               <Link
                 href={routes.onboarding}
-                className="font-semibold text-[var(--brand-700)] underline-offset-2 hover:underline"
+                className="font-semibold text-[#0F766E] underline-offset-2 hover:underline"
               >
                 Finish setup
               </Link>
               <button
                 type="button"
-                className="text-muted-foreground underline-offset-2 hover:underline"
+                className="text-[#475569] underline-offset-2 hover:underline"
                 onClick={() => setShowOnboardingPrompt(false)}
               >
                 Dismiss
@@ -435,17 +404,67 @@ export function InvoiceBuilderPage({
           </p>
         ) : null}
 
-        <InvoiceSheetScroller>
-          <EditableInvoiceCard
-            invoice={invoice}
-            dispatch={dispatch}
-            onLogoFile={setLogoFromFile}
-            stampRepositioning={stampRepositioning}
-            onStampChange={(stamp) => handleStampChange(stamp)}
-            onExitStampReposition={() => setStampRepositioning(false)}
-            stampAnimate={stampAnimate}
+        {isLoggedIn && saveStatus !== "idle" ? (
+          <p
+            className="no-print mb-3 text-center text-sm text-[#475569]"
+            aria-live="polite"
+          >
+            {saveStatus === "saving" ? "Saving…" : null}
+            {saveStatus === "saved" ? "Saved" : null}
+            {saveStatus === "error" ? (
+              <>
+                Could not save.{" "}
+                <button
+                  type="button"
+                  className="font-semibold text-[#0F766E] underline-offset-2 hover:underline"
+                  onClick={() => void persist("manual")}
+                >
+                  Retry
+                </button>
+              </>
+            ) : null}
+          </p>
+        ) : null}
+
+        <div className="builder-stack">
+          <div
+            className="builder-stack-layer builder-stack-layer--2"
+            aria-hidden
           />
-        </InvoiceSheetScroller>
+          <div
+            className="builder-stack-layer builder-stack-layer--1"
+            aria-hidden
+          />
+          <div className="builder-stack-sheet">
+            <InvoiceSheetScroller>
+              <EditableInvoiceCard
+                invoice={invoice}
+                dispatch={dispatch}
+                onLogoFile={setLogoFromFile}
+                currencySelect={currencySelect}
+                stampRepositioning={stampRepositioning}
+                onStampChange={(stamp) => handleStampChange(stamp)}
+                onExitStampReposition={() => setStampRepositioning(false)}
+                stampAnimate={stampAnimate}
+              />
+            </InvoiceSheetScroller>
+          </div>
+        </div>
+
+        {desktopActions}
+
+        {isGuest ? (
+          <p className="builder-guest-line no-print">
+            Want to keep a history of the invoices you create?{" "}
+            <button
+              type="button"
+              className="builder-guest-line-link"
+              onClick={goToLoginFromPrompt}
+            >
+              Log in
+            </button>
+          </p>
+        ) : null}
       </div>
 
       <div className="builder-mobile-bar no-print">
@@ -471,6 +490,15 @@ export function InvoiceBuilderPage({
               >
                 Template
               </button>
+              <div className="builder-mobile-menu-stamp px-3 py-2">
+                <StampPopover
+                  stamp={invoice.stamp}
+                  repositioning={stampRepositioning}
+                  onStampChange={handleStampChange}
+                  onRepositionToggle={setStampRepositioning}
+                  disabled={busy}
+                />
+              </div>
               <button
                 type="button"
                 onClick={() => {
@@ -491,23 +519,22 @@ export function InvoiceBuilderPage({
                   Save
                 </button>
               ) : null}
-              <div className="px-3 py-2">{currencySelect}</div>
             </div>
           ) : null}
         </div>
-        <Button
+        <button
           type="button"
-          className="min-h-12 flex-1 bg-[var(--brand-700)] text-white hover:bg-[var(--primary-hover)]"
+          className="builder-btn-primary min-h-12 flex-1"
           onClick={() => void handleDownloadPdf()}
           disabled={busy}
         >
           {busy ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
           ) : (
-            <Download className="mr-2 h-4 w-4" />
+            <Download className="mr-2 h-4 w-4" aria-hidden />
           )}
           Download PDF
-        </Button>
+        </button>
       </div>
 
       <TemplatePickerDialog

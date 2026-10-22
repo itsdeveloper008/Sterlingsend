@@ -38,33 +38,18 @@ export function SiteHeader({
 } = {}) {
   const pathname = usePathname();
   const { user, loading, signOut } = useAuth();
-  const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileReady, setMobileReady] = useState(false);
   const openSearch = onOpenSearch ?? openSiteSearch;
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-50 border-b border-transparent transition-[background-color,box-shadow,border-color] duration-[var(--duration-200)] ease-[var(--ease)]",
-        scrolled
-          ? "glass border-border-subtle shadow-[var(--shadow-1)]"
-          : "bg-background",
-      )}
-    >
-      <div className="mx-auto flex h-14 w-full max-w-6xl items-center gap-3 px-4 md:h-16 sm:px-6">
-        <Logo href={routes.home} size={44} />
+    <header className="ss-site-header sticky top-0 z-50 no-print">
+      <div className="ss-site-header-inner mx-auto flex h-[68px] w-full max-w-6xl items-center gap-3 px-4 sm:px-6">
+        <Logo href={routes.home} size={40} showMark={false} />
 
         <nav
           className="ml-4 hidden items-center gap-1 md:flex"
@@ -78,11 +63,12 @@ export function SiteHeader({
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "ss-link-underline rounded-[var(--radius-md)] px-3 py-2 text-sm font-medium transition-[color,background-color] duration-[var(--duration-150)]",
+                  "rounded-lg px-3 py-2 text-[15px] font-semibold transition-colors",
                   active
-                    ? "text-[var(--brand-700)]"
-                    : "text-muted-foreground hover-fine:hover:bg-muted hover-fine:hover:text-foreground",
+                    ? "text-[#0F766E]"
+                    : "text-[#334155] hover:text-[#0F172A]",
                 )}
+                aria-current={active ? "page" : undefined}
               >
                 {item.label}
               </Link>
@@ -122,7 +108,12 @@ export function SiteHeader({
                 </Button>
               </>
             ) : (
-              <ButtonLink variant="outline" href={routes.login} size="sm">
+              <ButtonLink
+                variant="outline"
+                href={routes.login}
+                size="sm"
+                className="ss-header-login h-11"
+              >
                 Log in
               </ButtonLink>
             )}

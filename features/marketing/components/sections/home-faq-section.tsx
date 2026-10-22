@@ -31,30 +31,32 @@ const FAQS = [
 /** Server section; MotionReveal is the only client island. */
 export function HomeFaqSection() {
   return (
-    <section className="ss-section bg-[var(--surface-muted)]">
-      <div className="mx-auto w-full max-w-[760px] px-[var(--gutter)]">
+    <section className="bg-white px-4 py-24 dark:bg-[#0B1220] sm:px-6">
+      <div className="mx-auto w-full max-w-[760px]">
         <MotionReveal>
-          <h2 className="bonsai-h2">Questions</h2>
-          <p className="marketing-body mt-3">
+          <h2 className="font-[family-name:var(--font-display)] text-[40px] font-bold leading-tight text-[#0F172A] dark:text-white">
+            Questions
+          </h2>
+          <p className="mt-3 text-base text-[#475569] dark:text-[#CBD5E1]">
             Short answers about how the product works today.
           </p>
         </MotionReveal>
         <MotionReveal delayMs={60}>
-          <div className="mt-8 divide-y divide-border-subtle border-y border-border-subtle">
+          <div className="mt-8 divide-y divide-[#CBD5E1] border-y border-[#CBD5E1] dark:divide-[#334155] dark:border-[#334155]">
             {FAQS.map((item) => (
               <details key={item.q} className="group py-5">
-                <summary className="cursor-pointer list-none text-lg font-semibold text-[var(--ink)] marker:content-none">
+                <summary className="cursor-pointer list-none text-[19px] font-bold text-[#0F172A] marker:content-none dark:text-white">
                   <span className="flex items-center justify-between gap-4">
                     {item.q}
                     <span
                       aria-hidden
-                      className="text-[var(--secondary-text)] transition-transform duration-[var(--duration-150)] group-open:rotate-45"
+                      className="text-[#475569] transition-transform duration-150 group-open:rotate-45"
                     >
                       +
                     </span>
                   </span>
                 </summary>
-                <p className="mt-3 text-base leading-relaxed text-[var(--body-text)]">
+                <p className="mt-3 text-base leading-relaxed text-[#475569] dark:text-[#CBD5E1]">
                   {item.a}
                 </p>
               </details>
