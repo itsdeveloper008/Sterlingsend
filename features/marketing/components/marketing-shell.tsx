@@ -92,6 +92,9 @@ export function MarketingShell({
         {children}
       </main>
       <SiteFooter />
+      {/* Cookie banner mounts with the shell (not idle-gated) so a late large
+          paint cannot steal LCP from the hero. Keep copy compact. */}
+      <CookieBanner />
       {extrasReady || searchOpen ? (
         <SiteSearch open={searchOpen} onOpenChange={setSearchOpen} />
       ) : null}
@@ -99,7 +102,6 @@ export function MarketingShell({
         <>
           <BackToTop />
           <FloatingContact />
-          <CookieBanner />
         </>
       ) : null}
       <UtmCapture />

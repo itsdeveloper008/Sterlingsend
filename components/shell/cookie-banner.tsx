@@ -52,20 +52,19 @@ export function CookieBanner({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "glass fixed inset-x-0 bottom-0 z-50 border-t border-border-subtle p-4 shadow-[var(--shadow-3)] print:hidden",
+        "glass fixed inset-x-0 bottom-0 z-50 border-t border-border-subtle px-3 py-2.5 shadow-[var(--shadow-2)] print:hidden",
         className,
       )}
       role="dialog"
       aria-label="Cookie choices"
     >
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-foreground">
-          We use essential storage to keep you signed in and remember your theme
-          and drafts. With your consent we also remember which link you arrived
-          from (UTM parameters). We do not load a third-party analytics product.{" "}
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <p className="text-xs leading-snug text-muted-foreground">
+          Essential storage keeps you signed in and remembers theme and drafts.
+          Analytics consent only stores arrival link (UTM) data.{" "}
           <Link
             href={routes.cookies}
-            className="font-medium underline-offset-2 hover:underline"
+            className="font-medium text-foreground underline-offset-2 hover:underline"
           >
             Cookie policy
           </Link>
@@ -74,17 +73,19 @@ export function CookieBanner({ className }: { className?: string }) {
           <Button
             type="button"
             variant="outline"
-            className="min-h-11 flex-1 sm:flex-none"
+            size="sm"
+            className="min-h-10 flex-1 sm:flex-none"
             onClick={() => choose("rejected")}
           >
             Reject
           </Button>
           <Button
             type="button"
-            className="min-h-11 flex-1 sm:flex-none"
+            size="sm"
+            className="min-h-10 flex-1 sm:flex-none"
             onClick={() => choose("accepted")}
           >
-            Accept analytics
+            Accept
           </Button>
         </div>
       </div>
