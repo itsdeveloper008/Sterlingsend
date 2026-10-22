@@ -23,9 +23,9 @@ const productColumns = [
         desc: "Free · no account needed",
       },
       {
-        href: routes.features,
-        label: "PDF export",
-        desc: "Print-ready SterlingSend Classic",
+        href: routes.templates,
+        label: "Templates",
+        desc: "88 layouts for UK invoices",
       },
       {
         href: routes.signup,
@@ -68,9 +68,9 @@ const productColumns = [
         desc: "Saved invoices when you log in",
       },
       {
-        href: routes.features,
-        label: "Account extras",
-        desc: "History when you log in",
+        href: routes.account,
+        label: "Account",
+        desc: "Business profile and branding",
       },
     ],
   },
@@ -378,10 +378,10 @@ export function MarketingHeader() {
             ) : (
               <>
                 <Link href={routes.login} className="bonsai-nav-login">
-                  Login
+                  Log in
                 </Link>
                 <Link href={routes.createInvoice} className="bonsai-nav-cta">
-                  Get started
+                  Create invoice
                 </Link>
               </>
             )}
@@ -404,7 +404,7 @@ export function MarketingHeader() {
       </div>
 
       {mobileOpen ? (
-        <div className="fixed inset-0 top-[5.25rem] z-40 overflow-y-auto bg-white/95 backdrop-blur-md lg:hidden">
+        <div className="fixed inset-0 top-16 z-40 overflow-y-auto bg-white/95 backdrop-blur-md lg:hidden">
           <div className="bonsai-container space-y-6 py-6">
             {productColumns.map((col) => (
               <div key={col.title}>
@@ -506,17 +506,17 @@ export function MarketingHeader() {
                 <>
                   <Link
                     href={routes.login}
-                    className="bonsai-btn-secondary"
+                    className="bonsai-btn-secondary bonsai-btn-secondary--sm"
                     onClick={() => setMobileOpen(false)}
                   >
-                    Login
+                    Log in
                   </Link>
                   <Link
                     href={routes.createInvoice}
-                    className="bonsai-btn-primary"
+                    className="bonsai-btn-primary bonsai-btn-primary--sm"
                     onClick={() => setMobileOpen(false)}
                   >
-                    Get started
+                    Create invoice
                   </Link>
                 </>
               )}

@@ -8,25 +8,25 @@ const columns = [
     title: "Product",
     links: [
       { href: routes.createInvoice, label: "Create invoice" },
-      { href: routes.tools, label: "PDF Tools" },
-      { href: routes.features, label: "Features" },
+      { href: routes.templates, label: "Templates" },
+      { href: routes.tools, label: "PDF tools" },
     ],
   },
   {
     title: "PDF Toolkit",
     links: [
-      { href: routes.tools, label: "Merge & split" },
-      { href: routes.tools, label: "Compress & protect" },
-      { href: routes.tools, label: "Convert images" },
-      { href: routes.tools, label: "Watermark & redact" },
+      { href: routes.tools, label: "All PDF tools" },
+      { href: `${routes.tools}#optimize`, label: "Optimize" },
+      { href: `${routes.tools}#convert`, label: "Convert" },
+      { href: `${routes.tools}#security`, label: "Security" },
     ],
   },
   {
     title: "Account",
     links: [
-      { href: routes.signup, label: "Save my data" },
-      { href: routes.login, label: "Login" },
-      { href: routes.features, label: "Help centre" },
+      { href: routes.signup, label: "Create account" },
+      { href: routes.login, label: "Log in" },
+      { href: routes.invoices, label: "Invoice history" },
     ],
   },
   {
@@ -46,12 +46,15 @@ export function MarketingFooter() {
         <div className="grid gap-10 lg:grid-cols-[1.2fr_2.5fr]">
           <div className="space-y-4">
             <Logo href={routes.home} size={48} />
-            <p className="max-w-xs text-sm text-[#6B7280]">
+            <p className="max-w-xs text-[0.9375rem] leading-relaxed text-[var(--body-text)]">
               Invoicing and a full PDF toolkit, free without login. Create an
               account only when you want to save your data.
             </p>
-            <Link href={routes.createInvoice} className="bonsai-btn-primary h-10 text-sm">
-              Try SterlingSend for free
+            <Link
+              href={routes.createInvoice}
+              className="bonsai-btn-primary bonsai-btn-primary--sm"
+            >
+              Create an invoice
             </Link>
           </div>
 
@@ -71,11 +74,11 @@ export function MarketingFooter() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col gap-3 border-t border-[#E5E7EB] pt-6 text-sm text-[#9CA3AF] sm:flex-row sm:items-center sm:justify-between">
-          <p>
+        <div className="ss-legal-row mt-12 flex flex-col gap-3 border-t border-[var(--border-ui)] pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="ss-legal">
             © {new Date().getFullYear()} {siteConfig.name}
           </p>
-          <p className="max-w-xl sm:text-right">
+          <p className="ss-legal max-w-xl sm:text-right">
             SterlingSend is invoicing software, not accounting or legal advice.
           </p>
         </div>

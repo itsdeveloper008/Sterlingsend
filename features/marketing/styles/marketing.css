@@ -2,9 +2,10 @@
 
 .marketing-page {
   --m-text: var(--ink);
-  --m-muted: var(--muted-foreground);
-  --m-border: var(--border);
-  --m-surface: #f8fafc;
+  --m-body: var(--body-text);
+  --m-muted: var(--secondary-text);
+  --m-border: var(--border-ui);
+  --m-surface: var(--surface-muted);
   --m-teal: var(--brand-700);
   --m-teal-hover: var(--primary-hover);
   --m-teal-soft: var(--brand-soft);
@@ -12,7 +13,7 @@
   --m-dark: var(--dark-band);
   --m-font: var(--font-sans);
   --m-display: var(--font-display);
-  color: var(--m-text);
+  color: var(--m-body);
   font-family: var(--m-font);
   font-size: var(--text-body);
   line-height: var(--lh-body);
@@ -27,19 +28,8 @@
 .bonsai-container {
   margin-inline: auto;
   width: 100%;
-  max-width: 1200px;
-  padding-inline: 1.25rem;
-}
-
-@media (min-width: 768px) {
-  .bonsai-container {
-    padding-inline: 2rem;
-  }
-}
-
-/* Wider shell when the editable invoice sits in the hero */
-.bonsai-container:has(#try-invoice) {
-  max-width: 1180px;
+  max-width: var(--container-max);
+  padding-inline: var(--gutter);
 }
 
 /* Top announcement */
@@ -106,33 +96,55 @@
 
 .bonsai-h1 {
   font-family: var(--m-display);
-  font-size: clamp(2.35rem, 5vw, 3.6rem);
+  font-size: var(--text-h1);
   font-weight: 700;
-  letter-spacing: -0.035em;
-  line-height: 1.08;
+  font-style: normal;
+  letter-spacing: -0.02em;
+  line-height: var(--lh-h1);
   color: var(--m-text);
 }
 
 .bonsai-h2 {
   font-family: var(--m-display);
-  font-size: clamp(1.7rem, 3.4vw, 2.45rem);
+  font-size: var(--text-h2);
   font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.15;
+  font-style: normal;
+  letter-spacing: -0.02em;
+  line-height: var(--lh-h2);
   color: var(--m-text);
 }
 
 .bonsai-h3 {
-  font-size: 1.2rem;
+  font-size: var(--text-h3);
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
+  line-height: var(--lh-h3);
   color: var(--m-text);
 }
 
 .bonsai-lead {
-  font-size: 1.125rem;
-  line-height: 1.7;
-  color: var(--m-muted);
+  font-size: var(--text-body-lg);
+  line-height: var(--lh-body-lg);
+  color: var(--m-body);
+}
+
+.marketing-heading {
+  font-family: var(--m-display);
+  font-size: var(--text-h2);
+  font-weight: 700;
+  font-style: normal;
+  line-height: var(--lh-h2);
+  color: var(--m-text);
+}
+
+.marketing-body {
+  font-size: var(--text-body);
+  line-height: var(--lh-body);
+  color: var(--m-body);
+}
+
+.ss-section-pad {
+  padding-block: var(--section-pad-y);
 }
 
 .bonsai-btn-primary {
@@ -141,13 +153,13 @@
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  height: 50px;
+  height: var(--btn-h-lg);
   overflow: hidden;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-btn);
   border: 1px solid transparent;
   background: var(--brand-700);
-  padding: 0 1.55rem;
-  font-size: 0.9375rem;
+  padding: 0 1.5rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #fff;
   box-shadow: var(--shadow-2);
@@ -158,7 +170,7 @@
 }
 
 .bonsai-btn-primary:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   background: var(--primary-hover);
   box-shadow: var(--shadow-3);
 }
@@ -168,32 +180,42 @@
   box-shadow: var(--shadow-1);
 }
 
+.bonsai-btn-primary--sm {
+  height: var(--btn-h);
+  font-size: 0.9375rem;
+  padding: 0 1.15rem;
+}
+
 .bonsai-btn-secondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  height: 50px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
+  height: var(--btn-h-lg);
+  border-radius: var(--radius-btn);
+  border: 1px solid var(--border-ui);
   background: var(--background);
-  padding: 0 1.55rem;
-  font-size: 0.9375rem;
-  font-weight: 700;
+  padding: 0 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
   color: var(--m-text);
-  box-shadow: var(--shadow-1);
+  box-shadow: none;
   transition:
     background-color var(--duration-150) var(--ease),
     border-color var(--duration-150) var(--ease),
-    transform var(--duration-150) var(--ease),
-    box-shadow var(--duration-150) var(--ease);
+    transform var(--duration-150) var(--ease);
 }
 
 .bonsai-btn-secondary:hover {
-  background: #f8fafc;
-  border-color: color-mix(in srgb, var(--brand-700) 35%, var(--border));
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-2);
+  background: var(--m-surface);
+  border-color: color-mix(in srgb, var(--brand-700) 35%, var(--border-ui));
+  transform: translateY(-1px);
+}
+
+.bonsai-btn-secondary--sm {
+  height: var(--btn-h);
+  font-size: 0.9375rem;
+  padding: 0 1.15rem;
 }
 
 .bonsai-btn-primary:focus-visible,
@@ -210,15 +232,25 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  padding: 0.85rem 0 0.35rem;
+  height: 4rem;
+  display: flex;
+  align-items: center;
   background: transparent;
-  transition:
-    padding 0.3s ease,
-    background 0.3s ease;
+  transition: background 0.25s ease, box-shadow 0.25s ease,
+    backdrop-filter 0.25s ease;
 }
 
 .bonsai-header--scrolled {
-  padding-top: 0.55rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(1.2);
+  box-shadow: var(--shadow-1);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+@supports not ((backdrop-filter: blur(1px))) {
+  .bonsai-header--scrolled {
+    background: var(--glass-fallback);
+  }
 }
 
 .bonsai-header-shell {
@@ -226,38 +258,25 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  min-height: 4.25rem;
-  border: 1px solid rgba(226, 232, 240, 0.7);
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.78);
-  padding: 0.45rem 0.55rem 0.45rem 1rem;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.7) inset,
-    0 10px 30px rgba(15, 23, 42, 0.05);
-  backdrop-filter: blur(18px) saturate(1.25);
-  transition:
-    border-color 0.3s ease,
-    box-shadow 0.3s ease,
-    background 0.3s ease,
-    transform 0.3s ease;
+  min-height: 4rem;
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
 }
 
 .bonsai-header--scrolled .bonsai-header-shell {
-  border-color: rgba(13, 148, 136, 0.18);
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.85) inset,
-    0 16px 40px rgba(15, 23, 42, 0.08);
+  border: none;
+  background: transparent;
+  box-shadow: none;
 }
 
 .bonsai-nav-cluster {
   display: none;
   align-items: center;
-  gap: 0.2rem;
-  border-radius: 9999px;
-  background: rgba(248, 250, 252, 0.9);
-  padding: 0.25rem;
-  border: 1px solid rgba(226, 232, 240, 0.9);
+  gap: 0.15rem;
 }
 
 @media (min-width: 1024px) {
@@ -271,37 +290,50 @@
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  border-radius: 9999px;
-  padding: 0.55rem 0.95rem;
-  font-size: 0.875rem;
+  border-radius: var(--radius-btn);
+  padding: 0.5rem 0.85rem;
+  font-size: 0.9375rem; /* 15px */
   font-weight: 600;
-  color: #475569;
+  color: var(--secondary-text);
   transition:
     color 0.18s ease,
-    background 0.18s ease,
-    box-shadow 0.18s ease;
+    background 0.18s ease;
 }
 
 .bonsai-nav-link::after {
-  display: none;
+  content: "";
+  position: absolute;
+  left: 0.85rem;
+  right: 0.85rem;
+  bottom: 0.35rem;
+  height: 2px;
+  border-radius: 1px;
+  background: transparent;
+  transition: background 0.18s ease;
 }
 
 .bonsai-nav-link:hover {
   color: var(--m-text);
-  background: #fff;
-  box-shadow: var(--shadow-2);
+  background: color-mix(in srgb, var(--m-surface) 80%, transparent);
 }
 
-.bonsai-nav-link[aria-expanded="true"] {
-  color: var(--m-teal-hover);
-  background: #fff;
-  box-shadow: var(--shadow-2);
+.bonsai-nav-link[aria-expanded="true"],
+.bonsai-nav-link[aria-current="page"],
+.bonsai-nav-link.is-active {
+  color: var(--brand-700);
+  background: color-mix(in srgb, var(--brand-soft) 55%, transparent);
+}
+
+.bonsai-nav-link[aria-expanded="true"]::after,
+.bonsai-nav-link[aria-current="page"]::after,
+.bonsai-nav-link.is-active::after {
+  background: var(--brand-700);
 }
 
 .bonsai-header-actions {
   display: none;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
 }
 
 @media (min-width: 1024px) {
@@ -314,44 +346,45 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 2.5rem;
-  border-radius: 9999px;
+  height: var(--btn-h);
+  border-radius: var(--radius-btn);
+  border: 1px solid var(--border-ui);
+  background: var(--background);
   padding: 0 1rem;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 600;
-  color: #475569;
+  color: var(--m-text);
   transition:
     color 0.18s ease,
-    background 0.18s ease;
+    background 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .bonsai-nav-login:hover {
-  color: var(--m-text);
-  background: rgba(248, 250, 252, 0.95);
+  background: var(--m-surface);
+  border-color: color-mix(in srgb, var(--brand-700) 30%, var(--border-ui));
 }
 
 .bonsai-nav-cta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 2.5rem;
-  border-radius: 9999px;
+  height: var(--btn-h);
+  border-radius: var(--radius-btn);
   background: var(--brand-700);
   padding: 0 1.15rem;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 700;
   color: #fff;
-  box-shadow: var(--shadow-3);
+  box-shadow: var(--shadow-2);
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    filter 0.2s ease;
+    transform 0.15s ease,
+    background 0.15s ease;
 }
 
 .bonsai-nav-cta:hover {
   transform: translateY(-1px);
-  filter: brightness(1.04);
-  box-shadow: var(--shadow-3);
+  background: var(--primary-hover);
 }
 
 .bonsai-nav-user {
@@ -359,14 +392,14 @@
   max-width: 14rem;
   align-items: center;
   gap: 0.55rem;
-  height: 2.5rem;
-  border-radius: 9999px;
-  border: 1px solid rgba(226, 232, 240, 0.95);
+  height: var(--btn-h);
+  border-radius: var(--radius-btn);
+  border: 1px solid var(--border-ui);
   background: #fff;
   padding: 0.2rem 0.7rem 0.2rem 0.25rem;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--ink);
   transition:
     background 0.18s ease,
     border-color 0.18s ease,
@@ -940,26 +973,32 @@ button.bonsai-pill {
 .bonsai-footer {
   border-top: 1px solid var(--m-border);
   background: #fff;
-  padding-block: 3.5rem 2rem;
+  padding-block: 4rem;
 }
 
 .bonsai-footer-title {
   margin-bottom: 1rem;
-  font-size: 0.75rem;
+  font-size: 0.9375rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #9ca3af;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink);
 }
 
 .bonsai-footer a {
-  color: #4b5563;
-  font-size: 0.875rem;
+  color: var(--secondary-text);
+  font-size: 0.9375rem; /* 15px */
   transition: color 0.15s ease;
 }
 
 .bonsai-footer a:hover {
-  color: var(--m-text);
+  color: var(--ink);
+}
+
+.bonsai-footer .ss-legal,
+.bonsai-footer .ss-legal-row {
+  font-size: 0.75rem;
+  color: var(--secondary-text);
 }
 
 /* Pricing page cards */

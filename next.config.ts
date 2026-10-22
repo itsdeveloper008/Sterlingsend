@@ -8,6 +8,8 @@ const withBundleAnalyzer = bundleAnalyzer({
 const firebaseAuthHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN;
 
 const nextConfig: NextConfig = {
+  // Hide the Next.js "N" badge so design screenshots stay clean.
+  devIndicators: false,
   outputFileTracingRoot: import.meta.dirname,
   webpack: (config, { isServer, webpack }) => {
     // pptxgenjs references node: builtins; strip the scheme and stub them out.
