@@ -22,7 +22,7 @@ export function InvoiceSheetPreview({
 }) {
   const invoice = pdfDocumentToBuilder(pdfDocument);
   const localRef = useRef<HTMLDivElement>(null);
-  const noopDispatch = useCallback((_action: BuilderInvoiceAction) => {}, []);
+  const noopDispatch = useCallback((_: BuilderInvoiceAction) => {}, []);
 
   return (
     <div

@@ -77,7 +77,7 @@ function ThumbSheet() {
     };
   }, [templateId]);
 
-  const noop = useCallback((_a: BuilderInvoiceAction) => {}, []);
+  const noop = useCallback((_: BuilderInvoiceAction) => {}, []);
 
   return (
     <div className="bg-slate-200 p-6">
