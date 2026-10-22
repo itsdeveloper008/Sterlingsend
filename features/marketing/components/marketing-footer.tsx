@@ -30,6 +30,14 @@ const columns = [
     ],
   },
   {
+    title: "Guides",
+    links: [
+      { href: routes.guideUkInvoice, label: "UK invoice checklist" },
+      { href: routes.calcVat, label: "VAT calculator" },
+      { href: routes.calcLateInterest, label: "Late payment interest" },
+    ],
+  },
+  {
     title: "Company",
     links: [
       { href: routes.privacy, label: "Privacy Policy" },

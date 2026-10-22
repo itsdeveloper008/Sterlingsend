@@ -25,8 +25,27 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: siteConfig.name,
+    url: siteConfig.url,
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    description,
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "GBP",
+    },
+  };
+
   return (
     <MarketingShell>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <HomePage />
     </MarketingShell>
   );

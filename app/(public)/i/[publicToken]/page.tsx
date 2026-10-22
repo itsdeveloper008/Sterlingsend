@@ -1,8 +1,14 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { PublicInvoicePage } from "@/features/payments";
 import { invoicePaymentService } from "@/services/invoice-payment.service";
 import { Skeleton } from "@/components/ui/skeleton";
+
+export const metadata: Metadata = {
+  title: "Invoice",
+  robots: { index: false, follow: false },
+};
 
 function PublicInvoiceFallback() {
   return (
