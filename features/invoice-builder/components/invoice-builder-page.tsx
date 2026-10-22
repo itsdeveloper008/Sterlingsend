@@ -91,7 +91,7 @@ export function InvoiceBuilderPage({
   const cardRef = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [showLoginHint, setShowLoginHint] = useState(false);
+  const [showLoginHint, setShowLoginHint] = useState(true);
   const [savedId, setSavedId] = useState<string | null>(
     initialInvoice?.id ?? editId,
   );
