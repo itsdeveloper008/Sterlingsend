@@ -148,7 +148,7 @@
   bottom: -24px;
   border-radius: 28px;
   background: var(--inv-layer-2);
-  z-index: -1;
+  z-index: 0;
 }
 
 .builder-stack-sheet {
