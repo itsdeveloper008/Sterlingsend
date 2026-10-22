@@ -354,7 +354,7 @@
 .builder-card[data-layout="split"] .builder-header > div:first-child {
   padding: 12px;
   border-radius: 12px;
-  background: color-mix(in srgb, var(--inv-primary) 8%, white);
+  background: var(--inv-primary-soft);
 }
 
 .builder-card-inner {
@@ -422,7 +422,7 @@
 
 .builder-logo-box:hover {
   border-color: var(--inv-accent);
-  background: color-mix(in srgb, var(--inv-accent) 8%, white);
+  background: var(--inv-accent-soft);
 }
 
 .builder-logo-box:focus-visible {
@@ -576,7 +576,7 @@ button:has(.builder-logo-preview):focus-visible {
 }
 
 .builder-discount-toggle button.is-active {
-  background: color-mix(in srgb, var(--inv-accent) 10%, white);
+  background: var(--inv-accent-soft);
   color: var(--inv-primary);
 }
 
@@ -684,7 +684,7 @@ tr:hover .builder-row-remove {
   gap: 12px;
   margin-top: 10px;
   border-radius: 10px;
-  background: color-mix(in srgb, var(--inv-accent) 10%, white);
+  background: var(--inv-accent-soft);
   padding: 12px 14px;
 }
 
@@ -795,6 +795,7 @@ tr:hover .builder-row-remove {
 
   .builder-action-bar,
   .builder-draft-banner,
+  .builder-login-banner,
   .builder-login-hint,
   .builder-row-remove,
   .builder-logo-box,

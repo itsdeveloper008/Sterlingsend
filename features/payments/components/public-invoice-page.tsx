@@ -12,17 +12,16 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { trackPaymentEvent } from "@/lib/analytics/payments";
 import { isClientStripeTestMode } from "@/lib/stripe/client";
-import { InvoiceDocumentView } from "@/features/invoices/components/invoice-document-view";
 import { shouldShowPayButton } from "@/features/payments/lib/public-invoice-utils";
 import { StripeTestModeBanner } from "@/features/payments/components/stripe-test-mode-banner";
-import { InvoicePDFTemplate } from "@/pdf/components/invoice-pdf-template";
+import {
+  InvoiceSheetPreview,
+  downloadSheetPreviewPdf,
+} from "@/pdf/components/invoice-sheet-preview";
 import { buildPublicInvoicePdfDocument } from "@/pdf/utils/build-public-document";
-import { downloadInvoicePdf } from "@/pdf/utils/download";
 import type { PublicInvoiceView } from "@/types/public-invoice";
 import { INVOICE_STATUSES } from "@/types";
 import { INVOICE_PAYMENT_STATUSES } from "@/types/public-invoice";
-import "@/features/invoices/styles/invoice-document.css";
-import "@/pdf/styles/invoice-pdf.css";
 
 export function PublicInvoicePage({
   invoice,
@@ -96,7 +95,10 @@ export function PublicInvoicePage({
 
     try {
       setPdfBusy(true);
-      await downloadInvoicePdf(pdfTemplateRef.current, invoice.invoiceNumber);
+      await downloadSheetPreviewPdf(
+        pdfTemplateRef.current,
+        invoice.invoiceNumber,
+      );
       toast.success("PDF downloaded");
     } catch (error) {
       console.error("[public-invoice-pdf]", error);
@@ -191,21 +193,9 @@ export function PublicInvoicePage({
             </div>
           ) : null}
 
-          <InvoiceDocumentView
-            data={{
-              invoiceNumber: invoice.invoiceNumber,
-              issueDate: invoice.issueDate,
-              dueDate: invoice.dueDate,
-              status: invoice.status,
-              currency: invoice.currency,
-              items: invoice.items,
-              totals: invoice.totals,
-              notes: invoice.notes,
-              business: invoice.business,
-              customer: invoice.customer,
-            }}
-            amountDueLabel="Amount Due"
-          />
+          <div ref={pdfTemplateRef} id="public-invoice-pdf-root">
+            <InvoiceSheetPreview document={pdfDocument} />
+          </div>
 
           {showPayButton ? (
             <div className="mt-8 space-y-3 print:hidden sm:hidden">
@@ -234,15 +224,6 @@ export function PublicInvoicePage({
           ) : null}
         </div>
       </main>
-
-      <div
-        className="pointer-events-none fixed left-[-9999px] top-0 opacity-0"
-        aria-hidden
-      >
-        <div ref={pdfTemplateRef} id="public-invoice-pdf-root">
-          <InvoicePDFTemplate document={pdfDocument} />
-        </div>
-      </div>
     </div>
   );
 }

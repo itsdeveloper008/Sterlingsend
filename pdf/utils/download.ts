@@ -20,6 +20,10 @@ const COLOR_PROPS = [
   "stroke",
 ] as const;
 
+/** Minimum raster width across the A4 page (CSS width × scale). */
+export const PDF_CAPTURE_MIN_WIDTH_PX = 2400;
+const JPEG_QUALITY = 0.82;
+
 /**
  * html2canvas cannot parse modern CSS color functions (oklab/oklch/color-mix)
  * that Tailwind v4 emits. Clone the node off-DOM and rewrite colors to rgb().
@@ -69,9 +73,7 @@ function prepareElementForCanvas(source: HTMLElement): {
       return value;
     };
 
-    // Prefer resolved rgb() for backgrounds that still use color-mix
     const resolvedBg = computed.backgroundColor;
-
 
     for (const prop of COLOR_PROPS) {
       const value = computed[prop as keyof CSSStyleDeclaration];
@@ -87,7 +89,6 @@ function prepareElementForCanvas(source: HTMLElement): {
       }
     }
 
-    // Flatten shadows / borders that may still reference oklab via Tailwind
     const shadow = computed.boxShadow;
     dstEl.style.boxShadow =
       !shadow || shadow === "none" || unparseable.test(shadow)
@@ -100,7 +101,6 @@ function prepareElementForCanvas(source: HTMLElement): {
     dstEl.style.borderLeft = `${computed.borderLeftWidth} ${computed.borderLeftStyle} ${safeColor(computed.borderLeftColor, computed.borderLeftColor)}`;
     dstEl.style.borderRadius = computed.borderRadius;
 
-    // Keep simple gradients (sidebar / accent bars). Drop only unparseable ones.
     const bgImage = computed.backgroundImage;
     if (!bgImage || bgImage === "none") {
       dstEl.style.backgroundImage = "none";
@@ -120,7 +120,6 @@ function prepareElementForCanvas(source: HTMLElement): {
       }
     }
 
-    // Hide interactive chrome in the clone
     if (
       dstEl.classList.contains("no-print") ||
       dstEl.classList.contains("builder-row-remove") ||
@@ -132,7 +131,6 @@ function prepareElementForCanvas(source: HTMLElement): {
       dstEl.style.display = "none";
     }
 
-    // Replace form controls with plain text for cleaner PDF
     if (
       dstEl instanceof HTMLInputElement ||
       dstEl instanceof HTMLTextAreaElement ||
@@ -154,8 +152,6 @@ function prepareElementForCanvas(source: HTMLElement): {
           : dstEl.value;
       text.textContent = value || "";
 
-      // Keep layout/type styles from the original field so PDF spacing
-      // (e.g. invoice number under INVOICE) stays accurate.
       const color =
         typeof computed.color === "string" && computed.color
           ? computed.color
@@ -194,13 +190,14 @@ function prepareElementForCanvas(source: HTMLElement): {
   clone.style.color = "#0f172a";
   clone.style.boxShadow = "none";
 
-  // Preserve template CSS variables from the live sheet
   const sourceStyle = window.getComputedStyle(source);
   for (const key of [
     "--inv-primary",
     "--inv-accent",
     "--inv-teal",
     "--inv-teal-deep",
+    "--inv-primary-soft",
+    "--inv-accent-soft",
   ]) {
     const value = sourceStyle.getPropertyValue(key).trim();
     if (value) clone.style.setProperty(key, value);
@@ -214,52 +211,226 @@ function prepareElementForCanvas(source: HTMLElement): {
   };
 }
 
+type TextRun = {
+  text: string;
+  x: number;
+  y: number;
+  fontSize: number;
+  fontFamily: string;
+};
+
+function collectTextRuns(root: HTMLElement): TextRun[] {
+  const rootBox = root.getBoundingClientRect();
+  const runs: TextRun[] = [];
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+
+  let node = walker.nextNode();
+  while (node) {
+    const text = (node.textContent || "").replace(/\s+/g, " ").trim();
+    if (text) {
+      const parent = node.parentElement;
+      if (parent) {
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        const rect = range.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+          const style = window.getComputedStyle(parent);
+          const fontSize = Number.parseFloat(style.fontSize) || 12;
+          runs.push({
+            text,
+            x: rect.left - rootBox.left,
+            y: rect.top - rootBox.top + fontSize * 0.85,
+            fontSize,
+            fontFamily: style.fontFamily || "helvetica",
+          });
+        }
+      }
+    }
+    node = walker.nextNode();
+  }
+  return runs;
+}
+
+/** Prefer breaks just after table rows / avoid-break blocks. */
+function computePageBreakYs(
+  clone: HTMLElement,
+  pageCssHeight: number,
+  totalCssHeight: number,
+): number[] {
+  const rootTop = clone.getBoundingClientRect().top;
+  const candidates = new Set<number>([0]);
+
+  const selectors = [
+    ".builder-table tbody tr",
+    ".builder-header",
+    ".builder-billed",
+    ".builder-totals",
+    ".builder-section",
+    ".builder-footer",
+  ];
+  for (const sel of selectors) {
+    for (const el of Array.from(clone.querySelectorAll(sel))) {
+      const box = (el as HTMLElement).getBoundingClientRect();
+      const bottom = box.bottom - rootTop;
+      if (bottom > 8 && bottom < totalCssHeight - 8) {
+        candidates.add(Math.round(bottom));
+      }
+    }
+  }
+
+  const sorted = [...candidates].sort((a, b) => a - b);
+  const breaks: number[] = [0];
+  let pageStart = 0;
+
+  while (pageStart + pageCssHeight < totalCssHeight - 2) {
+    const limit = pageStart + pageCssHeight;
+    let best = pageStart;
+    for (const y of sorted) {
+      if (y > pageStart + 40 && y <= limit) best = y;
+    }
+    if (best <= pageStart) best = limit;
+    breaks.push(best);
+    pageStart = best;
+  }
+
+  return breaks;
+}
+
+function cropCanvas(
+  source: HTMLCanvasElement,
+  y0: number,
+  y1: number,
+): HTMLCanvasElement {
+  const h = Math.max(1, Math.round(y1 - y0));
+  const out = document.createElement("canvas");
+  out.width = source.width;
+  out.height = h;
+  const ctx = out.getContext("2d");
+  if (ctx) {
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, out.width, out.height);
+    ctx.drawImage(
+      source,
+      0,
+      Math.round(y0),
+      source.width,
+      h,
+      0,
+      0,
+      source.width,
+      h,
+    );
+  }
+  return out;
+}
+
+function addInvisibleTextLayer(
+  pdf: jsPDF,
+  runs: TextRun[],
+  cssToPt: number,
+  pageY0: number,
+  pageY1: number,
+) {
+  const gState = pdf.GState({ opacity: 0 });
+  pdf.setGState(gState);
+
+  for (const run of runs) {
+    if (run.y < pageY0 || run.y > pageY1) continue;
+    const x = run.x * cssToPt;
+    const y = (run.y - pageY0) * cssToPt;
+    const size = Math.max(6, run.fontSize * cssToPt);
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(size);
+    pdf.setTextColor(0, 0, 0);
+    try {
+      pdf.text(run.text, x, y, { baseline: "alphabetic" });
+    } catch {
+      // skip glyphs jsPDF cannot encode
+    }
+  }
+
+  pdf.setGState(pdf.GState({ opacity: 1 }));
+}
+
+export type DownloadInvoicePdfResult = {
+  blob: Blob;
+  widthPx: number;
+  scale: number;
+  pageCount: number;
+};
+
+/**
+ * Capture a live sheet element to a multi-page A4 PDF (JPEG raster + invisible text).
+ * Returns the blob; also triggers a download unless `save` is false.
+ */
 export async function downloadInvoicePdf(
   element: HTMLElement,
   invoiceNumber: string,
-) {
+  options?: { save?: boolean },
+): Promise<DownloadInvoicePdfResult> {
   const { clone, cleanup } = prepareElementForCanvas(element);
+  const save = options?.save !== false;
 
   try {
+    const cssWidth = Math.max(clone.offsetWidth, element.offsetWidth, PDF_PAGE_WIDTH_PX);
+    const scale = Math.max(
+      2,
+      Math.ceil(PDF_CAPTURE_MIN_WIDTH_PX / cssWidth),
+    );
+
     const canvas = await html2canvas(clone, {
-      scale: 2,
+      scale,
       useCORS: true,
       allowTaint: true,
       backgroundColor: "#ffffff",
       logging: false,
-      windowWidth: Math.max(element.offsetWidth, PDF_PAGE_WIDTH_PX),
+      windowWidth: cssWidth,
       onclone: (_doc, cloned) => {
         cloned.style.color = "#0f172a";
         cloned.style.backgroundColor = "#ffffff";
       },
     });
 
-    const imageData = canvas.toDataURL("image/png");
+    const textRuns = collectTextRuns(clone);
+    const totalCssHeight = clone.scrollHeight || clone.offsetHeight;
+    const pageCssHeight = cssWidth * (841.89 / 595.28);
+    const breakYs = computePageBreakYs(clone, pageCssHeight, totalCssHeight);
+    if (breakYs[breakYs.length - 1] < totalCssHeight) {
+      breakYs.push(totalCssHeight);
+    }
+
     const pdf = new jsPDF({
       orientation: "portrait",
       unit: "pt",
       format: "a4",
     });
-
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
-    const imageWidth = pageWidth;
-    const imageHeight = (canvas.height * imageWidth) / canvas.width;
+    const cssToPt = pageWidth / cssWidth;
 
-    let heightLeft = imageHeight;
-    let position = 0;
+    for (let i = 0; i < breakYs.length - 1; i++) {
+      const y0 = breakYs[i];
+      const y1 = breakYs[i + 1];
+      if (i > 0) pdf.addPage();
 
-    pdf.addImage(imageData, "PNG", 0, position, imageWidth, imageHeight);
-    heightLeft -= pageHeight;
-
-    while (heightLeft > 0) {
-      position = heightLeft - imageHeight;
-      pdf.addPage();
-      pdf.addImage(imageData, "PNG", 0, position, imageWidth, imageHeight);
-      heightLeft -= pageHeight;
+      const slice = cropCanvas(canvas, y0 * scale, y1 * scale);
+      const jpeg = slice.toDataURL("image/jpeg", JPEG_QUALITY);
+      const drawH = (y1 - y0) * cssToPt;
+      pdf.addImage(jpeg, "JPEG", 0, 0, pageWidth, Math.min(drawH, pageHeight));
+      addInvisibleTextLayer(pdf, textRuns, cssToPt, y0, y1);
     }
 
-    pdf.save(getInvoicePdfFilename(invoiceNumber));
+    const blob = pdf.output("blob");
+    if (save) {
+      pdf.save(getInvoicePdfFilename(invoiceNumber));
+    }
+
+    return {
+      blob,
+      widthPx: canvas.width,
+      scale,
+      pageCount: Math.max(1, breakYs.length - 1),
+    };
   } finally {
     cleanup();
   }

@@ -12,12 +12,13 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ButtonLink } from "@/components/ui/button-link";
-import { InvoicePDFTemplate } from "@/pdf/components/invoice-pdf-template";
-import { downloadInvoicePdf } from "@/pdf/utils/download";
-import { printInvoicePdf } from "@/pdf/utils/print";
+import {
+  InvoiceSheetPreview,
+  downloadSheetPreviewPdf,
+  printSheetPreview,
+} from "@/pdf/components/invoice-sheet-preview";
 import type { InvoicePdfDocument, PdfActionState } from "@/pdf/types";
 import { routes } from "@/config/routes";
-import "@/pdf/styles/invoice-pdf.css";
 
 export function InvoicePdfPreviewPage({
   document: pdfDocument,
@@ -25,7 +26,7 @@ export function InvoicePdfPreviewPage({
   document: InvoicePdfDocument;
 }) {
   const searchParams = useSearchParams();
-  const templateRef = useRef<HTMLDivElement>(null);
+  const sheetRootRef = useRef<HTMLDivElement>(null);
   const [actionState, setActionState] = useState<PdfActionState>("ready");
   const autoAction = searchParams.get("action");
 
@@ -37,14 +38,12 @@ export function InvoicePdfPreviewPage({
   }, []);
 
   async function handleDownload() {
-    if (!templateRef.current) return;
+    const root = sheetRootRef.current;
+    if (!root) return;
 
     try {
       setActionState("generating");
-      await downloadInvoicePdf(
-        templateRef.current,
-        pdfDocument.invoiceNumber,
-      );
+      await downloadSheetPreviewPdf(root, pdfDocument.invoiceNumber);
       setActionState("ready");
       toast.success("PDF downloaded");
     } catch (error) {
@@ -56,7 +55,7 @@ export function InvoicePdfPreviewPage({
 
   function handlePrint() {
     setActionState("generating");
-    printInvoicePdf();
+    printSheetPreview();
     window.setTimeout(() => setActionState("ready"), 500);
   }
 
@@ -72,7 +71,7 @@ export function InvoicePdfPreviewPage({
 
   return (
     <div className="pdf-preview-page mx-auto max-w-5xl space-y-6">
-      <div className="pdf-preview-shell space-y-2">
+      <div className="pdf-preview-shell space-y-2 print:hidden">
         <Link
           href={routes.invoice(pdfDocument.invoiceId)}
           className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
@@ -93,7 +92,7 @@ export function InvoicePdfPreviewPage({
         </div>
       </div>
 
-      <div className="pdf-preview-toolbar flex flex-wrap gap-2">
+      <div className="pdf-preview-toolbar flex flex-wrap gap-2 print:hidden">
         <Button
           onClick={() => void handleDownload()}
           disabled={actionState === "generating"}
@@ -122,15 +121,16 @@ export function InvoicePdfPreviewPage({
       </div>
 
       {actionState === "error" ? (
-        <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+        <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive print:hidden">
           PDF generation failed. Try again or use Print instead.
         </div>
       ) : null}
 
-      <div className="invoice-pdf-preview-canvas rounded-xl bg-muted/30 p-4 md:p-8">
-        <div ref={templateRef} id="invoice-pdf-root">
-          <InvoicePDFTemplate document={pdfDocument} />
-        </div>
+      <div
+        ref={sheetRootRef}
+        className="invoice-pdf-preview-canvas rounded-xl bg-muted/30 p-4 md:p-8 print:bg-transparent print:p-0"
+      >
+        <InvoiceSheetPreview document={pdfDocument} />
       </div>
     </div>
   );

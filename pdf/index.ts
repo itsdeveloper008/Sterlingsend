@@ -1,4 +1,4 @@
-export { InvoicePDFTemplate } from "./components/invoice-pdf-template";
+export { InvoiceSheetPreview } from "./components/invoice-sheet-preview";
 export { InvoicePdfPreviewPage } from "./components/invoice-pdf-preview-page";
 export { downloadInvoicePdf } from "./utils/download";
 export { printInvoicePdf } from "./utils/print";

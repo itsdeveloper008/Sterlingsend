@@ -12,14 +12,14 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { InvoiceDocumentView } from "@/features/invoices/components/invoice-document-view";
-import { InvoicePDFTemplate } from "@/pdf/components/invoice-pdf-template";
-import { downloadInvoicePdf } from "@/pdf/utils/download";
-import { printInvoicePdf } from "@/pdf/utils/print";
+import {
+  InvoiceSheetPreview,
+  downloadSheetPreviewPdf,
+  printSheetPreview,
+} from "@/pdf/components/invoice-sheet-preview";
 import { GuestConversionModal } from "@/features/guest/components/guest-conversion-modal";
 import { GuestShell } from "@/features/guest/components/guest-shell";
 import { buildGuestPdfDocument } from "@/features/guest/lib/pdf";
-import { guestInvoiceToDocumentView } from "@/features/guest/lib/to-document-view";
 import {
   canGenerateGuestPdf,
   getGuestPdfRateLimitMessage,
@@ -30,9 +30,6 @@ import { trackGuestEvent } from "@/features/guest/lib/analytics";
 import type { GuestInvoice } from "@/features/guest/types";
 import type { PdfActionState } from "@/pdf/types";
 import { routes } from "@/config/routes";
-import { INVOICE_STATUSES } from "@/types";
-import "@/features/invoices/styles/invoice-document.css";
-import "@/pdf/styles/invoice-pdf.css";
 import "@/features/guest/styles/guest-print.css";
 
 export function GuestInvoicePreview() {
@@ -78,7 +75,10 @@ export function GuestInvoicePreview() {
     try {
       setActionState("generating");
       recordGuestPdfGeneration();
-      await downloadInvoicePdf(templateRef.current, invoice.invoiceNumber);
+      await downloadSheetPreviewPdf(
+        templateRef.current,
+        invoice.invoiceNumber,
+      );
       setActionState("ready");
       trackGuestEvent("guest_pdf_downloaded", {
         invoiceNumber: invoice.invoiceNumber,
@@ -102,7 +102,7 @@ export function GuestInvoicePreview() {
 
     recordGuestPdfGeneration();
     setActionState("generating");
-    printInvoicePdf();
+    printSheetPreview();
     trackGuestEvent("guest_pdf_printed", {
       invoiceNumber: invoice.invoiceNumber,
     });
@@ -132,10 +132,6 @@ export function GuestInvoicePreview() {
   }
 
   const pdfDocument = buildGuestPdfDocument(invoice);
-  const documentData = guestInvoiceToDocumentView(
-    invoice,
-    INVOICE_STATUSES.SENT,
-  );
 
   return (
     <GuestShell step={2}>
@@ -183,29 +179,24 @@ export function GuestInvoicePreview() {
       </div>
 
       <div className="bg-[#F3F4F6]">
-        <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
+        <div
+          ref={templateRef}
+          id="guest-invoice-pdf-root"
+          className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14"
+        >
           {actionState === "error" ? (
             <div className="mb-6 rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive print:hidden">
               PDF generation failed. Try again or use Print instead.
             </div>
           ) : null}
 
-          <InvoiceDocumentView data={documentData} />
+          <InvoiceSheetPreview document={pdfDocument} />
 
           <GuestConversionModal
             open={conversionOpen}
             onOpenChange={setConversionOpen}
             invoice={invoice}
           />
-        </div>
-      </div>
-
-      <div
-        className="pointer-events-none fixed left-[-9999px] top-0 opacity-0"
-        aria-hidden
-      >
-        <div ref={templateRef} id="guest-invoice-pdf-root">
-          <InvoicePDFTemplate document={pdfDocument} />
         </div>
       </div>
     </GuestShell>

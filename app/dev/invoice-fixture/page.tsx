@@ -1,10 +1,9 @@
 /**
- * THROWWAWAY Phase 1 visual lock page. Do not ship.
- * Renders three fixed InvoicePDFTemplate fixtures for pixel comparison.
+ * THROWWAWAY visual lock page. Do not ship.
+ * Renders three live-sheet fixtures for pixel comparison.
  */
-import { InvoicePDFTemplate } from "@/pdf/components/invoice-pdf-template";
+import { InvoiceSheetPreview } from "@/pdf/components/invoice-sheet-preview";
 import type { InvoicePdfDocument } from "@/pdf/types";
-import "@/pdf/styles/invoice-pdf.css";
 
 const FIXTURE_BASE: Omit<InvoicePdfDocument, "templateId"> = {
   invoiceId: "fixture-001",
@@ -38,39 +37,30 @@ const FIXTURE_BASE: Omit<InvoicePdfDocument, "templateId"> = {
   business: {
     name: "Acme Consulting Ltd",
     email: "hello@acme.test",
-    phone: "",
-    addressLines: ["1 High Street", "London", "EC1A 1BB", "United Kingdom"],
+    addressLines: ["1 High Street", "London"],
+    phone: "020 0000 0000",
+    vatNumber: "GB123",
   },
   customer: {
-    name: "Client Co",
-    email: "accounts@client.test",
-    addressLines: ["10 Client Road", "Manchester", "M1 1AA"],
+    name: "Jane Client",
+    email: "jane@client.test",
+    addressLines: ["2 Client Road"],
   },
 };
 
-const TEMPLATES = ["classic-teal", "bold-navy", "sidebar-slate"] as const;
+const TEMPLATES = ["classic-teal", "sidebar-rose", "bold-navy"] as const;
 
 export default function InvoiceFixturePage() {
   return (
-    <main
-      id="main"
-      style={{
-        background: "#f3f4f6",
-        padding: 32,
-        display: "flex",
-        flexDirection: "column",
-        gap: 48,
-      }}
-    >
+    <div className="space-y-10 bg-slate-100 p-8">
       {TEMPLATES.map((templateId) => (
-        <div
-          key={templateId}
-          data-fixture-template={templateId}
-          style={{ width: 794, margin: "0 auto" }}
-        >
-          <InvoicePDFTemplate document={{ ...FIXTURE_BASE, templateId }} />
+        <div key={templateId} data-fixture={templateId}>
+          <p className="mb-2 text-sm font-medium text-slate-600">{templateId}</p>
+          <InvoiceSheetPreview
+            document={{ ...FIXTURE_BASE, templateId }}
+          />
         </div>
       ))}
-    </main>
+    </div>
   );
 }

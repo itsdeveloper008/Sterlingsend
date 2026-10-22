@@ -49,6 +49,25 @@ export function EditableInvoiceCard({
   const currencySymbol = getCurrencySymbol(invoice.currency);
   const template = getInvoiceTemplate(invoice.templateId);
 
+  function softMix(hex: string, whitePct: number): string {
+    const raw = hex.replace("#", "");
+    const full =
+      raw.length === 3
+        ? raw
+            .split("")
+            .map((c) => c + c)
+            .join("")
+        : raw;
+    const n = Number.parseInt(full, 16);
+    if (Number.isNaN(n)) return "#ffffff";
+    const r = (n >> 16) & 255;
+    const g = (n >> 8) & 255;
+    const b = n & 255;
+    const t = whitePct / 100;
+    const mix = (c: number) => Math.round(c * (1 - t) + 255 * t);
+    return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
+  }
+
   return (
     <article
       className={cn("builder-card", className)}
@@ -61,6 +80,8 @@ export function EditableInvoiceCard({
           "--inv-accent": template.accent,
           "--inv-teal": template.accent,
           "--inv-teal-deep": template.primary,
+          "--inv-primary-soft": softMix(template.primary, 92),
+          "--inv-accent-soft": softMix(template.accent, 90),
         } as CSSProperties
       }
     >
