@@ -14,6 +14,7 @@ export type BuilderSavePayload = {
   currency: BuilderInvoice["currency"];
   invoiceNumber?: string;
   templateId: string;
+  stamp?: BuilderInvoice["stamp"];
   fromBusinessName: string;
   fromBusinessEmail: string;
 };
@@ -33,6 +34,7 @@ export function builderToSavePayload(
     currency: invoice.currency,
     invoiceNumber: invoice.invoiceNumber.trim() || undefined,
     templateId: invoice.templateId,
+    stamp: invoice.stamp,
     fromBusinessName: invoice.business.name.trim(),
     fromBusinessEmail: invoice.business.email.trim(),
   };
@@ -49,6 +51,7 @@ export function invoiceDocToBuilder(doc: {
   clientAddress?: string;
   items: InvoiceFormLineItem[];
   templateId?: string;
+  stamp?: BuilderInvoice["stamp"];
 }): Partial<BuilderInvoice> {
   return {
     invoiceNumber: doc.invoiceNumber,
@@ -57,6 +60,7 @@ export function invoiceDocToBuilder(doc: {
     currency: doc.currency,
     notes: doc.notes ?? "",
     templateId: doc.templateId,
+    stamp: doc.stamp,
     customer: {
       name: doc.clientName,
       email: doc.clientEmail ?? "",

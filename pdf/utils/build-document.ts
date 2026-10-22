@@ -49,6 +49,7 @@ export function buildInvoicePdfDocument({
       ),
     },
     templateId: template.id,
+    stamp: invoice.stamp,
     theme: {
       layout: template.layout,
       primary: template.primary,

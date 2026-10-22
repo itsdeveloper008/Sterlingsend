@@ -18,6 +18,8 @@ import { getCurrencySymbol } from "@/config/currencies";
 import { getInvoiceTemplate } from "@/pdf/templates/catalog";
 import { cn } from "@/lib/utils";
 import type { CSSProperties } from "react";
+import { InvoiceStampOverlay } from "@/features/invoice-builder/components/invoice-stamp-overlay";
+import type { InvoiceStamp } from "@/features/invoice-builder/lib/stamps";
 import "@/features/invoice-builder/styles/invoice-builder.css";
 
 function autoGrow(event: React.FormEvent<HTMLTextAreaElement>) {
@@ -35,11 +37,19 @@ export function EditableInvoiceCard({
   dispatch,
   onLogoFile,
   className,
+  stampRepositioning = false,
+  onStampChange,
+  onExitStampReposition,
+  stampAnimate = false,
 }: {
   invoice: BuilderInvoice;
   dispatch: React.Dispatch<BuilderInvoiceAction>;
   onLogoFile: (file: File | null) => void;
   className?: string;
+  stampRepositioning?: boolean;
+  onStampChange?: (stamp: InvoiceStamp) => void;
+  onExitStampReposition?: () => void;
+  stampAnimate?: boolean;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const calculatedItems = calculateItemsFromForm(invoice.items);
@@ -87,7 +97,21 @@ export function EditableInvoiceCard({
     >
       <div className="builder-accent" aria-hidden />
       <div className="builder-sidebar-rail" aria-hidden />
-      <div className="builder-card-inner">
+      {invoice.stamp ? (
+        <InvoiceStampOverlay
+          stamp={invoice.stamp}
+          repositioning={stampRepositioning}
+          onChange={onStampChange ?? (() => {})}
+          onExitReposition={onExitStampReposition ?? (() => {})}
+          animate={stampAnimate}
+        />
+      ) : null}
+      <div
+        className={cn(
+          "builder-card-inner",
+          stampRepositioning && "builder-card-inner--inert",
+        )}
+      >
         {/* Header: logo + company */}
         <header className="builder-header flex flex-wrap items-start justify-between gap-6">
           <div className="min-w-0">

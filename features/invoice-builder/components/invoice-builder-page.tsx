@@ -44,6 +44,8 @@ import {
 } from "@/actions/builder-invoice.actions";
 import type { SerializedInvoice } from "@/features/invoices/lib/format";
 import { createDefaultBuilderInvoice } from "@/features/invoice-builder/lib/defaults";
+import { StampPopover } from "@/features/invoice-builder/components/stamp-popover";
+import type { InvoiceStamp } from "@/features/invoice-builder/lib/stamps";
 import "@/features/invoice-builder/styles/invoice-builder.css";
 
 const TemplatePickerDialog = dynamic(
@@ -74,6 +76,7 @@ function serializedToBuilder(doc: SerializedInvoice) {
     customer: patch.customer ?? base.customer,
     items: patch.items ?? base.items,
     templateId: patch.templateId ?? base.templateId,
+    stamp: patch.stamp,
   };
 }
 
@@ -99,6 +102,8 @@ export function InvoiceBuilderPage({
   const [showOnboardingPrompt, setShowOnboardingPrompt] = useState(false);
   const [showRestoredBanner, setShowRestoredBanner] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [stampRepositioning, setStampRepositioning] = useState(false);
+  const [stampAnimate, setStampAnimate] = useState(false);
   const saveTimer = useRef<number | null>(null);
   const invoiceRef = useRef(invoice);
   invoiceRef.current = invoice;
@@ -224,6 +229,16 @@ export function InvoiceBuilderPage({
     dispatch({ type: "patch", patch: { templateId } });
   }
 
+  function handleStampChange(next: InvoiceStamp | undefined) {
+    const prevType = invoice.stamp?.type;
+    dispatch({ type: "patch", patch: { stamp: next } });
+    if (next && next.type !== prevType) {
+      setStampAnimate(true);
+      window.setTimeout(() => setStampAnimate(false), 220);
+    }
+    if (!next) setStampRepositioning(false);
+  }
+
   void hydrated;
 
   const currencySelect = (
@@ -300,6 +315,13 @@ export function InvoiceBuilderPage({
               </span>
             </Button>
             {currencySelect}
+            <StampPopover
+              stamp={invoice.stamp}
+              repositioning={stampRepositioning}
+              onStampChange={handleStampChange}
+              onRepositionToggle={setStampRepositioning}
+              disabled={busy}
+            />
             {isLoggedIn ? (
               <Button
                 type="button"
@@ -418,6 +440,10 @@ export function InvoiceBuilderPage({
             invoice={invoice}
             dispatch={dispatch}
             onLogoFile={setLogoFromFile}
+            stampRepositioning={stampRepositioning}
+            onStampChange={(stamp) => handleStampChange(stamp)}
+            onExitStampReposition={() => setStampRepositioning(false)}
+            stampAnimate={stampAnimate}
           />
         </InvoiceSheetScroller>
       </div>

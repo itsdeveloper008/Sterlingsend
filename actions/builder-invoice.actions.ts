@@ -124,6 +124,7 @@ export async function saveBuilderInvoiceAction(
         items: payload.items,
         currency: payload.currency,
         templateId: payload.templateId,
+        stamp: payload.stamp,
       });
 
       revalidatePath(routes.invoices);
@@ -144,6 +145,7 @@ export async function saveBuilderInvoiceAction(
       notes: payload.notes,
       items: payload.items,
       templateId: payload.templateId,
+      stamp: payload.stamp ?? null,
     });
 
     revalidatePath(routes.invoices);

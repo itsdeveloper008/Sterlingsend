@@ -25,6 +25,13 @@ export interface Invoice extends BaseDocument, SoftDeletable {
   totals: InvoiceTotals;
   /** Catalog template used when the invoice was saved from the builder. */
   templateId?: string;
+  /** Visual rubber stamp; omit or undefined means none. Not tied to status. */
+  stamp?: {
+    type: "draft" | "pending" | "approved" | "declined" | "cancelled";
+    x: number;
+    y: number;
+    size: "S" | "M" | "L";
+  };
   publicToken?: string;
   publicUrl?: string;
   paymentEnabled: boolean;

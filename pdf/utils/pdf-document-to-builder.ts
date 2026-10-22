@@ -18,6 +18,7 @@ export function pdfDocumentToBuilder(
     currency,
     notes: doc.notes ?? "",
     templateId: doc.templateId || base.templateId,
+    stamp: doc.stamp,
     logoDataUrl: doc.business.logoUrl || undefined,
     business: {
       name: doc.business.name,

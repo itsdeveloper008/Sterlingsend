@@ -972,3 +972,88 @@ body.builder-pdf-export .builder-card {
 body.builder-pdf-export .builder-add-item {
   display: none !important;
 }
+
+/* Rubber stamp overlay */
+.builder-stamp {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  line-height: 0;
+  transform-origin: center center;
+}
+
+.builder-stamp img {
+  width: 100%;
+  height: auto;
+  display: block;
+  user-select: none;
+}
+
+.builder-stamp--reposition {
+  pointer-events: auto;
+  cursor: grab;
+  outline: 2px dashed #64748b;
+  outline-offset: 4px;
+}
+
+.builder-stamp--reposition:active {
+  cursor: grabbing;
+}
+
+.builder-stamp-done {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 8px);
+  transform: translateX(-50%);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #0f172a;
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 6;
+}
+
+.builder-card-inner--inert {
+  pointer-events: none;
+  user-select: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .builder-stamp--animate {
+    animation: builder-stamp-down 180ms ease-out both;
+  }
+}
+
+@keyframes builder-stamp-down {
+  from {
+    opacity: 0;
+    transform: scale(1.35) rotate(calc(var(--stamp-rot, -10deg) + 4deg));
+  }
+  to {
+    opacity: 0.88;
+    transform: scale(1) rotate(var(--stamp-rot, -10deg));
+  }
+}
+
+@media print {
+  .builder-stamp--animate {
+    animation: none !important;
+  }
+
+  .builder-stamp-done,
+  .builder-stamp-popover {
+    display: none !important;
+  }
+}
+
+body.builder-pdf-export .builder-stamp--animate {
+  animation: none !important;
+}
+
+body.builder-pdf-export .builder-stamp-done {
+  display: none !important;
+}

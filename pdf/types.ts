@@ -42,6 +42,12 @@ export interface InvoicePdfDocument {
   business: InvoicePdfBusiness;
   customer: InvoicePdfCustomer;
   templateId: PdfTemplateId;
+  stamp?: {
+    type: "draft" | "pending" | "approved" | "declined" | "cancelled";
+    x: number;
+    y: number;
+    size: "S" | "M" | "L";
+  };
   theme?: {
     layout: string;
     primary: string;

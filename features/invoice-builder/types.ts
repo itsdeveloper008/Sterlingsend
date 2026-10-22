@@ -1,7 +1,10 @@
 import type { CurrencyCode } from "@/types";
 import type { InvoiceFormLineItem } from "@/types";
+import type { InvoiceStamp } from "@/features/invoice-builder/lib/stamps";
 
 export const BUILDER_INVOICE_VERSION = 1 as const;
+
+export type { InvoiceStamp };
 
 export type BuilderPaymentDetails = {
   accountHolder: string;
@@ -34,6 +37,8 @@ export type BuilderInvoice = {
   notes: string;
   /** Selected catalog template for PDF output (session-only for guests). */
   templateId: string;
+  /** Visual stamp only; missing means none. */
+  stamp?: InvoiceStamp;
   /** Client-side preview only (data URL / object URL) until post-login Storage upload. */
   logoDataUrl?: string;
   business: BuilderBusiness;
