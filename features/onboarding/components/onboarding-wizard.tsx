@@ -3,17 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { FloatingLabelField, FormStatus } from "@/components/ui/form-field";
 import { BusinessLogoUploadForm } from "@/features/settings/components/business-logo-upload-form";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { onboardingSchema } from "@/lib/validations/onboarding";
@@ -25,16 +16,22 @@ import { updateBusinessLogoAction } from "@/actions/business.actions";
 import { uploadBusinessLogo } from "@/firebase/storage";
 import { routes } from "@/config/routes";
 
-function FieldError({ message }: { message?: string }) {
-  return (
-    <p
-      role="alert"
-      aria-live="polite"
-      className="min-h-5 text-sm text-destructive"
-    >
-      {message || "\u00a0"}
-    </p>
-  );
+const SKIP_KEY = "ss_onboarding_skipped";
+
+export function wasOnboardingSkipped(): boolean {
+  try {
+    return localStorage.getItem(SKIP_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function markOnboardingSkipped(): void {
+  try {
+    localStorage.setItem(SKIP_KEY, "1");
+  } catch {
+    // ignore
+  }
 }
 
 export function OnboardingWizard({ userEmail }: { userEmail?: string }) {
@@ -93,7 +90,10 @@ export function OnboardingWizard({ userEmail }: { userEmail?: string }) {
 
     if (logoFile) {
       try {
-        const downloadUrl = await uploadBusinessLogo(result.businessId, logoFile);
+        const downloadUrl = await uploadBusinessLogo(
+          result.businessId,
+          logoFile,
+        );
         const logoResult = await updateBusinessLogoAction(downloadUrl);
         if (!logoResult.success) {
           toast.error(logoResult.error || "Profile saved, but logo upload failed");
@@ -105,98 +105,98 @@ export function OnboardingWizard({ userEmail }: { userEmail?: string }) {
     }
 
     clearDraft();
+    try {
+      localStorage.removeItem(SKIP_KEY);
+    } catch {
+      // ignore
+    }
     setSuccess(true);
     toast.success("Business profile created");
     window.setTimeout(() => {
-      router.push(routes.invoicesNew);
+      router.push(routes.createInvoice);
       router.refresh();
     }, 400);
   }
 
+  function handleSkip() {
+    markOnboardingSkipped();
+    clearDraft();
+    toast.message("You can finish setup anytime from Account");
+    router.push(routes.createInvoice);
+  }
+
   if (!hydrated || bootstrapping) {
     return (
-      <Card>
-        <CardContent className="flex min-h-[320px] items-center justify-center py-12">
-          <div className="flex flex-col items-center gap-3 text-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-            <p className="text-sm text-muted-foreground">
-              Preparing onboarding...
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex min-h-[320px] items-center justify-center rounded-[var(--radius-lg)] border border-border-subtle bg-card py-12">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--brand-700)] border-t-transparent" />
+          <p className="text-sm text-muted-foreground">Preparing setup…</p>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card className="border shadow-sm">
-      <CardHeader>
-        <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] bg-primary/10 text-primary">
-          <Building2 className="h-5 w-5" />
+    <div className="ss-calm-zone mx-auto w-full max-w-lg rounded-[var(--radius-lg)] border border-border-subtle bg-card p-6 sm:p-8">
+      <h1 className="type-h2 text-foreground">Set up your business</h1>
+      <p className="mt-2 text-sm text-muted-foreground">
+        One step: business name, email, and optional logo. You can skip and
+        finish later from Account.
+      </p>
+
+      <form
+        onSubmit={(event) => void handleSubmit(event)}
+        className="mt-8 space-y-5"
+      >
+        <FloatingLabelField
+          id="businessName"
+          label="Business name"
+          value={data.businessName}
+          onChange={(value) => updateField("businessName", value)}
+          error={errors.businessName}
+          autoComplete="organization"
+          required
+        />
+        <FloatingLabelField
+          id="email"
+          label="Business email"
+          type="email"
+          value={data.email}
+          onChange={(value) => updateField("email", value)}
+          error={errors.email}
+          autoComplete="email"
+          required
+        />
+
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-foreground">Logo</p>
+          <BusinessLogoUploadForm
+            deferred
+            compact
+            businessName={data.businessName}
+            onDeferredFileChange={setLogoFile}
+          />
         </div>
-        <CardTitle className="text-2xl">Set up your business</CardTitle>
-        <CardDescription className="text-base">
-          Just a name, email, and optional logo  -  then you can create invoices.
-          You can add more details later in Settings.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={(event) => void handleSubmit(event)} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="businessName">Business name *</Label>
-            <Input
-              id="businessName"
-              value={data.businessName}
-              onChange={(e) => updateField("businessName", e.target.value)}
-              placeholder="Acme Consulting Ltd"
-              aria-invalid={Boolean(errors.businessName)}
-              autoComplete="organization"
-            />
-            <FieldError message={errors.businessName} />
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Business email *</Label>
-            <Input
-              id="email"
-              type="email"
-              value={data.email}
-              onChange={(e) => updateField("email", e.target.value)}
-              placeholder="hello@yourbusiness.co.uk"
-              aria-invalid={Boolean(errors.email)}
-              autoComplete="email"
-            />
-            <FieldError message={errors.email} />
-          </div>
+        <FormStatus
+          message={success ? "Profile saved. Opening the builder…" : null}
+          tone="success"
+        />
 
-          <div className="space-y-2">
-            <Label>Logo</Label>
-            <BusinessLogoUploadForm
-              deferred
-              compact
-              businessName={data.businessName}
-              onDeferredFileChange={setLogoFile}
-            />
-          </div>
-
-          {success ? (
-            <p
-              role="status"
-              aria-live="polite"
-              className="text-sm text-[var(--success-foreground)]"
-            >
-              Profile saved. Opening invoices...
-            </p>
-          ) : null}
+        <div className="flex flex-wrap items-center gap-3 pt-2">
+          <Button type="submit" disabled={submitting || success}>
+            {submitting ? "Saving…" : "Continue"}
+          </Button>
           <Button
-            type="submit"
-            className="w-full sm:w-auto"
+            type="button"
+            variant="ghost"
+            onClick={handleSkip}
             disabled={submitting || success}
           >
-            {submitting ? "Saving..." : "Continue to invoices"}
+            Skip
           </Button>
-        </form>
-      </CardContent>
-    </Card>
+        </div>
+      </form>
+    </div>
   );
 }

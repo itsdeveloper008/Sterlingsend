@@ -14,8 +14,11 @@ const PAGES = [
   "/templates",
   "/login",
   "/signup",
+  "/forgot-password",
   "/create-invoice",
   "/invoices",
+  "/account",
+  "/onboarding",
   "/privacy",
   "/cookies",
   "/not-a-real-page-404",
@@ -23,7 +26,13 @@ const PAGES = [
 
 const rows = [];
 
-const browser = await chromium.launch({ headless: true });
+const chromePath =
+  process.env.CHROME_PATH ||
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+const browser = await chromium.launch({
+  headless: true,
+  executablePath: chromePath,
+});
 for (const theme of THEMES) {
   for (const width of WIDTHS) {
     const context = await browser.newContext({
