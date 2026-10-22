@@ -15,7 +15,9 @@ import type {
   BuilderInvoiceAction,
 } from "@/features/invoice-builder/types";
 import { getCurrencySymbol } from "@/config/currencies";
+import { getInvoiceTemplate } from "@/pdf/templates/catalog";
 import { cn } from "@/lib/utils";
+import type { CSSProperties } from "react";
 import "@/features/invoice-builder/styles/invoice-builder.css";
 
 function autoGrow(event: React.FormEvent<HTMLTextAreaElement>) {
@@ -45,12 +47,25 @@ export function EditableInvoiceCard({
   const vatRate = getDisplayVatRate(calculatedItems);
   const showPayment = hasPaymentDetails(invoice.payment);
   const currencySymbol = getCurrencySymbol(invoice.currency);
+  const template = getInvoiceTemplate(invoice.templateId);
 
   return (
     <article
       className={cn("builder-card", className)}
       data-invoice-builder-card
+      data-template={template.id}
+      data-layout={template.layout}
+      style={
+        {
+          "--inv-primary": template.primary,
+          "--inv-accent": template.accent,
+          "--inv-teal": template.accent,
+          "--inv-teal-deep": template.primary,
+        } as CSSProperties
+      }
     >
+      <div className="builder-accent" aria-hidden />
+      <div className="builder-sidebar-rail" aria-hidden />
       <div className="builder-card-inner">
         {/* Header: logo + company */}
         <header className="builder-header flex flex-wrap items-start justify-between gap-6">

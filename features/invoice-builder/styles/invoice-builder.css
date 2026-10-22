@@ -15,6 +15,8 @@
   --inv-teal: #14b8a6;
   --inv-teal-deep: #0d9488;
   --inv-teal-hover: #0f766e;
+  --inv-primary: var(--inv-teal-deep);
+  --inv-accent: var(--inv-teal);
   --inv-soft: #f8fafc;
   --inv-soft-teal: #f0fdfa;
   --inv-banner-bg: #ecfdf5;
@@ -237,7 +239,7 @@
   margin-inline: auto;
   width: 100%;
   max-width: 860px;
-  overflow: visible;
+  overflow: hidden;
   border-radius: 12px;
   border: 1px solid #e5e7eb;
   background: #fff;
@@ -246,9 +248,113 @@
     0 18px 48px rgba(15, 23, 42, 0.1);
 }
 
-/* When the card is used without the scroller (legacy), keep a border. */
-.builder-card:not(.invoice-sheet-scroller .builder-card) {
-  overflow: hidden;
+.builder-accent {
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--inv-primary) 0%,
+    var(--inv-accent) 100%
+  );
+}
+
+.builder-sidebar-rail {
+  display: none;
+}
+
+/* Layout variants (match PDF catalog look on the live sheet) */
+.builder-card[data-layout="modern"] .builder-header {
+  margin: -8px -8px 8px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+.builder-card[data-layout="modern"] .builder-invoice-no {
+  color: var(--inv-primary);
+}
+
+.builder-card[data-layout="bold"] .builder-accent {
+  height: 0;
+}
+.builder-card[data-layout="bold"] .builder-header {
+  margin: -32px -28px 24px;
+  padding: 28px 28px 24px;
+  background: linear-gradient(135deg, var(--inv-primary), var(--inv-accent));
+  color: #fff;
+}
+@media (min-width: 640px) {
+  .builder-card[data-layout="bold"] .builder-header {
+    margin: -48px -56px 28px;
+    padding: 36px 56px 28px;
+  }
+}
+.builder-card[data-layout="bold"] .builder-title,
+.builder-card[data-layout="bold"] .builder-invoice-no,
+.builder-card[data-layout="bold"] .builder-field,
+.builder-card[data-layout="bold"] .builder-field--muted,
+.builder-card[data-layout="bold"] .builder-vat-row {
+  color: #fff;
+}
+.builder-card[data-layout="bold"] .builder-field::placeholder,
+.builder-card[data-layout="bold"] .builder-field--muted::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+.builder-card[data-layout="bold"] .builder-logo-box {
+  border-color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.builder-card[data-layout="minimal"] {
+  border-radius: 0;
+  box-shadow: none;
+}
+.builder-card[data-layout="minimal"] .builder-accent {
+  height: 2px;
+}
+
+.builder-card[data-layout="sidebar"] {
+  padding-left: 14px;
+}
+.builder-card[data-layout="sidebar"] .builder-sidebar-rail {
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 14px;
+  background: linear-gradient(180deg, var(--inv-primary), var(--inv-accent));
+}
+.builder-card[data-layout="sidebar"] .builder-accent {
+  display: none;
+}
+
+.builder-card[data-layout="band"] .builder-accent {
+  height: 56px;
+}
+.builder-card[data-layout="band"] .builder-header {
+  margin-top: -28px;
+  position: relative;
+  z-index: 1;
+}
+
+.builder-card[data-layout="framed"] {
+  border: 2px solid var(--inv-primary);
+  border-radius: 18px;
+}
+.builder-card[data-layout="framed"] .builder-accent {
+  height: 0;
+}
+
+.builder-card[data-layout="split"] .builder-header {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 1rem;
+  align-items: start;
+}
+.builder-card[data-layout="split"] .builder-header > div:first-child {
+  padding: 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--inv-primary) 8%, white);
 }
 
 .builder-card-inner {
@@ -274,7 +380,7 @@
 }
 
 .builder-field:focus {
-  box-shadow: inset 0 -1.5px 0 #14b8a6;
+  box-shadow: inset 0 -1.5px 0 var(--inv-accent);
 }
 
 .builder-field::placeholder {
@@ -315,12 +421,12 @@
 }
 
 .builder-logo-box:hover {
-  border-color: #14b8a6;
-  background: #f0fdfa;
+  border-color: var(--inv-accent);
+  background: color-mix(in srgb, var(--inv-accent) 8%, white);
 }
 
 .builder-logo-box:focus-visible {
-  outline: 2px solid #14b8a6;
+  outline: 2px solid var(--inv-accent);
   outline-offset: 2px;
 }
 
@@ -339,7 +445,7 @@
 
 .builder-logo-preview:focus-visible,
 button:has(.builder-logo-preview):focus-visible {
-  outline: 2px solid #14b8a6;
+  outline: 2px solid var(--inv-accent);
   outline-offset: 3px;
   border-radius: 4px;
 }
@@ -470,8 +576,8 @@ button:has(.builder-logo-preview):focus-visible {
 }
 
 .builder-discount-toggle button.is-active {
-  background: #f0fdfa;
-  color: #0f766e;
+  background: color-mix(in srgb, var(--inv-accent) 10%, white);
+  color: var(--inv-primary);
 }
 
 /* Locked to pre-Phase-1 outline sm Button metrics (avoid new h-9 tokens). */
@@ -568,7 +674,7 @@ tr:hover .builder-row-remove {
 }
 
 .builder-total-vat {
-  color: #0d9488;
+  color: var(--inv-primary);
 }
 
 .builder-total-final {
@@ -578,7 +684,7 @@ tr:hover .builder-row-remove {
   gap: 12px;
   margin-top: 10px;
   border-radius: 10px;
-  background: #f0fdfa;
+  background: color-mix(in srgb, var(--inv-accent) 10%, white);
   padding: 12px 14px;
 }
 
@@ -586,7 +692,7 @@ tr:hover .builder-row-remove {
   font-size: 1.375rem;
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: #0d9488;
+  color: var(--inv-primary);
 }
 
 .builder-section {
@@ -650,7 +756,7 @@ tr:hover .builder-row-remove {
   font-weight: 800;
   letter-spacing: 0.03em;
   line-height: 1.35;
-  color: #0d9488;
+  color: var(--inv-primary);
 }
 
 .builder-login-hint {
