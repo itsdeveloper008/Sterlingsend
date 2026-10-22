@@ -61,8 +61,10 @@ export default async function PublicToolPage({
           <span aria-hidden> / </span>
           {tool.title}
         </p>
-        <h1 className="mt-3 type-h1 text-foreground">{tool.title}</h1>
-        <p className="mt-2 max-w-2xl text-muted-foreground">{tool.description}</p>
+        <h1 className="mt-3 type-display text-foreground">{tool.title}</h1>
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+          {tool.description}
+        </p>
         <p className="mt-3 text-sm font-medium text-foreground">{tool.privacyTag}</p>
 
         <div className="ss-calm-zone mt-8">

@@ -25,10 +25,10 @@ export function HomeHeroSection() {
           <p className="text-sm font-semibold tracking-tight text-foreground">
             {siteConfig.name}
           </p>
-          <h1 className="mt-3 type-h1 text-foreground">
+          <h1 className="mt-3 type-display text-foreground">
             Free invoice maker and PDF tools
           </h1>
-          <p className="mt-4 max-w-xl text-base text-muted-foreground">
+          <p className="mt-4 max-w-xl text-sm text-muted-foreground">
             Make UK invoices with VAT, download a PDF, and run PDF tools in your
             browser. No signup needed to create an invoice or use the tools.
           </p>

@@ -30,7 +30,7 @@
   color-scheme: light;
   /* Locked typeface: pre-Phase-1 sheet face (Geist), not app/marketing fonts */
   font-family:
-    var(--font-invoice-sheet),
+    var(--font-invoice-sheet, var(--font-plus-jakarta)),
     ui-sans-serif,
     system-ui,
     -apple-system,

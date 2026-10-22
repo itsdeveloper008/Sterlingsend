@@ -5,7 +5,7 @@ const invoiceSheetSans = Geist({
   variable: "--font-invoice-sheet",
   subsets: ["latin"],
   display: "swap",
-  preload: true,
+  preload: false,
   adjustFontFallback: true,
 });
 

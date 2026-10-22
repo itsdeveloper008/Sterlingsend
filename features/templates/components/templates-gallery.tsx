@@ -100,7 +100,7 @@ export function TemplatesGallery() {
       </p>
 
       <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        {filtered.map((template) => (
+        {filtered.map((template, index) => (
           <li key={template.id}>
             <article
               data-ss-tilt="card"
@@ -124,7 +124,9 @@ export function TemplatesGallery() {
                   alt={`${template.name} invoice template preview`}
                   width={480}
                   height={640}
-                  loading="lazy"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 240px"
+                  priority={index < 4}
+                  loading={index < 4 ? "eager" : "lazy"}
                   className="h-full w-full object-cover"
                 />
               </div>

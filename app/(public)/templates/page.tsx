@@ -30,8 +30,8 @@ export default function TemplatesPage() {
     <MarketingShell>
       <div className="border-b border-border-subtle bg-background">
         <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
-          <h1 className="type-h1 text-foreground">Invoice templates</h1>
-          <p className="mt-3 max-w-2xl text-muted-foreground">
+          <h1 className="type-display text-foreground">Invoice templates</h1>
+          <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
             {INVOICE_TEMPLATE_COUNT} designs from eight layouts and eleven
             colours. Choosing one sets the look of the PDF you download from
             Create invoice.
