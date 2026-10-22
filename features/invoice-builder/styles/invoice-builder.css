@@ -928,10 +928,28 @@ tr:hover .builder-row-remove {
     color: transparent !important;
   }
 
-  .builder-total-final {
+  .builder-total-final,
+  .builder-accent,
+  .builder-sidebar-rail,
+  .builder-card[data-layout="bold"] .builder-header,
+  .builder-card[data-layout="band"] .builder-accent,
+  .builder-card[data-layout="split"] .builder-header > div:first-child,
+  .builder-card[data-layout="modern"] .builder-header {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+
+  .builder-mobile-bar {
+    display: none !important;
+  }
+}
+
+body.builder-pdf-export .builder-accent,
+body.builder-pdf-export .builder-sidebar-rail,
+body.builder-pdf-export .builder-total-final,
+body.builder-pdf-export .builder-card[data-layout="bold"] .builder-header {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
 
 body.builder-pdf-export .no-print,
@@ -947,4 +965,9 @@ body.builder-pdf-export .builder-discount-toggle {
 
 body.builder-pdf-export .builder-card {
   box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+body.builder-pdf-export .builder-add-item {
+  display: none !important;
 }

@@ -1,50 +1,29 @@
 "use client";
 
-import { createRoot } from "react-dom/client";
-import { InvoicePDFTemplate } from "@/pdf/components/invoice-pdf-template";
 import { downloadInvoicePdf } from "@/pdf/utils/download";
-import { buildBuilderPdfDocument } from "@/pdf/utils/build-builder-document";
 import type { BuilderInvoice } from "@/features/invoice-builder/types";
-import "@/pdf/styles/invoice-pdf.css";
 
 /**
- * Renders the catalog template off-DOM and downloads via html2canvas.
- * Guests get the full 88-template look without an account.
+ * Capture the live builder sheet so Download PDF matches what the user sees
+ * (layout, colour, sidebar, totals) — same document as Print.
  */
 export async function downloadBuilderInvoicePdf(invoice: BuilderInvoice) {
-  const documentModel = buildBuilderPdfDocument(invoice);
-
-  const host = window.document.createElement("div");
-  host.setAttribute("data-builder-pdf-host", "true");
-  host.style.cssText = [
-    "position:fixed",
-    "left:-10000px",
-    "top:0",
-    "width:794px",
-    "background:#fff",
-    "pointer-events:none",
-    "z-index:-1",
-  ].join(";");
-  window.document.body.appendChild(host);
-
-  const root = createRoot(host);
-  await new Promise<void>((resolve) => {
-    root.render(<InvoicePDFTemplate document={documentModel} />);
-    // Allow layout/paint before capture
-    requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
-  });
-
-  const article = host.querySelector(
-    ".invoice-pdf-template",
+  const card = document.querySelector(
+    "[data-invoice-builder-card]",
   ) as HTMLElement | null;
 
+  if (!card) {
+    throw new Error("Invoice sheet not found on the page");
+  }
+
+  document.body.classList.add("builder-pdf-export");
   try {
-    if (!article) {
-      throw new Error("PDF template failed to render");
-    }
-    await downloadInvoicePdf(article, documentModel.invoiceNumber);
+    // Let hide-chrome styles apply before clone/capture
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+    });
+    await downloadInvoicePdf(card, invoice.invoiceNumber || "invoice");
   } finally {
-    root.unmount();
-    host.remove();
+    document.body.classList.remove("builder-pdf-export");
   }
 }

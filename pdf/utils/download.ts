@@ -69,12 +69,21 @@ function prepareElementForCanvas(source: HTMLElement): {
       return value;
     };
 
+    // Prefer resolved rgb() for backgrounds that still use color-mix
+    const resolvedBg = computed.backgroundColor;
+
 
     for (const prop of COLOR_PROPS) {
       const value = computed[prop as keyof CSSStyleDeclaration];
       if (typeof value === "string" && value && value !== "rgba(0, 0, 0, 0)") {
         const cssName = prop.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`);
-        dstEl.style.setProperty(cssName, safeColor(value, value));
+        const fallback =
+          prop === "backgroundColor"
+            ? resolvedBg && !unparseable.test(resolvedBg)
+              ? resolvedBg
+              : "#ffffff"
+            : "#0f172a";
+        dstEl.style.setProperty(cssName, safeColor(value, fallback));
       }
     }
 
@@ -90,7 +99,16 @@ function prepareElementForCanvas(source: HTMLElement): {
     dstEl.style.borderBottom = `${computed.borderBottomWidth} ${computed.borderBottomStyle} ${safeColor(computed.borderBottomColor, computed.borderBottomColor)}`;
     dstEl.style.borderLeft = `${computed.borderLeftWidth} ${computed.borderLeftStyle} ${safeColor(computed.borderLeftColor, computed.borderLeftColor)}`;
     dstEl.style.borderRadius = computed.borderRadius;
-    dstEl.style.backgroundImage = "none";
+
+    // Keep simple gradients (sidebar / accent bars). Drop only unparseable ones.
+    const bgImage = computed.backgroundImage;
+    if (!bgImage || bgImage === "none") {
+      dstEl.style.backgroundImage = "none";
+    } else if (unparseable.test(bgImage)) {
+      dstEl.style.backgroundImage = "none";
+    } else {
+      dstEl.style.backgroundImage = bgImage;
+    }
 
     for (const style of Array.from(dstEl.style)) {
       const val = dstEl.style.getPropertyValue(style);
@@ -107,7 +125,9 @@ function prepareElementForCanvas(source: HTMLElement): {
       dstEl.classList.contains("no-print") ||
       dstEl.classList.contains("builder-row-remove") ||
       dstEl.classList.contains("builder-add-item") ||
-      dstEl.classList.contains("builder-empty-print")
+      dstEl.classList.contains("builder-empty-print") ||
+      dstEl.classList.contains("builder-discount-toggle") ||
+      dstEl.classList.contains("builder-logo-box")
     ) {
       dstEl.style.display = "none";
     }
@@ -173,6 +193,18 @@ function prepareElementForCanvas(source: HTMLElement): {
   clone.style.backgroundColor = "#ffffff";
   clone.style.color = "#0f172a";
   clone.style.boxShadow = "none";
+
+  // Preserve template CSS variables from the live sheet
+  const sourceStyle = window.getComputedStyle(source);
+  for (const key of [
+    "--inv-primary",
+    "--inv-accent",
+    "--inv-teal",
+    "--inv-teal-deep",
+  ]) {
+    const value = sourceStyle.getPropertyValue(key).trim();
+    if (value) clone.style.setProperty(key, value);
+  }
 
   return {
     clone,
