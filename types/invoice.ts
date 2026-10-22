@@ -23,6 +23,8 @@ export interface Invoice extends BaseDocument, SoftDeletable {
   notes?: string;
   currency: CurrencyCode;
   totals: InvoiceTotals;
+  /** Catalog template used when the invoice was saved from the builder. */
+  templateId?: string;
   publicToken?: string;
   publicUrl?: string;
   paymentEnabled: boolean;

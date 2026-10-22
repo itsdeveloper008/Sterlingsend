@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +17,7 @@ import { PageDescription, PageTitle } from "@/components/design-system/typograph
 import { AUTH_POST_LOGIN_KEY } from "@/firebase/auth";
 
 export function SignupForm() {
+  const searchParams = useSearchParams();
   const { signUp, signInWithGoogle } = useAuth();
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
@@ -44,8 +46,13 @@ export function SignupForm() {
       const redirectTo = await signUp(email, password, displayName);
       setSuccess(true);
       toast.success("Account created");
+      const requested = searchParams.get("redirect");
+      const destination =
+        requested && requested.startsWith("/")
+          ? requested
+          : (redirectTo ?? routes.home);
       window.setTimeout(() => {
-        window.location.assign(redirectTo ?? routes.home);
+        window.location.assign(destination);
       }, 400);
     } catch (error) {
       setFormError(
@@ -64,13 +71,22 @@ export function SignupForm() {
     setFormError(null);
 
     try {
-      sessionStorage.removeItem(AUTH_POST_LOGIN_KEY);
+      const requested = searchParams.get("redirect");
+      if (requested && requested.startsWith("/")) {
+        sessionStorage.setItem(AUTH_POST_LOGIN_KEY, requested);
+      } else {
+        sessionStorage.removeItem(AUTH_POST_LOGIN_KEY);
+      }
       const result = await signInWithGoogle();
       if (result === "redirecting") return;
 
       setSuccess(true);
       toast.success("Welcome to SterlingSend");
-      window.location.assign(result ?? routes.home);
+      window.location.assign(
+        (requested && requested.startsWith("/") ? requested : null) ??
+          result ??
+          routes.home,
+      );
     } catch (error) {
       setFormError(getAuthErrorMessage(error, "Could not continue with Google"));
       setGoogleLoading(false);

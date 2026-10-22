@@ -1,16 +1,6 @@
-import { CreateInvoicePage } from "@/features/invoices";
-import { getDefaultInvoiceDates } from "@/features/invoices/lib/dates";
-import { requireOnboarding } from "@/actions/auth.actions";
+import { permanentRedirect } from "next/navigation";
+import { routes } from "@/config/routes";
 
-export default async function NewInvoicePage() {
-  const { business } = await requireOnboarding();
-  const { issueDate, dueDate } = getDefaultInvoiceDates();
-
-  return (
-    <CreateInvoicePage
-      currency={business.currency}
-      issueDate={issueDate}
-      dueDate={dueDate}
-    />
-  );
+export default function NewInvoiceRedirectPage() {
+  permanentRedirect(routes.createInvoice);
 }

@@ -177,6 +177,7 @@ export class InvoiceService {
       currency: CurrencyCode;
       reserveNumber?: boolean;
       invoiceNumber?: string;
+      templateId?: string;
     },
   ): Promise<Invoice> {
     const clientName = input.clientName.trim();
@@ -212,6 +213,7 @@ export class InvoiceService {
       notes: input.notes?.trim() || undefined,
       currency: input.currency,
       totals,
+      ...(input.templateId ? { templateId: input.templateId } : {}),
       paymentEnabled: false,
       paymentStatus: INVOICE_PAYMENT_STATUSES.UNPAID,
       deletedAt: null,
@@ -233,6 +235,7 @@ export class InvoiceService {
       status?: InvoiceStatus;
       notes?: string;
       items?: InvoiceFormLineItem[];
+      templateId?: string;
     },
   ): Promise<Invoice> {
     const existing = await this.getInvoice(invoiceId, businessId);
@@ -285,6 +288,10 @@ export class InvoiceService {
       const items = calculateItemsFromForm(input.items);
       updates.items = items;
       updates.totals = calculateInvoiceTotals(items);
+    }
+
+    if (input.templateId !== undefined) {
+      updates.templateId = input.templateId;
     }
 
     await this.db

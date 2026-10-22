@@ -63,8 +63,13 @@ function reducer(state: BuilderInvoice, action: BuilderInvoiceAction): BuilderIn
  * Guest/landing invoice state lives in React only.
  * Refresh always starts clean - no localStorage restore.
  */
-export function useInvoiceBuilder(options?: { seed?: "empty" | "demo" }) {
+export function useInvoiceBuilder(options?: {
+  seed?: "empty" | "demo";
+  /** When true, skip wiping storage / template patch (edit or pending restore). */
+  skipClearOnMount?: boolean;
+}) {
   const seed = options?.seed ?? "empty";
+  const skipClearOnMount = options?.skipClearOnMount ?? false;
   const [invoice, dispatch] = useReducer(
     reducer,
     undefined,
@@ -77,13 +82,14 @@ export function useInvoiceBuilder(options?: { seed?: "empty" | "demo" }) {
   const logoObjectUrl = useRef<string | null>(null);
 
   useEffect(() => {
+    if (skipClearOnMount) return;
     // Wipe any previously saved drafts so refresh never shows old client data
     clearBuilderInvoice();
     dispatch({
       type: "patch",
       patch: { templateId: readSessionTemplateId() },
     });
-  }, []);
+  }, [skipClearOnMount]);
 
   const dispatchTracked = useCallback((action: BuilderInvoiceAction) => {
     if (action.type !== "hydrate") setDirty(true);

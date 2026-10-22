@@ -1,26 +1,11 @@
-import { notFound } from "next/navigation";
-import { requireOnboarding } from "@/actions/auth.actions";
-import { EditInvoicePage } from "@/features/invoices";
-import { serializeInvoice } from "@/features/invoices/lib/serialize";
-import { invoiceService } from "@/services/invoice.service";
+import { permanentRedirect } from "next/navigation";
+import { routes } from "@/config/routes";
 
-export default async function InvoiceEditPage({
+export default async function InvoiceEditRedirectPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { business } = await requireOnboarding();
-  const invoice = await invoiceService.getInvoice(id, business.id);
-
-  if (!invoice) {
-    notFound();
-  }
-
-  return (
-    <EditInvoicePage
-      invoice={serializeInvoice(invoice)}
-      currency={business.currency}
-    />
-  );
+  permanentRedirect(`${routes.createInvoice}?edit=${encodeURIComponent(id)}`);
 }
