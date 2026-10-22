@@ -14,13 +14,15 @@ import type {
   BuilderInvoice,
   BuilderInvoiceAction,
 } from "@/features/invoice-builder/types";
-import {
-  getCurrenciesForSelect,
-  getCurrencySymbol,
-  isCurrencyCode,
-} from "@/config/currencies";
+import { getCurrencySymbol } from "@/config/currencies";
 import { cn } from "@/lib/utils";
 import "@/features/invoice-builder/styles/invoice-builder.css";
+
+function autoGrow(event: React.FormEvent<HTMLTextAreaElement>) {
+  const el = event.currentTarget;
+  el.style.height = "auto";
+  el.style.height = `${el.scrollHeight}px`;
+}
 
 /**
  * Clean editable invoice sheet - logo upload, company block, Billed To panel,
@@ -43,7 +45,6 @@ export function EditableInvoiceCard({
   const vatRate = getDisplayVatRate(calculatedItems);
   const showPayment = hasPaymentDetails(invoice.payment);
   const currencySymbol = getCurrencySymbol(invoice.currency);
-  const currencies = getCurrenciesForSelect();
 
   return (
     <article
@@ -124,8 +125,8 @@ export function EditableInvoiceCard({
                   patch: { name: event.target.value },
                 })
               }
-              placeholder="Your Company"
-              aria-label="Company name"
+              placeholder="Your business name"
+              aria-label="Business name"
             />
             <textarea
               className="builder-field builder-field--area builder-field--muted mt-1"
@@ -137,8 +138,9 @@ export function EditableInvoiceCard({
                   patch: { address: event.target.value },
                 })
               }
-              placeholder="123 Main St, City, State 12345"
-              aria-label="Company address"
+              onInput={autoGrow}
+              placeholder="Address line, town, postcode"
+              aria-label="Business address"
             />
             <input
               className="builder-field builder-field--muted"
@@ -150,8 +152,8 @@ export function EditableInvoiceCard({
                   patch: { email: event.target.value },
                 })
               }
-              placeholder="your@email.com"
-              aria-label="Company email"
+              placeholder="Business email"
+              aria-label="Business email"
             />
             <input
               className={cn(
@@ -166,18 +168,18 @@ export function EditableInvoiceCard({
                   patch: { phone: event.target.value },
                 })
               }
-              placeholder="Phone Number"
+              placeholder="Phone (optional)"
               aria-label="Phone (optional)"
             />
             <div
               className={cn(
-                "mt-0.5 flex items-baseline justify-end gap-1 text-sm text-[#94A3B8]",
+                "builder-vat-row mt-0.5 flex items-baseline justify-end gap-1.5 text-sm text-[#64748B]",
                 !invoice.business.vatNumber.trim() && "builder-empty-print",
               )}
             >
-              <span className="italic">VAT:</span>
+              <span className="shrink-0 font-medium not-italic">VAT:</span>
               <input
-                className="builder-field builder-field--muted w-auto min-w-[8rem] text-right italic"
+                className="builder-field builder-field--muted w-auto min-w-[8rem] text-right not-italic"
                 value={invoice.business.vatNumber}
                 onChange={(event) =>
                   dispatch({
@@ -185,7 +187,7 @@ export function EditableInvoiceCard({
                     patch: { vatNumber: event.target.value },
                   })
                 }
-                placeholder="Add VAT Number"
+                placeholder="VAT number (optional)"
                 aria-label="VAT number (optional)"
               />
             </div>
@@ -205,7 +207,7 @@ export function EditableInvoiceCard({
                   patch: { name: event.target.value },
                 })
               }
-              placeholder="Client Company"
+              placeholder="Client name"
               aria-label="Client name"
             />
             <textarea
@@ -218,7 +220,8 @@ export function EditableInvoiceCard({
                   patch: { address: event.target.value },
                 })
               }
-              placeholder="Client Address"
+              onInput={autoGrow}
+              placeholder="Client address"
               aria-label="Client address"
             />
             <input
@@ -231,7 +234,7 @@ export function EditableInvoiceCard({
                   patch: { email: event.target.value },
                 })
               }
-              placeholder="client@email.com"
+              placeholder="Client email"
               aria-label="Client email"
             />
           </div>
@@ -311,7 +314,7 @@ export function EditableInvoiceCard({
                           patch: { description: event.target.value },
                         })
                       }
-                      placeholder="Service or Product"
+                      placeholder="Service or product"
                       aria-label="Description"
                     />
                   </td>
@@ -504,31 +507,7 @@ export function EditableInvoiceCard({
             </dd>
           </div>
           <div className="builder-total-final">
-            <div className="flex items-center gap-2">
-              <select
-                className="builder-currency-select no-print"
-                value={invoice.currency}
-                onChange={(event) => {
-                  const next = event.target.value;
-                  if (!isCurrencyCode(next)) return;
-                  dispatch({
-                    type: "patch",
-                    patch: { currency: next },
-                  });
-                }}
-                aria-label="Currency"
-              >
-                {currencies.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.code} ({getCurrencySymbol(c.code)})
-                  </option>
-                ))}
-              </select>
-              <span className="text-sm font-semibold text-[#0F172A] print:inline">
-                <span className="no-print sr-only">Total</span>
-                <span className="hidden print:inline">{currencySymbol}</span>
-              </span>
-            </div>
+            <dt className="text-sm font-semibold text-[#0F172A]">Total</dt>
             <dd className="builder-total-final-amount tabular-nums">
               {currencySymbol}{" "}
               {totals.total.toLocaleString("en-GB", {
@@ -549,6 +528,7 @@ export function EditableInvoiceCard({
             onChange={(event) =>
               dispatch({ type: "patch", patch: { notes: event.target.value } })
             }
+            onInput={autoGrow}
             placeholder="Thank you for your business!"
             aria-label="Notes"
           />
@@ -573,7 +553,7 @@ export function EditableInvoiceCard({
                   patch: { accountHolder: event.target.value },
                 })
               }
-              placeholder="e.g. John Doe"
+              placeholder="Account name"
             />
             <span className="builder-payment-label">Bank Name</span>
             <input
@@ -585,7 +565,7 @@ export function EditableInvoiceCard({
                   patch: { bankName: event.target.value },
                 })
               }
-              placeholder="e.g. Global Bank"
+              placeholder="Bank name"
             />
             <span className="builder-payment-label">Account/IBAN</span>
             <input
@@ -597,7 +577,7 @@ export function EditableInvoiceCard({
                   patch: { accountIban: event.target.value },
                 })
               }
-              placeholder="e.g. GB29NWBK60161331926819"
+              placeholder="Account number or IBAN"
             />
             <span className="builder-payment-label">Sort Code/SWIFT</span>
             <input
@@ -609,7 +589,7 @@ export function EditableInvoiceCard({
                   patch: { sortSwift: event.target.value },
                 })
               }
-              placeholder="e.g. 12-34-56"
+              placeholder="Sort code or SWIFT"
             />
           </div>
         </section>
@@ -618,10 +598,10 @@ export function EditableInvoiceCard({
         <footer className="builder-footer">
           <div className="min-w-0">
             <p className="font-semibold text-[#0F172A]">
-              {invoice.business.name.trim() || "Your Company"}
+              {invoice.business.name.trim() || "Your business name"}
             </p>
             <p className="text-sm text-[#64748B]">
-              {invoice.business.email.trim() || "your@email.com"}
+              {invoice.business.email.trim() || "Business email"}
             </p>
           </div>
           <div className="builder-footer-meta">

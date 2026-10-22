@@ -11,7 +11,7 @@
   --inv-border: #e5e7eb;
   --inv-border-soft: #e2e8f0;
   --inv-paper: #ffffff;
-  --inv-page: #f3f4f6;
+  --inv-page: #f1f5f9;
   --inv-teal: #14b8a6;
   --inv-teal-deep: #0d9488;
   --inv-teal-hover: #0f766e;
@@ -20,7 +20,7 @@
   --inv-banner-bg: #ecfdf5;
   --inv-banner-border: #a7f3d0;
   --inv-banner-text: #065f46;
-  --inv-placeholder: #94a3b8;
+  --inv-placeholder: #64748b;
   --inv-danger: #dc2626;
 
   min-height: 100vh;
@@ -80,6 +80,100 @@
   backdrop-filter: blur(10px);
 }
 
+.builder-toolbar-inner {
+  margin-inline: auto;
+  display: flex;
+  max-width: 860px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+}
+
+.builder-toolbar-desktop {
+  display: none;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .builder-toolbar-desktop {
+    display: flex;
+  }
+}
+
+.builder-toolbar-currency {
+  max-width: 11rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid #64748b;
+  background: #ffffff;
+  padding: 0 0.65rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.builder-login-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid #a7f3d0;
+  background: #ecfdf5;
+  padding: 0.55rem 1rem;
+  font-size: 0.875rem;
+  color: #065f46;
+}
+
+.builder-sheet {
+  max-width: 860px;
+}
+
+.builder-mobile-bar {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.98);
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  box-shadow: 0 -4px 16px rgb(15 23 42 / 0.06);
+}
+
+.builder-mobile-menu {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: 0;
+  min-width: 11rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 0.12);
+  overflow: hidden;
+}
+
+.builder-mobile-menu button {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #0f172a;
+  background: transparent;
+  border: 0;
+}
+
+.builder-mobile-menu button:hover {
+  background: #f8fafc;
+}
+
 .builder-draft-banner {
   display: flex;
   align-items: center;
@@ -136,22 +230,19 @@
   position: relative;
   margin-inline: auto;
   width: 100%;
-  max-width: 1100px;
+  max-width: 860px;
   overflow: visible;
-  border-radius: 0;
-  border: none;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
   background: #fff;
-  box-shadow: none;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 18px 48px rgba(15, 23, 42, 0.1);
 }
 
 /* When the card is used without the scroller (legacy), keep a border. */
 .builder-card:not(.invoice-sheet-scroller .builder-card) {
   overflow: hidden;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  box-shadow:
-    0 1px 2px rgba(15, 23, 42, 0.04),
-    0 18px 48px rgba(15, 23, 42, 0.1);
 }
 
 .builder-card-inner {
@@ -181,15 +272,17 @@
 }
 
 .builder-field::placeholder {
-  color: #94a3b8;
-  font-style: italic;
+  color: #64748b;
+  font-style: normal;
   font-weight: 400;
 }
 
 .builder-field--area {
-  resize: vertical;
+  resize: none;
   line-height: 1.5;
-  min-height: 2.25rem;
+  min-height: 2.5rem;
+  overflow: hidden;
+  field-sizing: content;
 }
 
 .builder-field--muted {

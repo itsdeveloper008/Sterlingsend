@@ -7,6 +7,7 @@ import {
   Download,
   LayoutTemplate,
   Loader2,
+  MoreHorizontal,
   Printer,
   Save,
 } from "lucide-react";
@@ -20,6 +21,11 @@ import { UnsavedChangesGuard } from "@/features/invoice-builder/components/unsav
 import { useInvoiceBuilder } from "@/features/invoice-builder/hooks/use-invoice-builder";
 import { writeSessionTemplateId } from "@/lib/template-preference";
 import { getInvoiceTemplate } from "@/pdf/templates/catalog";
+import {
+  getCurrenciesForSelect,
+  getCurrencySymbol,
+  isCurrencyCode,
+} from "@/config/currencies";
 import { useAuth } from "@/hooks/use-auth";
 import { routes } from "@/config/routes";
 import {
@@ -38,7 +44,6 @@ import {
 } from "@/actions/builder-invoice.actions";
 import type { SerializedInvoice } from "@/features/invoices/lib/format";
 import { createDefaultBuilderInvoice } from "@/features/invoice-builder/lib/defaults";
-import { cn } from "@/lib/utils";
 import "@/features/invoice-builder/styles/invoice-builder.css";
 
 const TemplatePickerDialog = dynamic(
@@ -93,12 +98,14 @@ export function InvoiceBuilderPage({
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [showOnboardingPrompt, setShowOnboardingPrompt] = useState(false);
   const [showRestoredBanner, setShowRestoredBanner] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const saveTimer = useRef<number | null>(null);
   const invoiceRef = useRef(invoice);
   invoiceRef.current = invoice;
   const hydratedEdit = useRef(false);
 
   const template = getInvoiceTemplate(invoice.templateId);
+  const currencies = getCurrenciesForSelect();
   const isGuest = !authLoading && !user;
   const isLoggedIn = !authLoading && !!user;
 
@@ -219,16 +226,36 @@ export function InvoiceBuilderPage({
 
   void hydrated;
 
+  const currencySelect = (
+    <select
+      className="builder-toolbar-currency"
+      value={invoice.currency}
+      onChange={(event) => {
+        const next = event.target.value;
+        if (!isCurrencyCode(next)) return;
+        dispatch({ type: "patch", patch: { currency: next } });
+      }}
+      aria-label="Currency"
+      disabled={busy}
+    >
+      {currencies.map((c) => (
+        <option key={c.code} value={c.code}>
+          {c.code} ({getCurrencySymbol(c.code)})
+        </option>
+      ))}
+    </select>
+  );
+
   return (
-    <div className="builder-page">
+    <div className="builder-page ss-calm-zone">
       <UnsavedChangesGuard dirty={dirty && !savedId} />
       <div className="builder-action-bar no-print">
-        <div className="mx-auto flex max-w-[1100px] items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <Logo href={routes.home} size={48} />
-          <div className="flex flex-wrap items-center justify-end gap-2">
+        <div className="builder-toolbar-inner">
+          <Logo href={routes.home} size={40} />
+          <div className="builder-toolbar-desktop">
             {isLoggedIn ? (
               <span
-                className="mr-1 flex min-w-[5.5rem] items-center gap-1.5 text-xs text-muted-foreground"
+                className="mr-1 flex min-w-[5.5rem] items-center gap-1.5 text-sm text-[var(--secondary-text)]"
                 aria-live="polite"
               >
                 {saveStatus === "saving" ? (
@@ -268,10 +295,11 @@ export function InvoiceBuilderPage({
             >
               <LayoutTemplate className="mr-2 h-4 w-4" />
               Template
-              <span className="ml-1 hidden text-muted-foreground sm:inline">
+              <span className="ml-1 hidden text-[var(--secondary-text)] lg:inline">
                 ({template.name})
               </span>
             </Button>
+            {currencySelect}
             {isLoggedIn ? (
               <Button
                 type="button"
@@ -296,7 +324,7 @@ export function InvoiceBuilderPage({
               type="button"
               onClick={() => void handleDownloadPdf()}
               disabled={busy}
-              className="bg-[#14B8A6] hover:bg-[#0D9488]"
+              className="bg-[var(--brand-700)] text-white hover:bg-[var(--primary-hover)]"
             >
               {busy ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -307,12 +335,42 @@ export function InvoiceBuilderPage({
             </Button>
           </div>
         </div>
+
+        {showLoginHint && isGuest ? (
+          <div
+            className="builder-login-banner"
+            role="status"
+          >
+            <p>
+              Log in to save this invoice to your history.{" "}
+              <button
+                type="button"
+                className="font-semibold underline-offset-2 hover:underline"
+                onClick={goToLoginFromPrompt}
+              >
+                Log in
+              </button>
+              {" · "}
+              <button
+                type="button"
+                className="font-semibold underline-offset-2 hover:underline"
+                onClick={goToSignupFromPrompt}
+              >
+                Sign up
+              </button>
+            </p>
+            <button
+              type="button"
+              className="text-[var(--secondary-text)] underline-offset-2 hover:underline"
+              onClick={() => setShowLoginHint(false)}
+            >
+              Dismiss
+            </button>
+          </div>
+        ) : null}
       </div>
 
-      <div
-        className="builder-sheet mx-auto max-w-[1100px] space-y-6 px-4 py-8 sm:px-6 sm:py-10"
-        ref={cardRef}
-      >
+      <div className="builder-sheet mx-auto space-y-6 px-4 py-8 pb-28 sm:px-6 sm:py-10 md:pb-10" ref={cardRef}>
         {showRestoredBanner && isLoggedIn ? (
           <p
             className="no-print rounded-[var(--radius-md)] border border-[var(--brand-soft)] bg-[var(--brand-tint)] px-4 py-3 text-sm text-[var(--brand-700)]"
@@ -355,30 +413,6 @@ export function InvoiceBuilderPage({
           </p>
         ) : null}
 
-        {showLoginHint && isGuest ? (
-          <p
-            className="no-print rounded-[var(--radius-md)] border border-[var(--brand-soft)] bg-[var(--brand-tint)] px-4 py-3 text-sm text-[var(--brand-700)]"
-            role="status"
-          >
-            Log in to save this invoice to your history.{" "}
-            <button
-              type="button"
-              className="font-semibold underline-offset-2 hover:underline"
-              onClick={goToLoginFromPrompt}
-            >
-              Log in
-            </button>
-            {" · "}
-            <button
-              type="button"
-              className="font-semibold underline-offset-2 hover:underline"
-              onClick={goToSignupFromPrompt}
-            >
-              Sign up
-            </button>
-          </p>
-        ) : null}
-
         <InvoiceSheetScroller>
           <EditableInvoiceCard
             invoice={invoice}
@@ -386,19 +420,68 @@ export function InvoiceBuilderPage({
             onLogoFile={setLogoFromFile}
           />
         </InvoiceSheetScroller>
+      </div>
 
-        {isGuest ? (
-          <p className="builder-login-hint no-print mt-6">
-            Want to keep a history of invoices you create?{" "}
-            <button
-              type="button"
-              className={cn("font-semibold underline-offset-2 hover:underline")}
-              onClick={goToLoginFromPrompt}
-            >
-              Log in
-            </button>
-          </p>
-        ) : null}
+      <div className="builder-mobile-bar no-print md:hidden">
+        <div className="relative">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            aria-label="More actions"
+            aria-expanded={mobileMenuOpen}
+            onClick={() => setMobileMenuOpen((v) => !v)}
+          >
+            <MoreHorizontal className="h-5 w-5" />
+          </Button>
+          {mobileMenuOpen ? (
+            <div className="builder-mobile-menu">
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setPickerOpen(true);
+                }}
+              >
+                Template
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  void handlePrint();
+                }}
+              >
+                Print
+              </button>
+              {isLoggedIn ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    void persist("manual");
+                  }}
+                >
+                  Save
+                </button>
+              ) : null}
+              <div className="px-3 py-2">{currencySelect}</div>
+            </div>
+          ) : null}
+        </div>
+        <Button
+          type="button"
+          className="min-h-12 flex-1 bg-[var(--brand-700)] text-white hover:bg-[var(--primary-hover)]"
+          onClick={() => void handleDownloadPdf()}
+          disabled={busy}
+        >
+          {busy ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Download className="mr-2 h-4 w-4" />
+          )}
+          Download PDF
+        </Button>
       </div>
 
       <TemplatePickerDialog
