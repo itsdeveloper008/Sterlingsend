@@ -16,9 +16,8 @@ const pills = [
   "PDF export",
   "Bank details",
   "Branding",
-  "Saved services",
+  "Reusable line items",
   "Tracking",
-  "Dashboard",
   "Invoice history",
 ];
 

@@ -35,7 +35,7 @@ export default async function InvoicePdfPage({
   const document = buildInvoicePdfDocument({
     invoice,
     business,
-    templateId: settings.branding.templateId,
+    templateId: invoice.templateId ?? settings.branding.templateId,
   });
 
   return (

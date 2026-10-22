@@ -25,7 +25,7 @@ const features = [
   },
   {
     icon: Users,
-    title: "Customer management",
+    title: "Client details",
     description: "Save client details once and reuse them on every invoice.",
   },
   {
@@ -35,8 +35,8 @@ const features = [
   },
   {
     icon: Package,
-    title: "Saved services",
-    description: "Store products and services for one-click line items.",
+    title: "Reusable line items",
+    description: "Store products and rates for one-click line items.",
   },
   {
     icon: Building2,

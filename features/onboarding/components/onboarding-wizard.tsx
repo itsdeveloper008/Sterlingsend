@@ -11,6 +11,7 @@ import { onboardingSchema } from "@/lib/validations/onboarding";
 import {
   completeOnboarding,
   ensureUserDocument,
+  skipOnboardingAction,
 } from "@/actions/onboarding.actions";
 import { updateBusinessLogoAction } from "@/actions/business.actions";
 import { uploadBusinessLogo } from "@/firebase/storage";
@@ -118,11 +119,19 @@ export function OnboardingWizard({ userEmail }: { userEmail?: string }) {
     }, 400);
   }
 
-  function handleSkip() {
+  async function handleSkip() {
+    setSubmitting(true);
+    const result = await skipOnboardingAction();
+    if (!result.success) {
+      setSubmitting(false);
+      toast.error(result.error);
+      return;
+    }
     markOnboardingSkipped();
     clearDraft();
     toast.message("You can finish setup anytime from Account");
     router.push(routes.createInvoice);
+    router.refresh();
   }
 
   if (!hydrated || bootstrapping) {

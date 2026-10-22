@@ -8,7 +8,7 @@ import { MotionSection } from "@/features/marketing/lib/motion-section";
 const showcases = [
   {
     title: "Invoice builder",
-    description: "Add line items, VAT, and customer details in a clean editor.",
+    description: "Add line items, VAT, and client details in a clean editor.",
     src: "/marketing/mockup-hero-invoice.svg",
     alt: "SterlingSend invoice builder",
     width: 680,
@@ -16,13 +16,13 @@ const showcases = [
     url: "sterlingsend.com/create-invoice",
   },
   {
-    title: "Dashboard & tracking",
+    title: "History & tracking",
     description: "See what is paid, pending, and overdue at a glance.",
     src: "/marketing/mockup-dashboard.svg",
-    alt: "SterlingSend dashboard",
+    alt: "SterlingSend invoice history",
     width: 640,
     height: 400,
-    url: "sterlingsend.com/dashboard",
+    url: "sterlingsend.com/invoices",
     reverse: true,
   },
   {

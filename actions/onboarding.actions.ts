@@ -120,6 +120,79 @@ export async function completeOnboarding(
   }
 }
 
+/**
+ * Skip creates a minimal business from session name/email so History and
+ * Account work without bouncing back to /onboarding. User can refine later.
+ */
+export async function skipOnboardingAction(): Promise<OnboardingActionResult> {
+  const session = await getServerSession();
+  if (!session) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  const ensured = await ensureUserDocument();
+  if (!ensured.success) {
+    return ensured;
+  }
+
+  const user = await userService.getById(session.uid);
+  if (!user) {
+    return {
+      success: false,
+      error: "User profile not found. Please sign in again.",
+    };
+  }
+
+  if (user.businessId) {
+    const existingBusiness = await businessService.getById(user.businessId);
+    if (existingBusiness) {
+      return { success: true, businessId: existingBusiness.id };
+    }
+  }
+
+  const existingByOwner = await businessService.getByOwnerId(session.uid);
+  if (existingByOwner) {
+    await userService.update(session.uid, { businessId: existingByOwner.id });
+    return { success: true, businessId: existingByOwner.id };
+  }
+
+  const email = (session.email ?? user.email ?? "").trim();
+  if (!email) {
+    return {
+      success: false,
+      error: "Add an email to your account before skipping setup",
+    };
+  }
+
+  const displayName = (session.name ?? user.displayName ?? "").trim();
+  const local = email.split("@")[0]?.trim() ?? "";
+  const businessName = displayName || local;
+  if (!businessName || businessName.length < 2) {
+    return {
+      success: false,
+      error: "Add a display name to your account before skipping setup",
+    };
+  }
+
+  try {
+    const business = await businessService.create({
+      ownerId: session.uid,
+      businessName,
+      email,
+      ...ONBOARDING_BUSINESS_DEFAULTS,
+    });
+    await userService.update(session.uid, { businessId: business.id });
+    await settingsService.getByBusinessId(business.id);
+    return { success: true, businessId: business.id };
+  } catch (error) {
+    console.error("[skipOnboardingAction]", error);
+    return {
+      success: false,
+      error: "Could not skip setup. Please try again.",
+    };
+  }
+}
+
 export async function redirectIfOnboardingComplete() {
   const session = await getServerSession();
   if (!session) {

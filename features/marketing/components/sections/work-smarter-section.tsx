@@ -11,7 +11,7 @@ const items = [
     icon: Workflow,
     title: "Automations",
     description:
-      "Save time with drafts that autosave, reusable customers, and one-click PDF export.",
+      "Save time with drafts that autosave, reusable client details, and one-click PDF export.",
   },
   {
     icon: BarChart3,

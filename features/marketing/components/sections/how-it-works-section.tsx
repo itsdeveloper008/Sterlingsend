@@ -9,7 +9,7 @@ const steps = [
     number: "01",
     title: "Create",
     description:
-      "Add your business details, pick a customer, and add line items - Guest Mode works without an account.",
+      "Add your business details, pick a client, and add line items - Guest Mode works without an account.",
   },
   {
     number: "02",

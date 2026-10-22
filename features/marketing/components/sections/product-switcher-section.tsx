@@ -11,7 +11,7 @@ const products = [
     icon: FileText,
     title: "Invoicing",
     description:
-      "Create branded invoices free. Log in later if you want saved customers, status tracking, and payments.",
+      "Create branded invoices free. Log in later if you want saved history, status tracking, and payments.",
     href: routes.createInvoice,
     cta: "Start invoicing",
   },

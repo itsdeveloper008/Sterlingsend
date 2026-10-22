@@ -24,7 +24,7 @@ const steps = [
     icon: UserPlus,
     title: "Save when you are ready",
     description:
-      "Create a free account to store customers, accept online payments, and track status.",
+      "Create a free account to save invoice history, accept online payments, and track status.",
   },
 ];
 

@@ -18,7 +18,7 @@ const quotes = [
     role: "Consultant",
   },
   {
-    body: "Tracking what’s paid vs overdue used to take forever. Now it’s one dashboard glance.",
+    body: "Tracking what’s paid vs overdue used to take forever. Now it’s one History glance.",
     name: "Jordan",
     role: "Agency owner",
   },
@@ -28,7 +28,7 @@ const quotes = [
     role: "Developer",
   },
   {
-    body: "Saved services and customers make repeat invoices almost automatic.",
+    body: "Reusable line items and saved client details make repeat invoices almost automatic.",
     name: "Morgan",
     role: "Studio lead",
   },
@@ -45,7 +45,7 @@ export function TestimonialsSection() {
       <div className="bonsai-container">
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <div className="max-w-xl">
-            <h2 className="bonsai-h2">See why customers love using SterlingSend</h2>
+            <h2 className="bonsai-h2">See why people love using SterlingSend</h2>
             <p className="bonsai-lead mt-4">
               Simple invoicing that feels modern - without the all-in-one bloat.
             </p>

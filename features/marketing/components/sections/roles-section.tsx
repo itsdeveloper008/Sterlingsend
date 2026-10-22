@@ -18,7 +18,7 @@ const roles = [
     id: "ops",
     label: "Operations",
     title: "Standardise how invoices go out",
-    body: "Consistent PDFs, saved services, and customer records so the team bills the same way every time.",
+    body: "Consistent PDFs, reusable line items, and client records so the team bills the same way every time.",
   },
   {
     id: "freelancers",

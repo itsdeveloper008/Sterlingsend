@@ -9,7 +9,7 @@ import { MotionSection } from "@/features/marketing/lib/motion-section";
 const points = [
   {
     title: "Easy from day 1",
-    body: "No learning curve - create invoices, save customers, and get paid within minutes of opening SterlingSend.",
+    body: "No learning curve - create invoices, save history, and get paid within minutes of opening SterlingSend.",
   },
   {
     title: "Guest Mode first",
@@ -31,7 +31,7 @@ export function EnterpriseSection() {
             <h2 className="bonsai-h2 mt-3">We’re here to make your switch swift</h2>
             <p className="bonsai-lead mt-4">
               Move from messy docs and spreadsheets to clean invoices, pay links,
-              and a simple dashboard - without enterprise overhead.
+              and clear status tracking - without enterprise overhead.
             </p>
             <Link href={routes.features} className="bonsai-btn-secondary mt-8 inline-flex">
               Learn more
