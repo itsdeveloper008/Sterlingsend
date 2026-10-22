@@ -26,7 +26,7 @@ export function HomeTemplatesSection() {
   return (
     <section className="relative overflow-hidden border-b border-border-subtle bg-background py-16 sm:py-20">
       <div
-        className="ss-float pointer-events-none absolute right-8 top-10 size-14 rounded-[30%] clay opacity-40"
+        className="ss-float ss-parallax-clay pointer-events-none absolute right-8 top-10 size-14 rounded-[30%] clay opacity-40"
         aria-hidden
       />
       <div className="relative mx-auto w-full max-w-6xl px-4 sm:px-6">
@@ -44,6 +44,7 @@ export function HomeTemplatesSection() {
                 <MotionReveal delayMs={Math.min(index, 5) * 60}>
                   <Link
                     href={routes.templates}
+                    data-ss-tilt="card"
                     className="ss-card-lift ss-card-tilt ss-card-spotlight group block overflow-hidden rounded-[var(--radius-lg)] border border-border-subtle bg-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-500)]"
                     onPointerMove={(event) => {
                       const node = event.currentTarget;

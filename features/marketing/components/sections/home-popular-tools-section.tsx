@@ -63,7 +63,8 @@ export function HomePopularToolsSection() {
             const tile = (
               <Link
                 href={routes.tool(tool.slug)}
-                className="ss-card-lift ss-card-tilt group flex h-full flex-col gap-3 rounded-[var(--radius-lg)] p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-500)]"
+                data-ss-tilt="card"
+                className="ss-card-lift ss-card-tilt ss-card-spotlight group flex h-full flex-col gap-3 rounded-[var(--radius-lg)] p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-500)]"
               >
                 <span className="clay ss-icon-tilt flex h-12 w-12 items-center justify-center text-[var(--brand-700)]">
                   <Icon className="h-5 w-5" aria-hidden />

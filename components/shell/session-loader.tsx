@@ -22,6 +22,12 @@ export function SessionLoader() {
       return;
     }
     try {
+      if (
+        typeof window !== "undefined" &&
+        /(?:^|[?&])ss_noloader=1(?:&|$)/.test(window.location.search)
+      ) {
+        return;
+      }
       if (sessionStorage.getItem(SESSION_KEY)) return;
       sessionStorage.setItem(SESSION_KEY, "1");
     } catch {

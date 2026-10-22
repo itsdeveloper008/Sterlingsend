@@ -70,17 +70,37 @@ function runLh(url, outFile) {
 
 function extract(report) {
   const audits = report.audits;
+  const items = audits["lcp-breakdown-insight"]?.details?.items || [];
+  const table = items.find((i) => i.type === "table");
+  const node = items.find((i) => i.type === "node");
+  const parts = {};
+  for (const row of table?.items || []) {
+    parts[row.subpart] = Math.round(row.duration || 0);
+  }
   const lcpEl =
+    node?.nodeLabel ||
+    node?.snippet ||
+    node?.selector ||
     audits["largest-contentful-paint-element"]?.details?.items?.[0]?.node
       ?.snippet ||
-    audits["largest-contentful-paint-element"]?.displayValue ||
     "";
-  const jsBytes = (audits["network-requests"]?.details?.items || [])
+  const net = audits["network-requests"]?.details?.items || [];
+  const jsBytes = net
     .filter(
       (i) =>
         i.resourceType === "Script" ||
         (typeof i.url === "string" && i.url.includes("/_next/static/chunks/")),
     )
+    .reduce((sum, i) => sum + (i.transferSize || 0), 0);
+  const fontBytes = net
+    .filter(
+      (i) =>
+        i.resourceType === "Font" ||
+        (typeof i.url === "string" && /\.(woff2?|ttf)(\?|$)/i.test(i.url)),
+    )
+    .reduce((sum, i) => sum + (i.transferSize || 0), 0);
+  const cssBytes = net
+    .filter((i) => i.resourceType === "Stylesheet")
     .reduce((sum, i) => sum + (i.transferSize || 0), 0);
 
   return {
@@ -91,7 +111,14 @@ function extract(report) {
     cls: Number((audits["cumulative-layout-shift"]?.numericValue || 0).toFixed(3)),
     si: Math.round(audits["speed-index"]?.numericValue || 0),
     jsTransferred: jsBytes,
+    fontBytes,
+    cssBytes,
     lcpElement: String(lcpEl).replace(/\s+/g, " ").slice(0, 120),
+    lcpSelector: node?.selector || "",
+    lcpTtfb: parts.timeToFirstByte || 0,
+    lcpResourceDelay: parts.resourceLoadDelay || 0,
+    lcpResourceDuration: parts.resourceLoadDuration || 0,
+    lcpElementDelay: parts.elementRenderDelay || 0,
   };
 }
 
@@ -105,6 +132,7 @@ for (const page of PAGES) {
     runLh(`${BASE}${page}`, file);
     runs.push(extract(JSON.parse(readFileSync(file, "utf8"))));
   }
+  const mid = runs[Math.floor(runs.length / 2)];
   const med = {
     page,
     performance: median(runs.map((r) => r.performance)),
@@ -114,7 +142,14 @@ for (const page of PAGES) {
     cls: median(runs.map((r) => r.cls)),
     si: median(runs.map((r) => r.si)),
     jsTransferred: median(runs.map((r) => r.jsTransferred)),
-    lcpElement: runs[Math.floor(runs.length / 2)].lcpElement,
+    fontBytes: median(runs.map((r) => r.fontBytes)),
+    cssBytes: median(runs.map((r) => r.cssBytes)),
+    lcpElement: mid.lcpElement,
+    lcpSelector: mid.lcpSelector,
+    lcpTtfb: median(runs.map((r) => r.lcpTtfb)),
+    lcpResourceDelay: median(runs.map((r) => r.lcpResourceDelay)),
+    lcpResourceDuration: median(runs.map((r) => r.lcpResourceDuration)),
+    lcpElementDelay: median(runs.map((r) => r.lcpElementDelay)),
     runs,
   };
   summary.push(med);
@@ -127,13 +162,20 @@ for (const page of PAGES) {
 writeFileSync(path.join(OUT, "summary.json"), JSON.stringify(summary, null, 2));
 
 console.log(
-  `| page | Perf | FCP | LCP | TBT | CLS | SI | JS xfer | LCP element |`,
+  `| page | Perf | FCP | LCP | TBT | CLS | SI | JS xfer | fonts | CSS | LCP element |`,
 );
 console.log(
-  `|------|-----:|----:|----:|----:|----:|---:|--------:|-------------|`,
+  `|------|-----:|----:|----:|----:|----:|---:|--------:|------:|----:|-------------|`,
 );
 for (const r of summary) {
   console.log(
-    `| ${r.page} | ${r.performance} | ${r.fcp} | ${r.lcp} | ${r.tbt} | ${r.cls} | ${r.si} | ${r.jsTransferred} | ${r.lcpElement} |`,
+    `| ${r.page} | ${r.performance} | ${r.fcp} | ${r.lcp} | ${r.tbt} | ${r.cls} | ${r.si} | ${r.jsTransferred} | ${r.fontBytes} | ${r.cssBytes} | ${r.lcpElement || r.lcpSelector} |`,
+  );
+}
+console.log(`\n| page | TTFB | res delay | res dur | el render |`);
+console.log(`|------|-----:|----------:|--------:|----------:|`);
+for (const r of summary) {
+  console.log(
+    `| ${r.page} | ${r.lcpTtfb} | ${r.lcpResourceDelay} | ${r.lcpResourceDuration} | ${r.lcpElementDelay} |`,
   );
 }

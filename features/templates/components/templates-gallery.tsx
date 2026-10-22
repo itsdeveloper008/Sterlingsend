@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { usePointerEffects } from "@/features/marketing/lib/use-pointer-effects";
 import {
   INVOICE_LAYOUTS,
   INVOICE_PALETTES,
@@ -16,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function TemplatesGallery() {
+  usePointerEffects(true);
   const router = useRouter();
   const [layout, setLayout] = useState<InvoiceLayoutId | "all">("all");
   const [palette, setPalette] = useState<InvoicePaletteId | "all">("all");
@@ -101,6 +103,7 @@ export function TemplatesGallery() {
         {filtered.map((template) => (
           <li key={template.id}>
             <article
+              data-ss-tilt="card"
               className="ss-card-tilt ss-card-spotlight group overflow-hidden rounded-[var(--radius-lg)] border border-border-subtle bg-card"
               onPointerMove={(event) => {
                 const node = event.currentTarget;

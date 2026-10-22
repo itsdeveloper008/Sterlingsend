@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { usePointerEffects } from "@/features/marketing/lib/use-pointer-effects";
 import {
   Archive,
   ClipboardList,
@@ -77,6 +78,7 @@ const ICONS: Record<string, LucideIcon> = {
 };
 
 export function ToolsCatalog() {
+  usePointerEffects(true);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<ToolCategory | "all">("all");
 
@@ -139,6 +141,7 @@ export function ToolsCatalog() {
               <li key={tool.slug}>
                 <Link
                   href={routes.tool(tool.slug)}
+                  data-ss-tilt="card"
                   className={cn(
                     "ss-card-tilt ss-card-spotlight group flex gap-3 rounded-[var(--radius-lg)] border border-border-subtle bg-card p-4",
                     "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-500)]",
