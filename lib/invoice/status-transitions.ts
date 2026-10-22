@@ -20,7 +20,11 @@ const TRANSITIONS: Record<InvoiceStatus, InvoiceStatus[]> = {
     INVOICE_STATUSES.PAID,
     INVOICE_STATUSES.CANCELLED,
   ],
-  [INVOICE_STATUSES.PAID]: [INVOICE_STATUSES.CANCELLED],
+  // Allow returning to unpaid (draft) from History "Mark as unpaid"
+  [INVOICE_STATUSES.PAID]: [
+    INVOICE_STATUSES.DRAFT,
+    INVOICE_STATUSES.CANCELLED,
+  ],
   [INVOICE_STATUSES.CANCELLED]: [],
 };
 

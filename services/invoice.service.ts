@@ -345,12 +345,25 @@ export class InvoiceService {
       throw new Error("Business not found");
     }
 
+    const issue = new Date();
+    const prevIssue = new Date(existing.issueDate);
+    const prevDue = new Date(existing.dueDate);
+    const termDays = Math.max(
+      0,
+      Math.round(
+        (prevDue.getTime() - prevIssue.getTime()) / (24 * 60 * 60 * 1000),
+      ),
+    );
+    const due = new Date(issue);
+    due.setDate(due.getDate() + termDays);
+    const toInput = (d: Date) => d.toISOString().split("T")[0]!;
+
     return this.createInvoice(businessId, {
       clientName: existing.clientName,
       clientEmail: existing.clientEmail,
       clientAddress: existing.clientAddress,
-      issueDate: existing.issueDate,
-      dueDate: existing.dueDate,
+      issueDate: toInput(issue),
+      dueDate: toInput(due),
       status: INVOICE_STATUSES.DRAFT,
       notes: existing.notes,
       items: existing.items.map((item) => ({
@@ -364,6 +377,7 @@ export class InvoiceService {
       })),
       currency: business.currency,
       reserveNumber: true,
+      templateId: existing.templateId,
     });
   }
 
