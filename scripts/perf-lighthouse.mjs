@@ -41,27 +41,27 @@ function median(nums) {
 }
 
 function runLh(url, outFile) {
-  const result = spawnSync(
-    "npx",
-    [
-      "--yes",
-      "lighthouse",
-      url,
-      "--only-categories=performance",
-      "--form-factor=mobile",
-      "--screenEmulation.mobile=true",
-      "--throttling-method=simulate",
-      "--output=json",
-      `--output-path=${outFile}`,
-      "--quiet",
-      "--chrome-flags=--headless --no-sandbox --disable-dev-shm-usage",
-    ],
-    {
-      encoding: "utf8",
-      env: { ...process.env, npm_config_devdir: undefined },
-      maxBuffer: 20 * 1024 * 1024,
-    },
-  );
+  const lhBin = path.join(process.cwd(), "node_modules", ".bin", "lighthouse");
+  const chromePath =
+    process.env.CHROME_PATH ||
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+  const args = [
+    url,
+    "--only-categories=performance",
+    "--form-factor=mobile",
+    "--screenEmulation.mobile=true",
+    "--throttling-method=simulate",
+    "--output=json",
+    `--output-path=${outFile}`,
+    "--quiet",
+    "--chrome-flags=--headless=new --no-sandbox --disable-dev-shm-usage",
+    `--chrome-path=${chromePath}`,
+  ];
+  const result = spawnSync(lhBin, args, {
+    encoding: "utf8",
+    env: { ...process.env, npm_config_devdir: undefined },
+    maxBuffer: 20 * 1024 * 1024,
+  });
   if (result.status !== 0) {
     console.error(result.stderr || result.stdout);
     throw new Error(`Lighthouse failed for ${url}`);
