@@ -333,7 +333,13 @@ async function screenshotFixtures(page, labelDir) {
 
 const results = [];
 
-const browser = await chromium.launch({ headless: true });
+const chromePath =
+  process.env.CHROME_PATH ||
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+const browser = await chromium.launch({
+  headless: true,
+  executablePath: chromePath,
+});
 
 async function makePage(base) {
   const page = await browser.newPage({

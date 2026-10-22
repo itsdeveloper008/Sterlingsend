@@ -239,7 +239,13 @@ async function probeFont(page, baseUrl) {
   });
 }
 
-const browser = await chromium.launch({ headless: true });
+const chromePath =
+  process.env.CHROME_PATH ||
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+const browser = await chromium.launch({
+  headless: true,
+  executablePath: chromePath,
+});
 const report = { fonts: {}, noise: [], guest: [], fixtures: [] };
 
 const baseCtx = await browser.newContext({

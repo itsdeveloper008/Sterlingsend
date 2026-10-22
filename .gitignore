@@ -49,3 +49,4 @@ next-env.d.ts
 .phase3a-lighthouse/*.json
 .perf/
 .next-analyze/
+.design-review/

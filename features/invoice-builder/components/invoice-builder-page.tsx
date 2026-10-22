@@ -422,7 +422,7 @@ export function InvoiceBuilderPage({
         </InvoiceSheetScroller>
       </div>
 
-      <div className="builder-mobile-bar no-print md:hidden">
+      <div className="builder-mobile-bar no-print">
         <div className="relative">
           <Button
             type="button"

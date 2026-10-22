@@ -18,7 +18,13 @@ function sha256(buf) {
   return createHash("sha256").update(buf).digest("hex");
 }
 
-const browser = await chromium.launch({ headless: true });
+const chromePath =
+  process.env.CHROME_PATH ||
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+const browser = await chromium.launch({
+  headless: true,
+  executablePath: chromePath,
+});
 const page = await browser.newPage();
 
 for (const width of [1440, 390]) {

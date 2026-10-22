@@ -69,7 +69,8 @@ async function runTool(page, slug, files, { beforeProcess, expectPages } = {}) {
 
 const results = [];
 
-const browser = await chromium.launch({ headless: true });
+const chromePath = process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const browser = await chromium.launch({ headless: true, executablePath: chromePath });
 const context = await browser.newContext({ acceptDownloads: true });
 const page = await context.newPage();
 

@@ -30,7 +30,13 @@ async function downloadGuestPdf(page, templateId) {
   return new Uint8Array(await fs.readFile(filePath));
 }
 
-const browser = await chromium.launch({ headless: true });
+const chromePath =
+  process.env.CHROME_PATH ||
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+const browser = await chromium.launch({
+  headless: true,
+  executablePath: chromePath,
+});
 const context = await browser.newContext({ acceptDownloads: true });
 const page = await context.newPage();
 await page.addInitScript(() => {
