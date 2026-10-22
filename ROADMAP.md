@@ -1,4 +1,4 @@
-# Valix Invoice — Implementation Roadmap
+# SterlingSend — Implementation Roadmap
 
 Ordered by dependency and business value. Each epic should be shippable.
 
@@ -127,7 +127,7 @@ Ordered by dependency and business value. Each epic should be shippable.
 
 1. Server-side PDF generation API
 2. Resend email integration
-3. Invoice send from Valix (not mailto)
+3. Invoice send from SterlingSend (not mailto)
 4. Payment confirmation emails
 
 ---

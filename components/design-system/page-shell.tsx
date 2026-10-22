@@ -8,6 +8,6 @@ export function PageShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className={cn("valix-page", className)}>{children}</div>
+    <div className={cn("ss-page", className)}>{children}</div>
   );
 }

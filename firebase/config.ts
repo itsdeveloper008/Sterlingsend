@@ -60,13 +60,13 @@ export function assertClientConfig() {
 
   if (required.length > 0) {
     console.warn(
-      `[Valix] Missing Firebase client config keys: ${required.map(([k]) => k).join(", ")}`,
+      `[SterlingSend] Missing Firebase client config keys: ${required.map(([k]) => k).join(", ")}`,
     );
   }
 
   try {
     getClientEnv();
   } catch {
-    console.warn("[Valix] Client environment validation failed.");
+    console.warn("[SterlingSend] Client environment validation failed.");
   }
 }

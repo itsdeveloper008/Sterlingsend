@@ -1,4 +1,4 @@
-# Valix Invoice
+# SterlingSend
 
 **This folder is the app.**
 

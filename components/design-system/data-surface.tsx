@@ -8,6 +8,6 @@ export function DataSurface({
   children: React.ReactNode;
 }) {
   return (
-    <div className={cn("valix-table-surface", className)}>{children}</div>
+    <div className={cn("ss-table-surface", className)}>{children}</div>
   );
 }

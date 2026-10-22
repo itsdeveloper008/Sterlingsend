@@ -53,7 +53,9 @@ for (const templateId of TEMPLATES) {
   await page.waitForSelector(".builder-card, .builder-sheet", { timeout: 30000 });
 
   await page.evaluate((id) => {
-    const keys = Object.keys(localStorage).filter((k) => k.startsWith("valix_"));
+    const keys = Object.keys(localStorage).filter(
+      (k) => k.startsWith("ss_") || k.startsWith("valix_"),
+    );
     for (const key of keys) {
       try {
         const raw = localStorage.getItem(key);

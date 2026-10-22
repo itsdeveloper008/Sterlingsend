@@ -28,7 +28,7 @@ export function trackGuestEvent(
   window.dataLayer.push(payload);
 
   window.dispatchEvent(
-    new CustomEvent("valix:analytics", {
+    new CustomEvent("ss:analytics", {
       detail: payload,
     }),
   );

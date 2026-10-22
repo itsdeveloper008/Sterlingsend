@@ -1,4 +1,4 @@
-# Valix Invoice — Architecture
+# SterlingSend — Architecture
 
 ## Step 1 — Analysis & Decisions
 

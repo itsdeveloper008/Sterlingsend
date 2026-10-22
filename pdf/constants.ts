@@ -1,6 +1,6 @@
 import { INVOICE_STATUSES, type InvoiceStatus } from "@/types";
 
-export const VALIX_BRAND = {
+export const SS_BRAND = {
   primary: "#14B8A6",
   primaryHover: "#0D9488",
   text: "#111827",

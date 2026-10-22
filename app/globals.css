@@ -426,32 +426,32 @@
     padding-block: var(--space-8);
   }
 
-  .valix-surface {
+  .ss-surface {
     border-radius: var(--radius-lg);
     border: 1px solid var(--border);
     background: var(--card);
     box-shadow: var(--shadow-1);
   }
 
-  .valix-surface-muted {
+  .ss-surface-muted {
     border-radius: var(--radius-lg);
     border: 1px solid var(--border);
     background: color-mix(in srgb, var(--muted) 70%, transparent);
   }
 
-  .valix-page {
+  .ss-page {
     margin-inline: auto;
     width: 100%;
     max-width: 72rem;
   }
 
-  .valix-nav-active {
+  .ss-nav-active {
     background: color-mix(in srgb, var(--brand-700) 8%, transparent);
     font-weight: 500;
     color: var(--brand-700);
   }
 
-  .valix-nav-item {
+  .ss-nav-item {
     display: flex;
     align-items: center;
     gap: var(--space-3);
@@ -467,12 +467,12 @@
       transform var(--duration-150) var(--ease);
   }
 
-  .valix-nav-item:hover {
+  .ss-nav-item:hover {
     background: var(--accent);
     color: var(--foreground);
   }
 
-  .valix-table-surface {
+  .ss-table-surface {
     overflow: hidden;
     border-radius: var(--radius-lg);
     border: 1px solid var(--border);
@@ -480,11 +480,11 @@
     box-shadow: var(--shadow-1);
   }
 
-  .valix-focus-ring {
+  .ss-focus-ring {
     outline: none;
   }
 
-  .valix-focus-ring:focus-visible {
+  .ss-focus-ring:focus-visible {
     outline: 2px solid var(--brand-500);
     outline-offset: 2px;
   }

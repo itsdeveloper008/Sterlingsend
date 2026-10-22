@@ -31,7 +31,7 @@ export function AppSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={cn("valix-nav-item", active && "valix-nav-active")}
+              className={cn("ss-nav-item", active && "ss-nav-active")}
             >
               <Icon className="h-4 w-4 shrink-0" aria-hidden />
               {item.label}

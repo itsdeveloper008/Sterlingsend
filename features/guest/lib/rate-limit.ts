@@ -1,11 +1,14 @@
-const RATE_LIMIT_KEY = "valix_guest_pdf_rate";
+const RATE_LIMIT_KEY = "ss_guest_pdf_rate";
+const LEGACY_RATE_LIMIT_KEY = "valix_guest_pdf_rate";
 const MAX_PDFS_PER_HOUR = 12;
 const WINDOW_MS = 60 * 60 * 1000;
 
 function readTimestamps(): number[] {
   if (typeof window === "undefined") return [];
 
-  const raw = sessionStorage.getItem(RATE_LIMIT_KEY);
+  const raw =
+    sessionStorage.getItem(RATE_LIMIT_KEY) ??
+    sessionStorage.getItem(LEGACY_RATE_LIMIT_KEY);
   if (!raw) return [];
 
   try {
@@ -18,6 +21,7 @@ function readTimestamps(): number[] {
 function writeTimestamps(timestamps: number[]) {
   if (typeof window === "undefined") return;
   sessionStorage.setItem(RATE_LIMIT_KEY, JSON.stringify(timestamps));
+  sessionStorage.removeItem(LEGACY_RATE_LIMIT_KEY);
 }
 
 export function canGenerateGuestPdf() {

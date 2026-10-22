@@ -30,7 +30,7 @@ export function trackPaymentEvent(
   window.dataLayer = window.dataLayer ?? [];
   window.dataLayer.push(payload);
   window.dispatchEvent(
-    new CustomEvent("valix:analytics", { detail: payload }),
+    new CustomEvent("ss:analytics", { detail: payload }),
   );
 
   if (process.env.NODE_ENV === "development") {
