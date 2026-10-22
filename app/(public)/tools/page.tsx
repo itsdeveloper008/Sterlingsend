@@ -33,15 +33,14 @@ export const metadata: Metadata = {
 export default function PublicToolsPage() {
   return (
     <MarketingShell>
-      <div className="border-b border-border-subtle bg-background">
-        <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
-          <h1 className="type-display text-foreground">PDF tools</h1>
-          <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
-            {toolCount} tools for everyday PDF jobs. Most run in your browser so
-            files stay on your device. Translate PDF sends extracted text to a
-            translation service. OCR may download language data on first use.
+      <div className="ss-section border-b border-border-subtle bg-background">
+        <div className="bonsai-container">
+          <h1 className="bonsai-h1">PDF tools</h1>
+          <p className="bonsai-lead mt-4 max-w-2xl">
+            {toolCount} tools for everyday PDF jobs. Search or browse by
+            category. Most tools keep your files on your device.
           </p>
-          <p className="mt-4 text-sm text-muted-foreground">
+          <p className="mt-4 text-base text-[var(--secondary-text)]">
             Need to invoice a client?{" "}
             <Link
               href={routes.createInvoice}
@@ -52,8 +51,10 @@ export default function PublicToolsPage() {
           </p>
         </div>
       </div>
-      <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
-        <ToolsCatalog />
+      <div className="ss-section bg-[var(--surface-muted)]">
+        <div className="bonsai-container">
+          <ToolsCatalog />
+        </div>
       </div>
     </MarketingShell>
   );
