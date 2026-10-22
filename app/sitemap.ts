@@ -35,7 +35,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
 
   // Template gallery is one page; do not list account/history/public invoice tokens
-  void INVOICE_TEMPLATES;
-
   return [...staticRoutes, ...tools];
 }
