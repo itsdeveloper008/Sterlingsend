@@ -9,7 +9,7 @@ import { routes } from "@/config/routes";
 const items = [
   { href: routes.invoices, label: "History", icon: History },
   { href: routes.tools, label: "Tools", icon: FileStack },
-  { href: routes.settings, label: "Settings", icon: Settings },
+  { href: routes.account, label: "Account", icon: Settings },
 ];
 
 export function MobileNav() {

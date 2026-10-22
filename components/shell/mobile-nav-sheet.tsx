@@ -93,7 +93,7 @@ export function MobileNavSheet({
                 History
               </Link>
               <Link
-                href={routes.settings}
+                href={routes.account}
                 className="flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] px-3 text-sm font-medium hover:bg-muted"
                 onClick={() => onOpenChange(false)}
               >

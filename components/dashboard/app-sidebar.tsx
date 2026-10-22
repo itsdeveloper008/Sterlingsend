@@ -10,7 +10,7 @@ import { Logo } from "@/components/design-system/logo";
 const navItems = [
   { href: routes.invoices, label: "History", icon: History },
   { href: routes.tools, label: "PDF Tools", icon: FileStack },
-  { href: routes.settings, label: "Settings", icon: Settings },
+  { href: routes.account, label: "Account", icon: Settings },
 ];
 
 export function AppSidebar() {

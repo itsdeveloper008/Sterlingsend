@@ -35,8 +35,8 @@ export async function updateBankDetailsAction(
     const bankDetails = normalizeBankDetails(parsed.data);
 
     await businessService.update(business.id, { bankDetails });
-    revalidatePath(routes.settingsPayments);
-    revalidatePath(routes.settingsBranding);
+    revalidatePath(routes.account);
+    revalidatePath(routes.settings);
 
     return { success: true };
   } catch (error) {
@@ -56,7 +56,7 @@ export async function updateBusinessLogoAction(
     }
 
     await businessService.update(business.id, { logoUrl: logoUrl.trim() });
-    revalidatePath(routes.settingsBranding);
+    revalidatePath(routes.account);
     revalidatePath(routes.invoices);
 
     return { success: true };
@@ -78,7 +78,7 @@ export async function removeBusinessLogoAction(): Promise<BusinessActionResult> 
         updatedAt: FieldValue.serverTimestamp(),
       });
 
-    revalidatePath(routes.settingsBranding);
+    revalidatePath(routes.account);
     revalidatePath(routes.invoices);
 
     return { success: true };

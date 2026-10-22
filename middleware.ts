@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE_NAME, routes } from "@/config/routes";
 
 /** Account-only: invoice history, settings, onboarding. */
-const protectedPrefixes = ["/onboarding", "/invoices", "/settings"];
+const protectedPrefixes = ["/onboarding", "/invoices", "/settings", "/account"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -44,6 +44,8 @@ export const config = {
     "/invoices/:path*",
     "/settings",
     "/settings/:path*",
+    "/account",
+    "/account/:path*",
     "/login",
     "/signup",
     "/forgot-password",

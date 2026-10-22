@@ -28,11 +28,18 @@ export const routes = {
   service: (id: string) => `/services/${id}`,
   tools: "/tools",
   tool: (slug: string) => `/tools/${slug}`,
+  account: "/account",
+  /** @deprecated 308 → /account */
   settings: "/settings",
+  /** @deprecated 308 → /account */
   settingsBusiness: "/settings/business",
+  /** @deprecated 308 → /account */
   settingsInvoices: "/settings/invoices",
+  /** @deprecated 308 → /account */
   settingsBranding: "/settings/branding",
+  /** @deprecated 308 → /account */
   settingsPayments: "/settings/payments",
+  /** @deprecated 308 → /account */
   settingsSecurity: "/settings/security",
   pay: (invoiceId: string) => `/pay/${invoiceId}`,
 } as const;
@@ -61,6 +68,7 @@ export const authRoutes = [
 export const protectedRoutes = [
   routes.onboarding,
   routes.invoices,
+  routes.account,
   routes.settings,
 ] as const;
 

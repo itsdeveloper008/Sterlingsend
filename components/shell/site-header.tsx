@@ -109,7 +109,7 @@ export function SiteHeader({
                 <ButtonLink variant="ghost" href={routes.invoices} size="sm">
                   History
                 </ButtonLink>
-                <ButtonLink variant="ghost" href={routes.settings} size="sm">
+                <ButtonLink variant="ghost" href={routes.account} size="sm">
                   Account
                 </ButtonLink>
                 <Button
