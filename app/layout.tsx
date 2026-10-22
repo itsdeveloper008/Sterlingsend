@@ -1,21 +1,23 @@
 import type { Metadata } from "next";
-import { Fraunces, Geist, Plus_Jakarta_Sans } from "next/font/google";
+import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import { AppProviders } from "@/providers/app-providers";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
 
-/** UI body: weights actually used in components (regular/medium/semibold/bold). */
+/**
+ * UI body. Variable file (no static weight list). Not preloaded — marketing LCP
+ * is Fraunces display text; Jakarta swaps in with matched fallback metrics.
+ */
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
   subsets: ["latin"],
   display: "swap",
   style: ["normal"],
-  weight: ["400", "500", "600", "700"],
-  preload: true,
+  preload: false,
   adjustFontFallback: true,
 });
 
-/** Display headings: opsz axis only (no unused italic). */
+/** Display headings (LCP on marketing): opsz axis; preload this face only. */
 const fraunces = Fraunces({
   variable: "--font-fraunces",
   subsets: ["latin"],
@@ -23,15 +25,6 @@ const fraunces = Fraunces({
   style: ["normal"],
   axes: ["opsz"],
   preload: true,
-  adjustFontFallback: true,
-});
-
-/** Invoice sheet only — not preloaded on marketing first paint. */
-const invoiceSheetSans = Geist({
-  variable: "--font-invoice-sheet",
-  subsets: ["latin"],
-  display: "swap",
-  preload: false,
   adjustFontFallback: true,
 });
 
@@ -57,7 +50,7 @@ export default function RootLayout({
   return (
     <html
       lang={siteConfig.locale}
-      className={`${plusJakarta.variable} ${fraunces.variable} ${invoiceSheetSans.variable} h-full antialiased`}
+      className={`${plusJakarta.variable} ${fraunces.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>
