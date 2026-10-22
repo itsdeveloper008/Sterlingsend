@@ -96,10 +96,10 @@ async function seedViaUi(page, { items = 1, notes, templateId } = {}) {
   await fillPh("Client email", "jane@client.test");
   await fillPh("Service or product", "Line item 1 professional services");
   await fillPh("Thank you for your business!", notes || "Thank you for your business!");
-  await fillPh("Account name", "Acme Consulting Ltd");
-  await fillPh("Bank name", "HSBC");
-  await fillPh("Account number or IBAN", "GB29NWBK60161331926819");
-  await fillPh("Sort code or SWIFT", "40-00-00");
+  await fillPh("e.g. John Doe", "Acme Consulting Ltd");
+  await fillPh("e.g. Global Bank", "HSBC");
+  await fillPh("e.g. 12345678", "GB29NWBK60161331926819");
+  await fillPh("e.g. 12-34-56", "40-00-00");
 
   for (let i = 1; i < items; i++) {
     const add = page.getByRole("button", { name: /Add Item/i });
