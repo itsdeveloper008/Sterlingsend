@@ -28,18 +28,20 @@ export const metadata: Metadata = {
 export default function TemplatesPage() {
   return (
     <MarketingShell>
-      <div className="border-b border-border-subtle bg-background">
-        <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
-          <h1 className="type-display text-foreground">Invoice templates</h1>
-          <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
+      <div className="ss-section border-b border-border-subtle bg-background">
+        <div className="bonsai-container">
+          <h1 className="bonsai-h1">Invoice templates</h1>
+          <p className="bonsai-lead mt-4 max-w-2xl">
             {INVOICE_TEMPLATE_COUNT} designs from eight layouts and eleven
             colours. Choosing one sets the look of the PDF you download from
             Create invoice.
           </p>
         </div>
       </div>
-      <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
-        <TemplatesGallery />
+      <div className="ss-section bg-[var(--surface-muted)]">
+        <div className="bonsai-container">
+          <TemplatesGallery />
+        </div>
       </div>
     </MarketingShell>
   );
