@@ -2,24 +2,19 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import {
-  Check,
-  Download,
-  Loader2,
-  MoreHorizontal,
-  Printer,
-  Save,
-} from "lucide-react";
+import { Download, Loader2, MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/shell";
 import { EditableInvoiceCard } from "@/features/invoice-builder/components/editable-invoice-card";
 import { InvoiceSheetScroller } from "@/features/invoice-builder/components/invoice-sheet-scroller";
+import {
+  InvoiceOptionsPanel,
+  type SaveStatus,
+} from "@/features/invoice-builder/components/invoice-options-panel";
 import dynamic from "next/dynamic";
 import { UnsavedChangesGuard } from "@/features/invoice-builder/components/unsaved-changes-guard";
 import { useInvoiceBuilder } from "@/features/invoice-builder/hooks/use-invoice-builder";
 import { writeSessionTemplateId } from "@/lib/template-preference";
-import { getInvoiceTemplate } from "@/pdf/templates/catalog";
 import {
   getCurrenciesForSelect,
   getCurrencySymbol,
@@ -43,7 +38,6 @@ import {
 } from "@/actions/builder-invoice.actions";
 import type { SerializedInvoice } from "@/features/invoices/lib/format";
 import { createDefaultBuilderInvoice } from "@/features/invoice-builder/lib/defaults";
-import { StampPopover } from "@/features/invoice-builder/components/stamp-popover";
 import type { InvoiceStamp } from "@/features/invoice-builder/lib/stamps";
 import "@/features/invoice-builder/styles/invoice-builder.css";
 
@@ -63,8 +57,6 @@ async function downloadPdf(invoice: Parameters<
   );
   return downloadBuilderInvoicePdf(invoice);
 }
-
-type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 function serializedToBuilder(doc: SerializedInvoice) {
   const base = createDefaultBuilderInvoice();
@@ -92,22 +84,23 @@ export function InvoiceBuilderPage({
     useInvoiceBuilder({ skipClearOnMount });
   const [busy, setBusy] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [showLoginHint, setShowLoginHint] = useState(true);
+  const [downloadConfirm, setDownloadConfirm] = useState(false);
+  const [optionsOpen, setOptionsOpen] = useState(false);
+  const [isRail, setIsRail] = useState(false);
   const [savedId, setSavedId] = useState<string | null>(
     initialInvoice?.id ?? editId,
   );
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [showOnboardingPrompt, setShowOnboardingPrompt] = useState(false);
   const [showRestoredBanner, setShowRestoredBanner] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [stampRepositioning, setStampRepositioning] = useState(false);
   const [stampAnimate, setStampAnimate] = useState(false);
   const saveTimer = useRef<number | null>(null);
   const invoiceRef = useRef(invoice);
   invoiceRef.current = invoice;
   const hydratedEdit = useRef(false);
+  const optionsSheetRef = useRef<HTMLDivElement>(null);
 
-  const template = getInvoiceTemplate(invoice.templateId);
   const currencies = getCurrenciesForSelect();
   const isGuest = !authLoading && !user;
   const isLoggedIn = !authLoading && !!user;
@@ -184,6 +177,34 @@ export function InvoiceBuilderPage({
     };
   }, [invoice, dirty, isLoggedIn, savedId, persist]);
 
+  useEffect(() => {
+    function onResize() {
+      const w = window.innerWidth;
+      setIsRail(w >= 900 && w < 1140);
+    }
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  useEffect(() => {
+    if (!optionsOpen) return;
+    const prev = document.activeElement as HTMLElement | null;
+    const root = optionsSheetRef.current;
+    const focusable = root?.querySelector<HTMLElement>(
+      "button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])",
+    );
+    focusable?.focus();
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setOptionsOpen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      prev?.focus?.();
+    };
+  }, [optionsOpen]);
+
   function goToLoginFromPrompt() {
     stashPendingInvoice(invoice);
     window.location.assign(
@@ -206,7 +227,8 @@ export function InvoiceBuilderPage({
       }
       await downloadPdf(invoiceRef.current);
       toast.success("PDF downloaded");
-      if (isGuest) setShowLoginHint(true);
+      setDownloadConfirm(true);
+      window.setTimeout(() => setDownloadConfirm(false), 4000);
     } catch (error) {
       console.error("[builder-pdf]", error);
       toast.error("Failed to generate PDF");
@@ -259,100 +281,29 @@ export function InvoiceBuilderPage({
     </select>
   );
 
-  const desktopActions = (
-    <div className="builder-actions-row no-print">
-      <button
-        type="button"
-        className="builder-btn-secondary"
-        onClick={() => setPickerOpen(true)}
-        disabled={busy}
-      >
-        Template: {template.name}
-      </button>
-      <StampPopover
-        stamp={invoice.stamp}
-        repositioning={stampRepositioning}
-        onStampChange={handleStampChange}
-        onRepositionToggle={setStampRepositioning}
-        disabled={busy}
-        triggerClassName="builder-btn-secondary"
-      />
-      {isLoggedIn ? (
-        <button
-          type="button"
-          className="builder-btn-secondary"
-          onClick={() => void persist("manual")}
-          disabled={busy || saveStatus === "saving"}
-        >
-          {saveStatus === "saving" ? (
-            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-          ) : saveStatus === "saved" ? (
-            <Check className="h-4 w-4" aria-hidden strokeWidth={2.5} />
-          ) : (
-            <Save className="h-4 w-4" aria-hidden />
-          )}
-          Save
-        </button>
-      ) : null}
-      <button
-        type="button"
-        className="builder-btn-secondary"
-        onClick={() => void handlePrint()}
-        disabled={busy}
-      >
-        <Printer className="h-4 w-4" aria-hidden />
-        Print
-      </button>
-      <button
-        type="button"
-        className="builder-btn-primary"
-        onClick={() => void handleDownloadPdf()}
-        disabled={busy}
-      >
-        {busy ? (
-          <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-        ) : (
-          <Download className="h-4 w-4" aria-hidden />
-        )}
-        Download PDF
-      </button>
-    </div>
-  );
+  const panelProps = {
+    templateId: invoice.templateId,
+    stamp: invoice.stamp,
+    repositioning: stampRepositioning,
+    onStampChange: handleStampChange,
+    onRepositionToggle: setStampRepositioning,
+    onOpenTemplate: () => setPickerOpen(true),
+    onPrint: () => void handlePrint(),
+    onDownload: () => void handleDownloadPdf(),
+    busy,
+    downloadConfirm,
+    saveStatus,
+    isGuest,
+    isLoggedIn,
+    onLogin: goToLoginFromPrompt,
+    onSignup: goToSignupFromPrompt,
+    onRetrySave: () => void persist("manual"),
+  };
 
   return (
     <div className="builder-page ss-calm-zone">
       <UnsavedChangesGuard dirty={dirty && !savedId} />
       <SiteHeader />
-
-      {showLoginHint && isGuest ? (
-        <div className="builder-login-banner no-print" role="status">
-          <p>
-            Log in to save this invoice to your history.{" "}
-            <button
-              type="button"
-              className="font-semibold underline-offset-2 hover:underline"
-              onClick={goToLoginFromPrompt}
-            >
-              Log in
-            </button>
-            {" · "}
-            <button
-              type="button"
-              className="font-semibold underline-offset-2 hover:underline"
-              onClick={goToSignupFromPrompt}
-            >
-              Sign up
-            </button>
-          </p>
-          <button
-            type="button"
-            className="text-[#475569] underline-offset-2 hover:underline"
-            onClick={() => setShowLoginHint(false)}
-          >
-            Dismiss
-          </button>
-        </div>
-      ) : null}
 
       <div className="builder-intro no-print">
         <h1>Create an invoice</h1>
@@ -361,181 +312,130 @@ export function InvoiceBuilderPage({
         </p>
       </div>
 
-      <div className="builder-sheet-wrap">
-        {showRestoredBanner && isLoggedIn ? (
-          <p
-            className="no-print mb-4 rounded-[14px] border border-[#A7F3D0] bg-[#ECFDF5] px-4 py-3 text-sm text-[#065F46]"
-            role="status"
-          >
-            Your draft is back.{" "}
-            <button
-              type="button"
-              className="font-semibold underline-offset-2 hover:underline"
-              onClick={() => void persist("manual")}
+      <div
+        className="builder-workspace"
+        data-rail={isRail ? "true" : undefined}
+      >
+        <div className="builder-workspace-sheet">
+          {showRestoredBanner && isLoggedIn ? (
+            <p
+              className="no-print mb-4 rounded-[14px] border border-[#A7F3D0] bg-[#ECFDF5] px-4 py-3 text-sm text-[#065F46]"
+              role="status"
             >
-              Save to history
-            </button>
-          </p>
-        ) : null}
-
-        {showOnboardingPrompt ? (
-          <p
-            className="no-print mb-4 flex flex-wrap items-center justify-between gap-2 rounded-[14px] border border-[#E2E8F0] bg-white px-4 py-3 text-sm text-[#0F172A]"
-            role="status"
-          >
-            <span>
-              Add a logo and confirm your business details when you like.
-            </span>
-            <span className="flex gap-2">
-              <Link
-                href={routes.onboarding}
-                className="font-semibold text-[#0F766E] underline-offset-2 hover:underline"
-              >
-                Finish setup
-              </Link>
+              Your draft is back.{" "}
               <button
                 type="button"
-                className="text-[#475569] underline-offset-2 hover:underline"
-                onClick={() => setShowOnboardingPrompt(false)}
+                className="font-semibold underline-offset-2 hover:underline"
+                onClick={() => void persist("manual")}
               >
-                Dismiss
+                Save to history
               </button>
-            </span>
-          </p>
-        ) : null}
+            </p>
+          ) : null}
 
-        {isLoggedIn && saveStatus !== "idle" ? (
-          <p
-            className="no-print mb-3 text-center text-sm text-[#475569]"
-            aria-live="polite"
-          >
-            {saveStatus === "saving" ? "Saving…" : null}
-            {saveStatus === "saved" ? "Saved" : null}
-            {saveStatus === "error" ? (
-              <>
-                Could not save.{" "}
+          {showOnboardingPrompt ? (
+            <p
+              className="no-print mb-4 flex flex-wrap items-center justify-between gap-2 rounded-[14px] border border-[#E2E8F0] bg-white px-4 py-3 text-sm text-[#0F172A]"
+              role="status"
+            >
+              <span>
+                Add a logo and confirm your business details when you like.
+              </span>
+              <span className="flex gap-2">
+                <Link
+                  href={routes.onboarding}
+                  className="font-semibold text-[#0F766E] underline-offset-2 hover:underline"
+                >
+                  Finish setup
+                </Link>
                 <button
                   type="button"
-                  className="font-semibold text-[#0F766E] underline-offset-2 hover:underline"
-                  onClick={() => void persist("manual")}
+                  className="text-[#475569] underline-offset-2 hover:underline"
+                  onClick={() => setShowOnboardingPrompt(false)}
                 >
-                  Retry
+                  Dismiss
                 </button>
-              </>
-            ) : null}
-          </p>
-        ) : null}
+              </span>
+            </p>
+          ) : null}
 
-        <div className="builder-stack">
-          <div
-            className="builder-stack-layer builder-stack-layer--2"
-            aria-hidden
-          />
-          <div
-            className="builder-stack-layer builder-stack-layer--1"
-            aria-hidden
-          />
-          <div className="builder-stack-sheet">
-            <InvoiceSheetScroller>
-              <EditableInvoiceCard
-                invoice={invoice}
-                dispatch={dispatch}
-                onLogoFile={setLogoFromFile}
-                currencySelect={currencySelect}
-                stampRepositioning={stampRepositioning}
-                onStampChange={(stamp) => handleStampChange(stamp)}
-                onExitStampReposition={() => setStampRepositioning(false)}
-                stampAnimate={stampAnimate}
-              />
-            </InvoiceSheetScroller>
+          <div className="builder-stack">
+            <div className="builder-stack-layer" aria-hidden />
+            <div className="builder-stack-sheet">
+              <InvoiceSheetScroller>
+                <EditableInvoiceCard
+                  invoice={invoice}
+                  dispatch={dispatch}
+                  onLogoFile={setLogoFromFile}
+                  currencySelect={currencySelect}
+                  stampRepositioning={stampRepositioning}
+                  onStampChange={(stamp) => handleStampChange(stamp)}
+                  onExitStampReposition={() => setStampRepositioning(false)}
+                  stampAnimate={stampAnimate}
+                />
+              </InvoiceSheetScroller>
+            </div>
           </div>
         </div>
 
-        {desktopActions}
-
-        {isGuest ? (
-          <p className="builder-guest-line no-print">
-            Want to keep a history of the invoices you create?{" "}
-            <button
-              type="button"
-              className="builder-guest-line-link"
-              onClick={goToLoginFromPrompt}
-            >
-              Log in
-            </button>
-          </p>
-        ) : null}
+        <div className="builder-workspace-panel">
+          <InvoiceOptionsPanel {...panelProps} />
+        </div>
       </div>
 
       <div className="builder-mobile-bar no-print">
-        <div className="relative">
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            aria-label="More actions"
-            aria-expanded={mobileMenuOpen}
-            onClick={() => setMobileMenuOpen((v) => !v)}
-          >
-            <MoreHorizontal className="h-5 w-5" />
-          </Button>
-          {mobileMenuOpen ? (
-            <div className="builder-mobile-menu">
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  setPickerOpen(true);
-                }}
-              >
-                Template
-              </button>
-              <div className="builder-mobile-menu-stamp px-3 py-2">
-                <StampPopover
-                  stamp={invoice.stamp}
-                  repositioning={stampRepositioning}
-                  onStampChange={handleStampChange}
-                  onRepositionToggle={setStampRepositioning}
-                  disabled={busy}
-                />
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  void handlePrint();
-                }}
-              >
-                Print
-              </button>
-              {isLoggedIn ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    void persist("manual");
-                  }}
-                >
-                  Save
-                </button>
-              ) : null}
-            </div>
-          ) : null}
-        </div>
         <button
           type="button"
-          className="builder-btn-primary min-h-12 flex-1"
+          className="inv-panel-btn-outline"
+          aria-label="Options"
+          aria-expanded={optionsOpen}
+          onClick={() => setOptionsOpen(true)}
+        >
+          <MoreHorizontal className="h-5 w-5" aria-hidden />
+          Options
+        </button>
+        <button
+          type="button"
+          className="inv-panel-btn-primary"
           onClick={() => void handleDownloadPdf()}
           disabled={busy}
         >
           {busy ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
           ) : (
-            <Download className="mr-2 h-4 w-4" aria-hidden />
+            <Download className="h-4 w-4" aria-hidden />
           )}
           Download PDF
         </button>
       </div>
+
+      {optionsOpen ? (
+        <div
+          className="builder-options-sheet no-print"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Invoice options"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setOptionsOpen(false);
+          }}
+        >
+          <div className="builder-options-sheet-panel" ref={optionsSheetRef}>
+            <div className="mb-3 flex items-center justify-between">
+              <p className="inv-panel-kicker" style={{ margin: 0 }}>
+                Options
+              </p>
+              <button
+                type="button"
+                className="inv-panel-link"
+                onClick={() => setOptionsOpen(false)}
+              >
+                Close
+              </button>
+            </div>
+            <InvoiceOptionsPanel {...panelProps} />
+          </div>
+        </div>
+      ) : null}
 
       <TemplatePickerDialog
         open={pickerOpen}

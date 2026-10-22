@@ -1,40 +1,35 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Link from "next/link";
-import { Download, Loader2, Printer } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { EditableInvoiceCard } from "@/features/invoice-builder/components/editable-invoice-card";
 import { InvoiceSheetScroller } from "@/features/invoice-builder/components/invoice-sheet-scroller";
+import { InvoiceOptionsPanel } from "@/features/invoice-builder/components/invoice-options-panel";
 import { useInvoiceBuilder } from "@/features/invoice-builder/hooks/use-invoice-builder";
-import { routes } from "@/config/routes";
-import type { InvoiceStamp } from "@/features/invoice-builder/lib/stamps";
+import {
+  getCurrenciesForSelect,
+  getCurrencySymbol,
+  isCurrencyCode,
+} from "@/config/currencies";
+import { DEFAULT_INVOICE_TEMPLATE_ID } from "@/pdf/templates/catalog";
 import "@/features/invoice-builder/styles/invoice-builder.css";
 import "@/features/marketing/styles/hero-sheet.css";
 
-const SHEET_DESIGN_WIDTH = 720;
-
-const DEMO_STAMP: InvoiceStamp = {
-  type: "approved",
-  x: 72,
-  y: 14,
-  size: "M",
-};
-
-/** Landing hero - editable invoice. CSS container scaling only (no JS measure). */
+/** Landing hero - editable Teal Classic sheet. Never reads ss_template. */
 export function HeroEditableInvoice() {
   const { invoice, dispatch, setLogoFromFile } = useInvoiceBuilder({
     seed: "empty",
+    applySessionTemplate: false,
   });
   const [busy, setBusy] = useState(false);
+  const [downloadConfirm, setDownloadConfirm] = useState(false);
+  const currencies = getCurrenciesForSelect();
 
-  const displayInvoice = useMemo(
-    () => ({
-      ...invoice,
-      stamp: invoice.stamp ?? DEMO_STAMP,
-    }),
-    [invoice],
-  );
+  // Lock hero to classic-teal even if state is patched somehow
+  const displayInvoice =
+    invoice.templateId === DEFAULT_INVOICE_TEMPLATE_ID
+      ? { ...invoice, stamp: undefined }
+      : { ...invoice, templateId: DEFAULT_INVOICE_TEMPLATE_ID, stamp: undefined };
 
   async function handleDownloadPdf() {
     try {
@@ -44,6 +39,8 @@ export function HeroEditableInvoice() {
       );
       await downloadBuilderInvoicePdf(displayInvoice);
       toast.success("PDF downloaded");
+      setDownloadConfirm(true);
+      window.setTimeout(() => setDownloadConfirm(false), 4000);
     } catch (error) {
       console.error("[hero-pdf]", error);
       toast.error("Failed to generate PDF");
@@ -52,56 +49,69 @@ export function HeroEditableInvoice() {
     }
   }
 
+  const currencySelect = (
+    <select
+      className="builder-currency-select no-print"
+      value={invoice.currency}
+      onChange={(event) => {
+        const next = event.target.value;
+        if (!isCurrencyCode(next)) return;
+        dispatch({ type: "patch", patch: { currency: next } });
+      }}
+      aria-label="Currency"
+      disabled={busy}
+    >
+      {currencies.map((c) => (
+        <option key={c.code} value={c.code}>
+          {c.code} ({getCurrencySymbol(c.code)})
+        </option>
+      ))}
+    </select>
+  );
+
   return (
-    <div id="try-invoice" className="w-full space-y-4" data-lcp="hero-invoice">
-      <div className="hero-sheet-frame relative w-full">
-        <div className="hero-sheet-scaled ss-tilt-host" data-ss-tilt="hero">
-          <div className="hero-sheet-design">
-            <InvoiceSheetScroller className="!overflow-visible">
-              <div style={{ width: SHEET_DESIGN_WIDTH }}>
+    <div
+      id="try-invoice"
+      className="home-hero-invoice w-full"
+      data-lcp="hero-invoice"
+    >
+      <div className="home-hero-invoice-grid">
+        <div className="home-hero-invoice-sheet">
+          <div className="builder-stack">
+            <div className="builder-stack-layer" aria-hidden />
+            <div className="builder-stack-sheet">
+              <InvoiceSheetScroller className="!overflow-visible">
                 <EditableInvoiceCard
                   invoice={displayInvoice}
                   dispatch={dispatch}
                   onLogoFile={setLogoFromFile}
+                  currencySelect={currencySelect}
                   className="hero-builder-card"
                 />
-              </div>
-            </InvoiceSheetScroller>
+              </InvoiceSheetScroller>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="no-print flex flex-wrap items-center justify-center gap-3">
-        <Link
-          href={routes.createInvoice}
-          className="bonsai-btn-primary hero-compact-cta"
-        >
-          Continue in the full builder
-        </Link>
-        <div className="hero-wide-actions flex flex-wrap items-center justify-center gap-3">
-          <button
-            type="button"
-            className="bonsai-btn-secondary bonsai-btn-secondary--sm"
-            onClick={() => window.print()}
-            disabled={busy}
-          >
-            <Printer className="h-4 w-4" aria-hidden />
-            Print
-          </button>
-          <button
-            type="button"
-            className="bonsai-btn-primary bonsai-btn-primary--sm"
-            onClick={() => void handleDownloadPdf()}
-            disabled={busy}
-          >
-            {busy ? (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-            ) : (
-              <Download className="h-4 w-4" aria-hidden />
-            )}
-            Download PDF
-          </button>
-        </div>
+        <InvoiceOptionsPanel
+          className="home-hero-export-panel"
+          compact
+          templateId={DEFAULT_INVOICE_TEMPLATE_ID}
+          stamp={undefined}
+          repositioning={false}
+          onStampChange={() => undefined}
+          onRepositionToggle={() => undefined}
+          onOpenTemplate={() => undefined}
+          onPrint={() => window.print()}
+          onDownload={() => void handleDownloadPdf()}
+          busy={busy}
+          downloadConfirm={downloadConfirm}
+          saveStatus="idle"
+          isGuest={false}
+          isLoggedIn={false}
+          onLogin={() => undefined}
+          onSignup={() => undefined}
+        />
       </div>
     </div>
   );

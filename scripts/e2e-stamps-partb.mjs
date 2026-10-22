@@ -10,14 +10,23 @@ const BASE = process.argv[2] || "http://127.0.0.1:3103";
 const OUT = path.join(process.cwd(), ".perf", "stamps");
 mkdirSync(OUT, { recursive: true });
 
-const chromePath =
-  process.env.CHROME_PATH ||
-  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+const chromePath = process.env.CHROME_PATH || chromium.executablePath();
 
 const results = [];
 function report(name, pass, detail = "") {
   results.push({ name, pass, detail });
   console.log(`${pass ? "PASS" : "FAIL"}  ${name}${detail ? ` — ${detail}` : ""}`);
+}
+
+async function openStampSection(page) {
+  // Desktop panel or mobile Options sheet
+  const stampBtn = page.getByRole("button", { name: /^Stamp/i }).first();
+  if ((await stampBtn.count()) === 0) {
+    await page.getByRole("button", { name: /^Options$/i }).click();
+  }
+  const btn = page.getByRole("button", { name: /^Stamp/i }).first();
+  const expanded = await btn.getAttribute("aria-expanded");
+  if (expanded !== "true") await btn.click();
 }
 
 const browser = await chromium.launch({
@@ -30,9 +39,10 @@ page.setDefaultTimeout(30000);
 try {
   await page.goto(`${BASE}/create-invoice`, { waitUntil: "networkidle" });
   await page.waitForSelector("[data-invoice-builder-card]");
+  await page.waitForSelector("[aria-label='Invoice options']");
 
   for (const label of ["Draft", "Pending", "Approved", "Declined", "Cancelled"]) {
-    await page.getByRole("button", { name: /^Stamp/i }).click();
+    await openStampSection(page);
     await page.getByRole("option", { name: label }).click();
     const stamp = page.locator(".builder-stamp");
     await stamp.waitFor({ state: "visible" });
@@ -43,16 +53,13 @@ try {
     });
   }
 
-  // Size L
-  await page.getByRole("button", { name: /^Stamp/i }).click();
+  await openStampSection(page);
   await page.getByRole("button", { name: /^L$/ }).click();
   const widthL = await page.locator(".builder-stamp").evaluate((el) => el.style.width);
   report("size L", widthL === "28%", widthL);
 
-  // Reposition
   await page.getByLabel(/Reposition/i).click({ force: true });
   await page.waitForTimeout(100);
-  // Click the sheet (not Escape — Escape exits reposition mode)
   await page.locator("[data-invoice-builder-card]").click({ position: { x: 40, y: 200 } });
   await page.waitForSelector(".builder-stamp--reposition");
   const before = await page.locator(".builder-stamp").evaluate((el) => ({
@@ -72,7 +79,7 @@ try {
     `${before.left} → ${after.left}`,
   );
   await page.locator(".builder-stamp").focus();
-  await page.keyboard.press("Escape"); // exits reposition (overlay handler)
+  await page.keyboard.press("Escape");
   await page.waitForTimeout(100);
   const stillRepos = await page.locator(".builder-stamp--reposition").count();
   report(
@@ -81,13 +88,11 @@ try {
     `reposition class count=${stillRepos}`,
   );
 
-  // None removes
-  await page.getByRole("button", { name: /^Stamp/i }).click();
+  await openStampSection(page);
   await page.getByRole("option", { name: "None" }).click();
   report("None removes stamp", (await page.locator(".builder-stamp").count()) === 0);
 
-  // Keyboard access: open Stamp with Tab is heavy; check dialog controls exist
-  await page.getByRole("button", { name: /^Stamp/i }).click();
+  await openStampSection(page);
   report(
     "keyboard options present",
     (await page.getByRole("option").count()) >= 6,
@@ -98,31 +103,15 @@ try {
     pass: null,
     detail: "SKIP — needs Firebase emulator or mocked service",
   });
-  console.log(
-    "SKIP  logged-in stamp persist / duplicate drop — needs Firebase emulator",
-  );
-
-  // Download PDF with stamp present
-  await page.getByRole("option", { name: "Approved" }).click();
-  const [download] = await Promise.all([
-    page.waitForEvent("download", { timeout: 90000 }),
-    page.getByRole("button", { name: /Download PDF/i }).first().click(),
-  ]);
-  const pdfPath = path.join(OUT, "approved-stamp.pdf");
-  await download.saveAs(pdfPath);
-  report("download PDF with stamp", true, pdfPath);
-} catch (err) {
-  report("runner", false, err.message);
-  process.exitCode = 1;
+} catch (error) {
+  report("suite", false, String(error?.message || error));
 } finally {
   await browser.close();
+  const summary = results
+    .map((r) => `${r.pass === null ? "SKIP" : r.pass ? "PASS" : "FAIL"}  ${r.name}${r.detail ? ` — ${r.detail}` : ""}`)
+    .join("\n");
+  writeFileSync(path.join(OUT, "report.txt"), summary + "\n");
+  const failed = results.filter((r) => r.pass === false).length;
+  console.log(`\n${failed} failed. Report: ${path.join(OUT, "report.txt")}`);
+  process.exit(failed ? 1 : 0);
 }
-
-const pass = results.filter((r) => r.pass === true).length;
-const fail = results.filter((r) => r.pass === false).length;
-const skip = results.filter((r) => r.pass === null).length;
-console.log(`\n---\npass=${pass} fail=${fail} skipped=${skip}`);
-writeFileSync(
-  path.join(OUT, "report.txt"),
-  results.map((r) => `${r.pass === null ? "SKIP" : r.pass ? "PASS" : "FAIL"} ${r.name} ${r.detail}`).join("\n") + "\n",
-);

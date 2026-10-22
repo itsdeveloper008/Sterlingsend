@@ -1,56 +1,213 @@
-/* Hero invoice: reserved aspect box + container-query scale (no JS measure → less CLS) */
-.hero-sheet-frame {
-  container-type: inline-size;
-  container-name: hero-sheet;
-  overflow: visible;
+/* Centred old-style hero */
+.home-hero {
+  background: linear-gradient(180deg, #e6f7f3 0%, #ffffff 600px);
 }
 
-.hero-sheet-scaled {
-  aspect-ratio: 720 / 900;
-  overflow: visible;
+.dark .home-hero {
+  background: linear-gradient(180deg, #0b1220 0%, #0f172a 600px);
 }
 
-.hero-sheet-design {
-  width: 720px;
-  transform: scale(calc(100cqi / 720));
-  transform-origin: top left;
+.home-hero-brand {
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(3rem, 7vw, 4.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: #0f172a;
+  text-align: center;
 }
 
-.hero-sheet-design .builder-card,
-.hero-builder-card {
-  border-radius: 16px !important;
-  box-shadow: 0 30px 70px rgba(15, 23, 42, 0.14) !important;
+.dark .home-hero-brand {
+  color: #f8fafc;
 }
 
-.hero-sheet-design .builder-card-inner {
-  padding: 36px 40px !important;
+.home-hero-brand span {
+  color: #0d9488;
 }
 
-.hero-compact-cta {
-  display: none;
+.home-hero-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid #a7f3d0;
+  background: #ecfdf5;
+  padding: 0.4rem 0.9rem;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #0f766e;
 }
 
-@container hero-sheet (max-width: 539px) {
-  .hero-sheet-scaled {
-    aspect-ratio: auto;
-    max-height: none;
-    overflow: visible;
+.home-hero-h1 {
+  margin: 1.25rem 0 0;
+  max-width: 940px;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(2.25rem, 5vw, 4rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+  text-align: center;
+}
+
+.dark .home-hero-h1 {
+  color: #f8fafc;
+}
+
+.home-hero-btn-primary,
+.home-hero-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 52px;
+  padding: 0 1.35rem;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  transition: transform 0.15s ease;
+}
+
+.home-hero-btn-primary {
+  background: #0f766e;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(15, 118, 110, 0.25);
+}
+
+.home-hero-btn-secondary {
+  border: 1.5px solid #94a3b8;
+  background: #fff;
+  color: #0f172a;
+}
+
+.home-hero-btn-primary:hover,
+.home-hero-btn-secondary:hover {
+  transform: translateY(-2px);
+  opacity: 1;
+}
+
+.home-hero-invoice-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.home-hero-invoice-sheet {
+  width: 100%;
+  max-width: 780px;
+}
+
+.home-hero-export-panel {
+  width: 100%;
+  max-width: 780px;
+  position: static;
+  max-height: none;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  padding: 0 !important;
+}
+
+.home-hero-export-panel .inv-panel-kicker {
+  width: 100%;
+  text-align: center;
+  color: #64748b;
+}
+
+.home-hero-export-panel .inv-panel-btn-outline,
+.home-hero-export-panel .inv-panel-btn-primary {
+  width: auto;
+  min-width: 140px;
+  height: 40px;
+  font-size: 14px;
+  border-radius: 10px;
+}
+
+.home-hero-export-panel .inv-panel-btn-outline {
+  border-color: #94a3b8;
+  color: #0f172a;
+  background: #fff;
+}
+
+.home-hero-export-panel .inv-panel-btn-primary {
+  background: #0f766e;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(15, 118, 110, 0.22);
+}
+
+.home-hero-export-panel .inv-panel-confirm {
+  width: 100%;
+  justify-content: center;
+  color: #0f766e;
+}
+
+@media (min-width: 1140px) {
+  .home-hero-invoice-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 780px) 220px;
+    gap: 28px;
+    align-items: start;
+    justify-content: center;
+    max-width: calc(780px + 28px + 220px);
+    margin-inline: auto;
   }
 
-  .hero-sheet-design {
+  .home-hero-export-panel {
+    position: sticky;
+    top: 96px;
+    max-width: 220px;
+    flex-direction: column;
+    align-items: stretch;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background: rgba(8, 20, 34, 0.92) !important;
+    box-shadow: 0 24px 60px rgba(7, 17, 31, 0.35) !important;
+    padding: 20px !important;
+  }
+
+  .home-hero-export-panel .inv-panel-kicker {
+    text-align: left;
+    color: #94a3b8;
+  }
+
+  .home-hero-export-panel .inv-panel-btn-outline {
     width: 100%;
-    transform: none;
+    height: 48px;
+    border-color: rgba(255, 255, 255, 0.35);
+    color: #fff;
+    background: transparent;
   }
 
-  .hero-sheet-design > * {
-    min-width: 0;
+  .home-hero-export-panel .inv-panel-btn-primary {
+    width: 100%;
+    height: 52px;
+    background: #5eead4;
+    color: #052e2b;
   }
 
-  .hero-compact-cta {
-    display: inline-flex;
+  .home-hero-export-panel .inv-panel-confirm {
+    justify-content: flex-start;
+    color: #5eead4;
   }
+}
 
-  .hero-wide-actions {
-    display: none;
-  }
+.hero-builder-card {
+  border-radius: 20px !important;
+}
+
+/* No tilt distortion on the hero sheet */
+.home-hero-invoice .ss-tilt-host,
+.home-hero-invoice [data-ss-tilt] {
+  transform: none !important;
 }

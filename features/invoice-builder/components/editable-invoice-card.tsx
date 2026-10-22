@@ -114,7 +114,6 @@ export function EditableInvoiceCard({
           stampRepositioning && "builder-card-inner--inert",
         )}
       >
-        {/* Top row: logo + company */}
         <header className="builder-header flex flex-wrap items-start justify-between gap-6">
           <div className="min-w-0">
             <input
@@ -158,7 +157,7 @@ export function EditableInvoiceCard({
                 onClick={() => fileRef.current?.click()}
               >
                 <Upload className="h-5 w-5" aria-hidden />
-                Click to upload logo
+                Click to upload
               </button>
             )}
           </div>
@@ -173,7 +172,7 @@ export function EditableInvoiceCard({
                   patch: { name: event.target.value },
                 })
               }
-              placeholder="Your business name"
+              placeholder="Your Company"
               aria-label="Business name"
             />
             <textarea
@@ -187,7 +186,7 @@ export function EditableInvoiceCard({
                 })
               }
               onInput={autoGrow}
-              placeholder="Address line, town, postcode"
+              placeholder="123 Main St, City, State 12345"
               aria-label="Business address"
             />
             <input
@@ -200,7 +199,7 @@ export function EditableInvoiceCard({
                   patch: { email: event.target.value },
                 })
               }
-              placeholder="business@email.com"
+              placeholder="your@email.com"
               aria-label="Business email"
             />
             <input
@@ -216,24 +215,31 @@ export function EditableInvoiceCard({
                   patch: { phone: event.target.value },
                 })
               }
-              placeholder="Phone (optional)"
-              aria-label="Phone (optional)"
+              placeholder="Phone Number"
+              aria-label="Phone"
             />
-            <input
+            <div
               className={cn(
-                "builder-field builder-field--muted",
+                "builder-vat-row mt-0.5 flex items-baseline justify-end gap-1.5 text-sm",
                 !invoice.business.vatNumber.trim() && "builder-empty-print",
               )}
-              value={invoice.business.vatNumber}
-              onChange={(event) =>
-                dispatch({
-                  type: "patchBusiness",
-                  patch: { vatNumber: event.target.value },
-                })
-              }
-              placeholder="VAT number (optional)"
-              aria-label="VAT number (optional)"
-            />
+            >
+              <span className="builder-vat-label shrink-0 font-medium not-italic">
+                VAT:
+              </span>
+              <input
+                className="builder-field builder-field--muted w-auto min-w-[8rem] text-right"
+                value={invoice.business.vatNumber}
+                onChange={(event) =>
+                  dispatch({
+                    type: "patchBusiness",
+                    patch: { vatNumber: event.target.value },
+                  })
+                }
+                placeholder="Add VAT Number"
+                aria-label="VAT number"
+              />
+            </div>
           </div>
         </header>
 
@@ -251,7 +257,6 @@ export function EditableInvoiceCard({
           aria-label="Invoice number"
         />
 
-        {/* Billed To + dates */}
         <div className="builder-billed">
           <div>
             <p className="builder-label">Billed to</p>
@@ -264,7 +269,7 @@ export function EditableInvoiceCard({
                   patch: { name: event.target.value },
                 })
               }
-              placeholder="Client name"
+              placeholder="Client Company"
               aria-label="Client name"
             />
             <textarea
@@ -278,7 +283,7 @@ export function EditableInvoiceCard({
                 })
               }
               onInput={autoGrow}
-              placeholder="Client address"
+              placeholder="Client Address"
               aria-label="Client address"
             />
             <input
@@ -300,7 +305,7 @@ export function EditableInvoiceCard({
             <p className="builder-label">Issue date</p>
             <div className="builder-date-field mt-2">
               <input
-                className="builder-field font-medium text-[#0F172A]"
+                className="builder-field builder-date-input font-medium text-[#0F172A]"
                 type="date"
                 value={invoice.issueDate}
                 onChange={(event) =>
@@ -311,10 +316,7 @@ export function EditableInvoiceCard({
                 }
                 aria-label="Issue date"
               />
-              <Calendar
-                className="builder-date-icon no-print"
-                aria-hidden
-              />
+              <Calendar className="builder-date-icon no-print" aria-hidden />
             </div>
           </div>
 
@@ -322,7 +324,7 @@ export function EditableInvoiceCard({
             <p className="builder-label">Due date</p>
             <div className="builder-date-field mt-2">
               <input
-                className="builder-field font-medium text-[#0F172A]"
+                className="builder-field builder-date-input font-medium text-[#0F172A]"
                 type="date"
                 value={invoice.dueDate}
                 onChange={(event) =>
@@ -333,19 +335,17 @@ export function EditableInvoiceCard({
                 }
                 aria-label="Due date"
               />
-              <Calendar
-                className="builder-date-icon no-print"
-                aria-hidden
-              />
+              <Calendar className="builder-date-icon no-print" aria-hidden />
             </div>
           </div>
         </div>
 
-        {/* Line items */}
         <table className="builder-table">
           <thead>
             <tr>
-              <th scope="col">Description</th>
+              <th scope="col" className="builder-col-desc">
+                Description
+              </th>
               <th scope="col" className="num">
                 Qty
               </th>
@@ -372,9 +372,10 @@ export function EditableInvoiceCard({
 
               return (
                 <tr key={item.id}>
-                  <td>
-                    <input
-                      className="builder-field"
+                  <td className="builder-col-desc">
+                    <textarea
+                      className="builder-field builder-field--area"
+                      rows={1}
                       value={item.description}
                       onChange={(event) =>
                         dispatch({
@@ -383,13 +384,14 @@ export function EditableInvoiceCard({
                           patch: { description: event.target.value },
                         })
                       }
-                      placeholder="Service or product"
+                      onInput={autoGrow}
+                      placeholder="Service or Product"
                       aria-label="Description"
                     />
                   </td>
                   <td className="num">
                     <input
-                      className="builder-field text-right"
+                      className="builder-field text-right text-[#0F172A]"
                       type="number"
                       min={0}
                       step="any"
@@ -406,7 +408,7 @@ export function EditableInvoiceCard({
                   </td>
                   <td className="num">
                     <input
-                      className="builder-field text-right"
+                      className="builder-field text-right text-[#0F172A]"
                       type="number"
                       min={0}
                       step="any"
@@ -429,7 +431,7 @@ export function EditableInvoiceCard({
                       return (
                         <div className="builder-discount-cell">
                           <input
-                            className="builder-field text-right"
+                            className="builder-field text-right text-[#0F172A]"
                             type="number"
                             min={0}
                             max={discountType === "percent" ? 100 : undefined}
@@ -459,7 +461,9 @@ export function EditableInvoiceCard({
                             <button
                               type="button"
                               className={
-                                discountType === "percent" ? "is-active" : undefined
+                                discountType === "percent"
+                                  ? "is-active"
+                                  : undefined
                               }
                               onClick={() =>
                                 dispatch({
@@ -475,7 +479,9 @@ export function EditableInvoiceCard({
                             <button
                               type="button"
                               className={
-                                discountType === "fixed" ? "is-active" : undefined
+                                discountType === "fixed"
+                                  ? "is-active"
+                                  : undefined
                               }
                               onClick={() =>
                                 dispatch({
@@ -498,7 +504,7 @@ export function EditableInvoiceCard({
                   </td>
                   <td className="num">
                     <input
-                      className="builder-field text-right"
+                      className="builder-field text-right text-[#0F172A]"
                       type="number"
                       min={0}
                       max={100}
@@ -519,7 +525,7 @@ export function EditableInvoiceCard({
                       aria-label="VAT percent"
                     />
                   </td>
-                  <td className="num font-semibold tabular-nums">
+                  <td className="num font-semibold tabular-nums text-[#0F172A]">
                     {formatInvoiceCurrency(
                       calculated?.lineTotal ?? 0,
                       invoice.currency,
@@ -555,7 +561,6 @@ export function EditableInvoiceCard({
           </button>
         </div>
 
-        {/* Totals */}
         <dl className="builder-totals">
           <div className="builder-total-row">
             <dt className="text-[#64748B]">Subtotal</dt>
@@ -593,7 +598,6 @@ export function EditableInvoiceCard({
           </div>
         </dl>
 
-        {/* Notes */}
         <section className="builder-section">
           <h2 className="builder-section-title">Notes</h2>
           <textarea
@@ -609,7 +613,6 @@ export function EditableInvoiceCard({
           />
         </section>
 
-        {/* Payment */}
         <section
           className={cn(
             "builder-section",
@@ -629,6 +632,7 @@ export function EditableInvoiceCard({
                 })
               }
               placeholder="e.g. John Doe"
+              aria-label="Account Holder"
             />
             <span className="builder-payment-label">Bank Name</span>
             <input
@@ -641,6 +645,7 @@ export function EditableInvoiceCard({
                 })
               }
               placeholder="e.g. Global Bank"
+              aria-label="Bank Name"
             />
             <span className="builder-payment-label">Account/IBAN</span>
             <input
@@ -653,6 +658,7 @@ export function EditableInvoiceCard({
                 })
               }
               placeholder="e.g. 12345678"
+              aria-label="Account/IBAN"
             />
             <span className="builder-payment-label">Sort Code/SWIFT</span>
             <input
@@ -665,18 +671,18 @@ export function EditableInvoiceCard({
                 })
               }
               placeholder="e.g. 12-34-56"
+              aria-label="Sort Code/SWIFT"
             />
           </div>
         </section>
 
-        {/* Footer */}
         <footer className="builder-footer">
           <div className="min-w-0">
             <p className="font-semibold text-[#0F172A]">
-              {invoice.business.name.trim() || "Your business name"}
+              {invoice.business.name.trim() || "Your Company"}
             </p>
             <p className="text-sm text-[#64748B]">
-              {invoice.business.email.trim() || "business@email.com"}
+              {invoice.business.email.trim() || "your@email.com"}
             </p>
           </div>
           <div className="builder-footer-meta">

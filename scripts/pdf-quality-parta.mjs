@@ -86,15 +86,15 @@ async function seedViaUi(page, { items = 1, notes, templateId } = {}) {
   };
 
   await fillPh("INV-001", "INV-QA-001");
-  await fillPh("Your business name", "Acme Consulting Ltd");
-  await fillPh("Address line, town, postcode", "1 High Street, London");
-  await fillPh("Business email", "hello@acme.test");
-  await fillPh("Phone (optional)", "020 0000 0000");
-  await fillPh("VAT number (optional)", "GB123456789");
-  await fillPh("Client name", "Jane Client");
-  await fillPh("Client address", "2 Client Road");
-  await fillPh("Client email", "jane@client.test");
-  await fillPh("Service or product", "Line item 1 professional services");
+  await fillPh("Your Company", "Acme Consulting Ltd");
+  await fillPh("123 Main St, City, State 12345", "1 High Street, London");
+  await fillPh("your@email.com", "hello@acme.test");
+  await fillPh("Phone Number", "020 0000 0000");
+  await fillPh("Add VAT Number", "GB123456789");
+  await fillPh("Client Company", "Jane Client");
+  await fillPh("Client Address", "2 Client Road");
+  await fillPh("client@email.com", "jane@client.test");
+  await fillPh("Service or Product", "Line item 1 professional services");
   await fillPh("Thank you for your business!", notes || "Thank you for your business!");
   await fillPh("e.g. John Doe", "Acme Consulting Ltd");
   await fillPh("e.g. Global Bank", "HSBC");
@@ -107,7 +107,7 @@ async function seedViaUi(page, { items = 1, notes, templateId } = {}) {
     await add.click();
     const rows = card.locator("tbody tr");
     const row = rows.nth(i);
-    const rowDesc = row.locator('[placeholder="Service or product"]').first();
+    const rowDesc = row.locator('[placeholder="Service or Product"]').first();
     if ((await rowDesc.count()) > 0) {
       await rowDesc.fill(`Line item ${i + 1} professional services`);
     }

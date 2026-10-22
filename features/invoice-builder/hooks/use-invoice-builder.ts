@@ -67,9 +67,15 @@ export function useInvoiceBuilder(options?: {
   seed?: "empty" | "demo";
   /** When true, skip wiping storage / template patch (edit or pending restore). */
   skipClearOnMount?: boolean;
+  /**
+   * When false, never apply sessionStorage ss_template (home hero must stay
+   * classic-teal). Default true for /create-invoice.
+   */
+  applySessionTemplate?: boolean;
 }) {
   const seed = options?.seed ?? "empty";
   const skipClearOnMount = options?.skipClearOnMount ?? false;
+  const applySessionTemplate = options?.applySessionTemplate ?? true;
   const [invoice, dispatch] = useReducer(
     reducer,
     undefined,
@@ -85,11 +91,12 @@ export function useInvoiceBuilder(options?: {
     if (skipClearOnMount) return;
     // Wipe any previously saved drafts so refresh never shows old client data
     clearBuilderInvoice();
+    if (!applySessionTemplate) return;
     dispatch({
       type: "patch",
       patch: { templateId: readSessionTemplateId() },
     });
-  }, [skipClearOnMount]);
+  }, [skipClearOnMount, applySessionTemplate]);
 
   const dispatchTracked = useCallback((action: BuilderInvoiceAction) => {
     if (action.type !== "hydrate") setDirty(true);

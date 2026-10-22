@@ -121,7 +121,7 @@
 .builder-stack {
   position: relative;
   width: 100%;
-  max-width: 820px;
+  max-width: 780px;
   margin-inline: auto;
 }
 
@@ -129,26 +129,16 @@
   position: absolute;
   z-index: 0;
   pointer-events: none;
-  border-radius: 24px;
-}
-
-.builder-stack-layer--1 {
-  left: -22px;
-  right: -22px;
-  top: 18px;
-  bottom: -12px;
-  border-radius: 24px;
-  background: var(--inv-layer-1);
-}
-
-.builder-stack-layer--2 {
-  left: -44px;
-  right: -44px;
-  top: 36px;
-  bottom: -24px;
+  left: -56px;
+  right: -56px;
+  top: 120px;
+  bottom: 0;
   border-radius: 28px;
-  background: var(--inv-layer-2);
-  z-index: 0;
+  background: #dcebe8;
+}
+
+.dark .builder-stack-layer {
+  background: #13202f;
 }
 
 .builder-stack-sheet {
@@ -371,16 +361,49 @@
   position: relative;
   margin-inline: auto;
   width: 100%;
-  max-width: 820px;
+  max-width: 780px;
   overflow: hidden;
   border-radius: 20px;
-  border: none;
+  border: 1px solid #e2e8f0;
   background: #fff;
-  color: #334155;
+  color: #0f172a;
   font-size: 15px;
+  font-family:
+    var(--font-plus-jakarta),
+    ui-sans-serif,
+    system-ui,
+    sans-serif;
   box-shadow: 0 30px 70px rgba(15, 23, 42, 0.14);
   /* Sheet stays white paper in dark mode */
   color-scheme: light;
+}
+
+/* Isolate sheet from marketing Fraunces / global heading styles */
+.builder-card h1,
+.builder-card h2,
+.builder-card h3,
+.builder-card h4,
+.builder-card h5,
+.builder-card h6,
+.builder-card p,
+.builder-card input,
+.builder-card textarea,
+.builder-card select,
+.builder-card label,
+.builder-card button {
+  font-family: inherit;
+  font-style: normal;
+}
+
+.builder-card h1,
+.builder-card h2,
+.builder-card h3,
+.builder-card h4,
+.builder-card h5,
+.builder-card h6 {
+  letter-spacing: normal;
+  line-height: inherit;
+  color: inherit;
 }
 
 .builder-accent {
@@ -444,16 +467,23 @@
     padding: 36px 56px 28px;
   }
 }
-.builder-card[data-layout="bold"] .builder-title,
-.builder-card[data-layout="bold"] .builder-invoice-no,
-.builder-card[data-layout="bold"] .builder-field,
-.builder-card[data-layout="bold"] .builder-field--muted,
-.builder-card[data-layout="bold"] .builder-vat-row {
+/* White text only inside the colored header — title/number below stay ink */
+.builder-card[data-layout="bold"] .builder-header,
+.builder-card[data-layout="bold"] .builder-header .builder-field,
+.builder-card[data-layout="bold"] .builder-header .builder-field--muted,
+.builder-card[data-layout="bold"] .builder-header .builder-vat-row,
+.builder-card[data-layout="bold"] .builder-header .builder-vat-label {
   color: #fff;
 }
-.builder-card[data-layout="bold"] .builder-field::placeholder,
-.builder-card[data-layout="bold"] .builder-field--muted::placeholder {
+.builder-card[data-layout="bold"] .builder-header .builder-field::placeholder,
+.builder-card[data-layout="bold"]
+  .builder-header
+  .builder-field--muted::placeholder {
   color: rgba(255, 255, 255, 0.7);
+}
+.builder-card[data-layout="bold"] .builder-title,
+.builder-card[data-layout="bold"] .builder-invoice-no {
+  color: #0f172a;
 }
 .builder-card[data-layout="bold"] .builder-logo-box {
   border-color: rgba(255, 255, 255, 0.45);
@@ -493,6 +523,29 @@
   position: relative;
   z-index: 1;
 }
+/* Header overlaps the band — keep those fields readable on the colour */
+.builder-card[data-layout="band"] .builder-header,
+.builder-card[data-layout="band"] .builder-header .builder-field,
+.builder-card[data-layout="band"] .builder-header .builder-field--muted,
+.builder-card[data-layout="band"] .builder-header .builder-vat-row,
+.builder-card[data-layout="band"] .builder-header .builder-vat-label {
+  color: #fff;
+}
+.builder-card[data-layout="band"] .builder-header .builder-field::placeholder,
+.builder-card[data-layout="band"]
+  .builder-header
+  .builder-field--muted::placeholder {
+  color: rgba(255, 255, 255, 0.75);
+}
+.builder-card[data-layout="band"] .builder-logo-box {
+  border-color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+.builder-card[data-layout="band"] .builder-title,
+.builder-card[data-layout="band"] .builder-invoice-no {
+  color: #0f172a;
+}
 
 .builder-card[data-layout="framed"] {
   border: 2px solid var(--inv-primary);
@@ -522,6 +575,11 @@
   .builder-card-inner {
     padding: 52px 56px;
   }
+}
+
+.builder-col-desc {
+  min-width: 220px;
+  width: 42%;
 }
 
 .builder-field {
@@ -610,7 +668,7 @@ button:has(.builder-logo-preview):focus-visible {
 .builder-title {
   margin-top: 20px;
   margin-bottom: 0;
-  font-family: var(--font-invoice-sheet), ui-sans-serif, system-ui, sans-serif;
+  font-family: inherit;
   font-size: 46px;
   font-weight: 800;
   font-style: normal;
@@ -642,7 +700,7 @@ button:has(.builder-logo-preview):focus-visible {
   gap: 1.25rem;
   margin-top: 28px;
   border-radius: 14px;
-  background: #f1f5f9;
+  background: #f8fafc;
   padding: 22px 24px;
 }
 
@@ -663,16 +721,38 @@ button:has(.builder-logo-preview):focus-visible {
 }
 
 .builder-date-field {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
+.builder-date-input {
+  flex: 1;
+  min-width: 0;
+  padding-right: 1.5rem;
+}
+
+/* Hide native calendar glyph; keep custom icon. Click still opens picker. */
+.builder-date-input::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
 .builder-date-icon {
+  position: absolute;
+  right: 0;
+  top: 50%;
   width: 16px;
   height: 16px;
+  margin-top: -8px;
   flex-shrink: 0;
   color: #64748b;
+  pointer-events: none;
 }
 
 .builder-table {
@@ -878,13 +958,18 @@ tr:hover .builder-row-remove {
   border-top: 1px solid #e2e8f0;
 }
 
+.builder-card .builder-section-title,
 .builder-page .builder-section-title {
+  font-family: inherit;
   font-size: 0.9375rem;
   font-weight: 700;
-  /* Match pre-Phase-1 global h2 (Geist + tracking-tight, ~1.5 lh) */
   line-height: 1.5;
-  letter-spacing: -0.025em;
+  letter-spacing: normal;
   color: #0f172a;
+}
+
+.builder-vat-label {
+  color: #64748b;
 }
 
 .builder-payment-grid {
@@ -1248,5 +1333,394 @@ body.builder-pdf-export .builder-stamp--animate {
 }
 
 body.builder-pdf-export .builder-stamp-done {
+  display: none !important;
+}
+
+/* —— Invoice options side panel —— */
+.builder-workspace {
+  position: relative;
+  margin-inline: auto;
+  width: 100%;
+  max-width: 780px;
+  padding: 0 16px 120px;
+}
+
+@media (min-width: 1140px) {
+  .builder-workspace {
+    max-width: calc(780px + 32px + 264px);
+    display: grid;
+    grid-template-columns: minmax(0, 780px) 264px;
+    gap: 32px;
+    align-items: start;
+    justify-content: center;
+    padding-bottom: 64px;
+  }
+
+  .builder-workspace-sheet {
+    grid-column: 1;
+  }
+
+  .builder-workspace-panel {
+    grid-column: 2;
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1139px) {
+  .builder-workspace {
+    max-width: calc(780px + 24px + 64px);
+    display: grid;
+    grid-template-columns: minmax(0, 780px) 64px;
+    gap: 24px;
+    align-items: start;
+    justify-content: center;
+  }
+
+  .inv-panel:not(.inv-panel--compact) .inv-panel-section p,
+  .inv-panel:not(.inv-panel--compact) .inv-panel-template-name,
+  .inv-panel:not(.inv-panel--compact) .inv-panel-guest,
+  .inv-panel:not(.inv-panel--compact) .inv-panel-status,
+  .inv-panel:not(.inv-panel--compact) .inv-panel-confirm,
+  .inv-panel:not(.inv-panel--compact) .inv-panel-thumb,
+  .inv-panel:not(.inv-panel--compact) .inv-panel-kicker,
+  .inv-panel:not(.inv-panel--compact) .inv-stamp-inline {
+    /* rail mode handled via data attribute */
+  }
+
+  .builder-workspace[data-rail="true"] .inv-panel {
+    padding: 12px 8px;
+    width: 64px;
+  }
+
+  .builder-workspace[data-rail="true"] .inv-panel-kicker,
+  .builder-workspace[data-rail="true"] .inv-panel-status,
+  .builder-workspace[data-rail="true"] .inv-panel-template-meta,
+  .builder-workspace[data-rail="true"] .inv-panel-guest,
+  .builder-workspace[data-rail="true"] .inv-panel-confirm,
+  .builder-workspace[data-rail="true"] .inv-panel-thumb,
+  .builder-workspace[data-rail="true"] .inv-stamp-inline,
+  .builder-workspace[data-rail="true"] .inv-panel-divider {
+    display: none;
+  }
+
+  .builder-workspace[data-rail="true"] .inv-panel-template-rail {
+    display: inline-flex !important;
+  }
+
+  .builder-workspace[data-rail="true"] .inv-panel-btn-outline,
+  .builder-workspace[data-rail="true"] .inv-panel-btn-primary {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    font-size: 0;
+    gap: 0;
+  }
+
+  .builder-workspace[data-rail="true"] .inv-panel-btn-outline svg,
+  .builder-workspace[data-rail="true"] .inv-panel-btn-primary svg {
+    margin: 0;
+  }
+
+  .builder-workspace[data-rail="true"] .inv-panel-link {
+    display: none;
+  }
+}
+
+.inv-panel-template-rail {
+  display: none !important;
+}
+
+.inv-panel {
+  position: sticky;
+  top: 96px;
+  z-index: 30;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #081422;
+  padding: 20px;
+  color: #f8fafc;
+  box-shadow:
+    0 24px 60px rgba(7, 17, 31, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .inv-panel {
+    background: rgba(8, 20, 34, 0.92);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+  }
+}
+
+.inv-panel-kicker {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.inv-panel-status {
+  margin: 0;
+  font-size: 15px;
+  color: #f8fafc;
+}
+
+.inv-panel-section + .inv-panel-section {
+  margin-top: 0;
+}
+
+.inv-panel-divider {
+  height: 1px;
+  margin: 20px 0;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.inv-panel-template {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.inv-panel-thumb {
+  width: 72px;
+  height: 102px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #0f1a28;
+}
+
+.inv-panel-template-name {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.inv-panel-link {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: #5eead4;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.inv-panel-link:focus-visible,
+.inv-panel-btn-outline:focus-visible,
+.inv-panel-btn-primary:focus-visible,
+.inv-stamp-chip:focus-visible,
+.inv-stamp-size:focus-visible {
+  outline: 2px solid #5eead4;
+  outline-offset: 2px;
+}
+
+.inv-panel-btn-outline,
+.inv-panel-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.inv-panel-btn-outline {
+  height: 48px;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  background: transparent;
+  color: #fff;
+}
+
+.inv-panel-btn-primary {
+  height: 52px;
+  border: 0;
+  background: #5eead4;
+  color: #052e2b;
+  box-shadow: 0 8px 20px rgba(94, 234, 212, 0.22);
+}
+
+.inv-panel-btn-outline:hover,
+.inv-panel-btn-primary:hover {
+  transform: translateY(-2px);
+  opacity: 1;
+}
+
+.inv-panel-btn-primary:hover {
+  box-shadow: 0 12px 28px rgba(94, 234, 212, 0.35);
+}
+
+.inv-panel-btn-outline:disabled,
+.inv-panel-btn-primary:disabled {
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.55;
+}
+
+.inv-panel-confirm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #5eead4;
+}
+
+.inv-panel-guest {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+
+.inv-stamp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.inv-stamp-chip,
+.inv-stamp-size {
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f8fafc;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.inv-stamp-chip.is-selected,
+.inv-stamp-size.is-selected {
+  border-color: #5eead4;
+  background: rgba(94, 234, 212, 0.12);
+  color: #5eead4;
+}
+
+.inv-stamp-sizes {
+  display: flex;
+  gap: 6px;
+}
+
+.inv-stamp-size {
+  flex: 1;
+}
+
+.inv-stamp-reposition {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 14px;
+  color: #e2e8f0;
+  cursor: pointer;
+}
+
+.inv-panel--compact {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.builder-mobile-bar {
+  display: none;
+}
+
+.builder-options-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: rgba(7, 17, 31, 0.55);
+}
+
+.builder-options-sheet-panel {
+  max-height: min(85vh, 640px);
+  overflow-y: auto;
+  border-radius: 20px 20px 0 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #081422;
+  padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+  box-shadow: 0 -16px 40px rgba(7, 17, 31, 0.4);
+}
+
+.builder-options-sheet-panel .inv-panel {
+  position: static;
+  max-height: none;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  backdrop-filter: none;
+}
+
+@media (max-width: 899px) {
+  .builder-workspace-panel {
+    display: none;
+  }
+
+  .builder-workspace {
+    padding-bottom: 110px;
+  }
+
+  .builder-mobile-bar {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 45;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    height: 72px;
+    padding: 0 1rem calc(env(safe-area-inset-bottom));
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(8, 20, 34, 0.92);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 -8px 24px rgba(7, 17, 31, 0.35);
+  }
+
+  .builder-mobile-bar .inv-panel-btn-primary {
+    flex: 1;
+    height: 48px;
+  }
+
+  .builder-mobile-bar .inv-panel-btn-outline {
+    width: auto;
+    min-width: 96px;
+    height: 48px;
+    padding: 0 14px;
+  }
+}
+
+@media print {
+  .inv-panel,
+  .builder-workspace-panel,
+  .builder-mobile-bar,
+  .builder-options-sheet,
+  .builder-stack-layer {
+    display: none !important;
+  }
+}
+
+body.builder-pdf-export .inv-panel,
+body.builder-pdf-export .builder-stack-layer {
   display: none !important;
 }
