@@ -21,7 +21,7 @@ const plusJakarta = Plus_Jakarta_Sans({
 const fraunces = Fraunces({
   variable: "--font-fraunces",
   subsets: ["latin"],
-  display: "swap",
+  display: "optional",
   style: ["normal"],
   axes: ["opsz"],
   preload: true,

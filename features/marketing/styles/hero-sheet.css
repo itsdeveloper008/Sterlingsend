@@ -1,0 +1,52 @@
+/* Hero invoice: reserved aspect box + container-query scale (no JS measure → less CLS) */
+.hero-sheet-frame {
+  container-type: inline-size;
+  container-name: hero-sheet;
+}
+
+.hero-sheet-scaled {
+  aspect-ratio: 720 / 828;
+  overflow: hidden;
+}
+
+.hero-sheet-design {
+  width: 720px;
+  transform: scale(calc(100cqi / 720));
+  transform-origin: top left;
+}
+
+.hero-sheet-fade {
+  display: none;
+}
+
+.hero-compact-cta {
+  display: none;
+}
+
+@container hero-sheet (max-width: 539px) {
+  .hero-sheet-scaled {
+    aspect-ratio: auto;
+    max-height: 420px;
+  }
+
+  .hero-sheet-design {
+    width: 100%;
+    transform: none;
+  }
+
+  .hero-sheet-design > * {
+    min-width: 0;
+  }
+
+  .hero-sheet-fade {
+    display: block;
+  }
+
+  .hero-compact-cta {
+    display: inline-flex;
+  }
+
+  .hero-wide-actions {
+    display: none;
+  }
+}
