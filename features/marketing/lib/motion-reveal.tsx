@@ -4,9 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Entrance reveal: fade + 16px rise over 450ms, once per element.
- * Content stays visible without JavaScript (no opacity:0 in CSS by default).
- * Stagger via delayMs (caller should cap at 6 items × 60ms).
+ * Below-fold entrance only. Content starts fully visible.
+ * IntersectionObserver (rootMargin ahead of viewport) adds a one-shot CSS class.
  */
 export function MotionReveal({
   children,
@@ -16,9 +15,7 @@ export function MotionReveal({
 }: {
   children: React.ReactNode;
   className?: string;
-  /** Stagger delay in ms (preferred). */
   delayMs?: number;
-  /** Legacy alias: seconds (framer-motion style) or ms if > 10. */
   delay?: number;
 }) {
   const resolvedDelayMs = (() => {
@@ -35,10 +32,7 @@ export function MotionReveal({
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const coarse = window.matchMedia("(pointer: coarse)").matches;
-    if (reduce || coarse) {
-      setActive(true);
-      return;
-    }
+    if (reduce || coarse) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -47,7 +41,7 @@ export function MotionReveal({
           observer.disconnect();
         }
       },
-      { rootMargin: "0px 0px -40px 0px", threshold: 0.12 },
+      { rootMargin: "80px 0px", threshold: 0.08 },
     );
     observer.observe(el);
     return () => observer.disconnect();

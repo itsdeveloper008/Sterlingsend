@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { MarketingShell } from "@/features/marketing";
-import {
-  getToolBySlug,
-  PDF_TOOLS,
-  ToolWorkspace,
-} from "@/features/pdf-tools";
+import { getToolBySlug, PDF_TOOLS } from "@/features/pdf-tools";
+import { ToolWorkspaceLazy } from "@/features/pdf-tools/components/tool-workspace-lazy";
 import { routes } from "@/config/routes";
 import { siteConfig } from "@/config/site";
+
+export function generateStaticParams() {
+  return PDF_TOOLS.map((tool) => ({ slug: tool.slug }));
+}
 
 export async function generateMetadata({
   params,
@@ -65,7 +66,7 @@ export default async function PublicToolPage({
         <p className="mt-3 text-sm font-medium text-foreground">{tool.privacyTag}</p>
 
         <div className="ss-calm-zone mt-8">
-          <ToolWorkspace tool={tool} />
+          <ToolWorkspaceLazy tool={tool} />
         </div>
 
         <section className="mt-12 max-w-2xl">

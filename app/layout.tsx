@@ -4,27 +4,35 @@ import { AppProviders } from "@/providers/app-providers";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
 
+/** UI body: weights actually used in components (regular/medium/semibold/bold). */
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
   subsets: ["latin"],
   display: "swap",
   style: ["normal"],
   weight: ["400", "500", "600", "700"],
+  preload: true,
+  adjustFontFallback: true,
 });
 
+/** Display headings: opsz axis only (no unused italic). */
 const fraunces = Fraunces({
   variable: "--font-fraunces",
   subsets: ["latin"],
   display: "swap",
   style: ["normal"],
   axes: ["opsz"],
+  preload: true,
+  adjustFontFallback: true,
 });
 
-/** Invoice sheet only: preserves the pre-Phase-1 on-screen typeface. Not used for app UI. */
+/** Invoice sheet only — not preloaded on marketing first paint. */
 const invoiceSheetSans = Geist({
   variable: "--font-invoice-sheet",
   subsets: ["latin"],
   display: "swap",
+  preload: false,
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {

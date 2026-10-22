@@ -5,17 +5,15 @@ import Link from "next/link";
 import { Download, Loader2, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { EditableInvoiceCard } from "@/features/invoice-builder/components/editable-invoice-card";
 import { InvoiceSheetScroller } from "@/features/invoice-builder/components/invoice-sheet-scroller";
 import { useInvoiceBuilder } from "@/features/invoice-builder/hooks/use-invoice-builder";
-import { downloadBuilderInvoicePdf } from "@/pdf/utils/download-builder-with-template";
 import { routes } from "@/config/routes";
 import "@/features/invoice-builder/styles/invoice-builder.css";
 
 /** Landing hero - editable invoice in the clean sheet format. */
 export function HeroEditableInvoice() {
-  const { invoice, hydrated, dispatch, setLogoFromFile } = useInvoiceBuilder({
+  const { invoice, dispatch, setLogoFromFile } = useInvoiceBuilder({
     seed: "empty",
   });
   const cardRef = useRef<HTMLDivElement>(null);
@@ -24,6 +22,9 @@ export function HeroEditableInvoice() {
   async function handleDownloadPdf() {
     try {
       setBusy(true);
+      const { downloadBuilderInvoicePdf } = await import(
+        "@/pdf/utils/download-builder-with-template"
+      );
       await downloadBuilderInvoicePdf(invoice);
       toast.success("PDF downloaded");
     } catch (error) {
@@ -34,12 +35,13 @@ export function HeroEditableInvoice() {
     }
   }
 
-  if (!hydrated) {
-    return <Skeleton className="mx-auto h-[560px] w-full max-w-3xl rounded-xl" />;
-  }
-
   return (
-    <div id="try-invoice" className="builder-sheet mx-auto w-full max-w-3xl space-y-4" ref={cardRef}>
+    <div
+      id="try-invoice"
+      className="builder-sheet mx-auto w-full max-w-3xl space-y-4"
+      ref={cardRef}
+      data-lcp="hero-invoice"
+    >
       <InvoiceSheetScroller>
         <EditableInvoiceCard
           invoice={invoice}

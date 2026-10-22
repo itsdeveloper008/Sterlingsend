@@ -12,16 +12,11 @@ import {
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
+import dynamic from "next/dynamic";
 import { routes } from "@/config/routes";
 import type { PdfTool } from "@/features/pdf-tools/catalog";
-import {
-  EditPdfEditor,
-  type EditPdfHandle,
-} from "@/features/pdf-tools/components/edit-pdf-editor";
-import { FilePreview } from "@/features/pdf-tools/components/file-preview";
-import { SignaturePad } from "@/features/pdf-tools/components/signature-pad";
+import type { EditPdfHandle } from "@/features/pdf-tools/components/edit-pdf-editor";
 import { downloadBytes } from "@/features/pdf-tools/lib/download";
-import { processTool } from "@/features/pdf-tools/lib/engine/process";
 import type { ToolOptions } from "@/features/pdf-tools/lib/engine/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +29,39 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+
+const EditPdfEditor = dynamic(
+  () =>
+    import("@/features/pdf-tools/components/edit-pdf-editor").then((m) => ({
+      default: m.EditPdfEditor,
+    })),
+  { ssr: false },
+);
+
+const FilePreview = dynamic(
+  () =>
+    import("@/features/pdf-tools/components/file-preview").then((m) => ({
+      default: m.FilePreview,
+    })),
+  { ssr: false },
+);
+
+const SignaturePad = dynamic(
+  () =>
+    import("@/features/pdf-tools/components/signature-pad").then((m) => ({
+      default: m.SignaturePad,
+    })),
+  { ssr: false },
+);
+
+let enginePrefetch: Promise<unknown> | null = null;
+
+function prefetchEngine() {
+  if (!enginePrefetch) {
+    enginePrefetch = import("@/features/pdf-tools/lib/engine/process");
+  }
+  return enginePrefetch;
+}
 
 function acceptAttr(tool: PdfTool) {
   if (tool.accept === "image") {
@@ -255,6 +283,9 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
         return;
       }
 
+      const { processTool } = await import(
+        "@/features/pdf-tools/lib/engine/process"
+      );
       const result = await processTool({
         slug: tool.slug,
         files,
@@ -297,28 +328,57 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 pt-5">
-          <div className="flex flex-wrap items-center gap-3">
-            <Button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <FileUp className="mr-2 h-4 w-4" />
-              {files.length > 0 ? "Add more files" : "Select files"}
-            </Button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              className="sr-only"
-              accept={acceptAttr(tool)}
-              multiple={tool.maxFiles !== 1}
-              onChange={(e) => {
-                onFiles(e.target.files);
-                e.target.value = "";
-              }}
-            />
-            <p className="text-xs text-muted-foreground">
-              Files stay on this device. Nothing is uploaded.
-            </p>
+          <div
+            className="neu-inset rounded-[var(--radius-lg)] border border-dashed border-border-subtle p-4 transition-[box-shadow,border-color] duration-150 focus-within:border-[var(--brand-600)] data-[drag=true]:border-[var(--brand-600)]"
+            onDragEnter={(e) => {
+              e.preventDefault();
+              e.currentTarget.dataset.drag = "true";
+              void prefetchEngine();
+            }}
+            onDragOver={(e) => e.preventDefault()}
+            onDragLeave={(e) => {
+              e.currentTarget.dataset.drag = "false";
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.currentTarget.dataset.drag = "false";
+              void prefetchEngine();
+              onFiles(e.dataTransfer.files);
+            }}
+            onFocusCapture={() => {
+              void prefetchEngine();
+            }}
+            onMouseEnter={() => {
+              void prefetchEngine();
+            }}
+          >
+            <div className="flex flex-wrap items-center gap-3">
+              <Button
+                type="button"
+                onClick={() => {
+                  void prefetchEngine();
+                  fileInputRef.current?.click();
+                }}
+              >
+                <FileUp className="mr-2 h-4 w-4" />
+                {files.length > 0 ? "Add more files" : "Select files"}
+              </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="sr-only"
+                accept={acceptAttr(tool)}
+                multiple={tool.maxFiles !== 1}
+                onChange={(e) => {
+                  void prefetchEngine();
+                  onFiles(e.target.files);
+                  e.target.value = "";
+                }}
+              />
+              <p className="text-xs text-muted-foreground">
+                Drop files here or select. Files stay on this device.
+              </p>
+            </div>
           </div>
 
           {files.length > 0 ? (

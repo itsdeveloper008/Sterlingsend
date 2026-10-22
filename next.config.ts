@@ -1,9 +1,44 @@
 import type { NextConfig } from "next";
+import bundleAnalyzer from "@next/bundle-analyzer";
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 const firebaseAuthHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN;
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: import.meta.dirname,
+  webpack: (config, { isServer, webpack }) => {
+    // pptxgenjs references node: builtins; strip the scheme and stub them out.
+    if (!isServer) {
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(/^node:/, (resource: {
+          request: string;
+        }) => {
+          resource.request = resource.request.replace(/^node:/, "");
+        }),
+      );
+      config.resolve = config.resolve ?? {};
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        https: false,
+        http: false,
+        path: false,
+        stream: false,
+        crypto: false,
+        net: false,
+        tls: false,
+        child_process: false,
+        os: false,
+        url: false,
+        util: false,
+        zlib: false,
+      };
+    }
+    return config;
+  },
   async redirects() {
     return [
       // No dashboard / CRM / services - History lives at /invoices
@@ -48,4 +83,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

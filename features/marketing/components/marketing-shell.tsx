@@ -1,42 +1,107 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import {
-  BackToTop,
-  CookieBanner,
-  FloatingContact,
-  ScrollProgress,
   SiteFooter,
   SiteHeader,
-  SiteSearch,
   SkipLink,
   UtmCapture,
 } from "@/components/shell";
 import "@/features/marketing/styles/marketing.css";
+
+const SiteSearch = dynamic(
+  () =>
+    import("@/components/shell/site-search").then((m) => ({
+      default: m.SiteSearch,
+    })),
+  { ssr: false },
+);
+
+const CookieBanner = dynamic(
+  () =>
+    import("@/components/shell/cookie-banner").then((m) => ({
+      default: m.CookieBanner,
+    })),
+  { ssr: false },
+);
+
+const FloatingContact = dynamic(
+  () =>
+    import("@/components/shell/floating-contact").then((m) => ({
+      default: m.FloatingContact,
+    })),
+  { ssr: false },
+);
+
+const BackToTop = dynamic(
+  () =>
+    import("@/components/shell/back-to-top").then((m) => ({
+      default: m.BackToTop,
+    })),
+  { ssr: false },
+);
+
+const ScrollProgress = dynamic(
+  () =>
+    import("@/components/shell/scroll-progress").then((m) => ({
+      default: m.ScrollProgress,
+    })),
+  { ssr: false },
+);
 
 export function MarketingShell({
   children,
   showScrollProgress = false,
 }: {
   children: React.ReactNode;
-  /** Enable on long reading pages (legal, guides). */
   showScrollProgress?: boolean;
 }) {
   const [searchOpen, setSearchOpen] = useState(false);
+  const [extrasReady, setExtrasReady] = useState(false);
+
+  useEffect(() => {
+    let idleId: number | undefined;
+    const enable = () => setExtrasReady(true);
+    if (typeof window.requestIdleCallback === "function") {
+      idleId = window.requestIdleCallback(enable, { timeout: 2000 });
+    } else {
+      idleId = window.setTimeout(enable, 500) as unknown as number;
+    }
+    return () => {
+      if (idleId === undefined) return;
+      if (typeof window.cancelIdleCallback === "function") {
+        window.cancelIdleCallback(idleId);
+      } else {
+        window.clearTimeout(idleId);
+      }
+    };
+  }, []);
 
   return (
     <div className="marketing-page flex min-h-screen flex-col overflow-x-hidden antialiased">
       <SkipLink />
-      {showScrollProgress ? <ScrollProgress /> : null}
-      <SiteHeader onOpenSearch={() => setSearchOpen(true)} />
+      {showScrollProgress && extrasReady ? <ScrollProgress /> : null}
+      <SiteHeader
+        onOpenSearch={() => {
+          setExtrasReady(true);
+          setSearchOpen(true);
+        }}
+      />
       <main id="main" className="flex-1">
         {children}
       </main>
       <SiteFooter />
-      <SiteSearch open={searchOpen} onOpenChange={setSearchOpen} />
-      <BackToTop />
-      <FloatingContact />
-      <CookieBanner />
+      {extrasReady || searchOpen ? (
+        <SiteSearch open={searchOpen} onOpenChange={setSearchOpen} />
+      ) : null}
+      {extrasReady ? (
+        <>
+          <BackToTop />
+          <FloatingContact />
+          <CookieBanner />
+        </>
+      ) : null}
       <UtmCapture />
     </div>
   );

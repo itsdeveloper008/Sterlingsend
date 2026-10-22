@@ -8,28 +8,29 @@ import {
   useMemo,
   useState,
 } from "react";
-import { onAuthStateChanged, type User } from "firebase/auth";
 import { toast } from "sonner";
-import {
-  AUTH_POST_LOGIN_KEY,
-  completeGoogleRedirectSignIn,
-  getFirebaseAuth,
-  getIdToken,
-  logOut as firebaseLogOut,
-  resetPassword,
-  signIn,
-  signInWithGoogle,
-  signUp,
-} from "@/firebase/auth";
 import { isFirebaseConfigured } from "@/firebase/is-configured";
 import { routes } from "@/config/routes";
-import { getAuthErrorMessage } from "@/features/auth/lib/auth-errors";
+import {
+  clearAuthHint,
+  isAuthRoute,
+  readAuthHint,
+  setAuthHint,
+} from "@/lib/auth-hint";
+
+/** Minimal user shape so public pages need no firebase/auth types. */
+export type AuthUser = {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+  getIdToken: (forceRefresh?: boolean) => Promise<string>;
+};
 
 interface AuthContextValue {
-  user: User | null;
+  user: AuthUser | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<string | null>;
-  /** Path after login, or "redirecting" while navigating to Google. */
   signInWithGoogle: () => Promise<string | null | "redirecting">;
   signUp: (
     email: string,
@@ -43,14 +44,36 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-async function persistSession(user: User): Promise<string | null> {
-  const idToken = await getIdToken(user, true);
+async function loadAuthApi() {
+  return import("@/firebase/auth");
+}
+
+function asAuthUser(user: {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+  getIdToken: (forceRefresh?: boolean) => Promise<string>;
+}): AuthUser {
+  return {
+    uid: user.uid,
+    email: user.email,
+    displayName: user.displayName,
+    photoURL: user.photoURL,
+    getIdToken: (force) => user.getIdToken(force),
+  };
+}
+
+async function persistSession(user: AuthUser): Promise<string | null> {
+  const idToken = await user.getIdToken(true);
   let acquisition: Record<string, string> | undefined;
   try {
     const { readConsent, readPersistedUtms } = await import("@/lib/consent");
     if (readConsent() === "accepted") {
       const utms = readPersistedUtms();
-      if (Object.keys(utms).length > 0) acquisition = utms as Record<string, string>;
+      if (Object.keys(utms).length > 0) {
+        acquisition = utms as Record<string, string>;
+      }
     }
   } catch {
     // ignore
@@ -68,30 +91,33 @@ async function persistSession(user: User): Promise<string | null> {
       const payload = (await response.json()) as { error?: string };
       if (payload.error) message = payload.error;
     } catch {
-      // ignore JSON parse errors
+      // ignore
     }
     throw new Error(message);
   }
 
-  let redirectTo: string | null = null;
+  setAuthHint();
+
   try {
     const payload = (await response.json()) as { redirectTo?: string };
-    redirectTo = payload.redirectTo ?? null;
+    return payload.redirectTo ?? null;
   } catch {
-    redirectTo = null;
+    return null;
   }
-
-  return redirectTo;
 }
 
 async function clearSession() {
+  clearAuthHint();
   await fetch("/api/auth/session", { method: "DELETE" });
 }
 
-function readPostLoginDestination(fallback: string | null): string {
+function readPostLoginDestination(
+  authApi: Awaited<ReturnType<typeof loadAuthApi>>,
+  fallback: string | null,
+): string {
   try {
-    const stored = sessionStorage.getItem(AUTH_POST_LOGIN_KEY);
-    sessionStorage.removeItem(AUTH_POST_LOGIN_KEY);
+    const stored = sessionStorage.getItem(authApi.AUTH_POST_LOGIN_KEY);
+    sessionStorage.removeItem(authApi.AUTH_POST_LOGIN_KEY);
     if (stored && stored.startsWith("/")) return stored;
   } catch {
     // ignore
@@ -99,8 +125,19 @@ function readPostLoginDestination(fallback: string | null): string {
   return fallback ?? routes.home;
 }
 
+function shouldBootstrapFirebase() {
+  if (typeof window === "undefined") return false;
+  if (isAuthRoute(window.location.pathname)) return true;
+  if (readAuthHint()) return true;
+  // Google redirect return may land on any path without the hint yet
+  if (window.location.search.includes("apiKey=") || window.location.hash.includes("auth")) {
+    return true;
+  }
+  return false;
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -109,41 +146,82 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    if (!shouldBootstrapFirebase()) {
+      setLoading(false);
+      return;
+    }
+
     let cancelled = false;
     let unsubscribe: (() => void) | undefined;
+    let idleId: number | undefined;
 
-    void (async () => {
-      try {
-        const redirectedUser = await completeGoogleRedirectSignIn();
+    const boot = () => {
+      void (async () => {
+        const authApi = await loadAuthApi();
         if (cancelled) return;
 
-        if (redirectedUser) {
-          const sessionRedirect = await persistSession(redirectedUser);
+        try {
+          const redirectedUser = await authApi.completeGoogleRedirectSignIn();
           if (cancelled) return;
-          setUser(redirectedUser);
-          setLoading(false);
-          toast.success("Welcome back");
-          window.location.assign(readPostLoginDestination(sessionRedirect));
-          return;
+
+          if (redirectedUser) {
+            const sessionRedirect = await persistSession(
+              asAuthUser(redirectedUser),
+            );
+            if (cancelled) return;
+            setUser(asAuthUser(redirectedUser));
+            setLoading(false);
+            toast.success("Welcome back");
+            window.location.assign(
+              readPostLoginDestination(authApi, sessionRedirect),
+            );
+            return;
+          }
+        } catch (error) {
+          console.error("[auth] google redirect completion failed", error);
+          const { getAuthErrorMessage } = await import(
+            "@/features/auth/lib/auth-errors"
+          );
+          toast.error(
+            getAuthErrorMessage(error, "Could not finish Google sign-in"),
+          );
         }
-      } catch (error) {
-        console.error("[auth] google redirect completion failed", error);
-        toast.error(
-          getAuthErrorMessage(error, "Could not finish Google sign-in"),
-        );
-      }
 
-      if (cancelled) return;
+        if (cancelled) return;
 
-      unsubscribe = onAuthStateChanged(getFirebaseAuth(), (nextUser) => {
-        setUser(nextUser);
-        setLoading(false);
-      });
-    })();
+        const { onAuthStateChanged } = await import("firebase/auth");
+        unsubscribe = onAuthStateChanged(authApi.getFirebaseAuth(), (next) => {
+          if (next) {
+            setAuthHint();
+            setUser(asAuthUser(next));
+          } else {
+            clearAuthHint();
+            setUser(null);
+          }
+          setLoading(false);
+        });
+      })();
+    };
+
+    // Auth routes need Firebase immediately; elsewhere wait for idle
+    if (isAuthRoute(window.location.pathname)) {
+      boot();
+    } else if (typeof window.requestIdleCallback === "function") {
+      idleId = window.requestIdleCallback(boot, { timeout: 2500 });
+    } else {
+      idleId = window.setTimeout(boot, 400) as unknown as number;
+    }
 
     return () => {
       cancelled = true;
       unsubscribe?.();
+      if (idleId !== undefined) {
+        if (typeof window.cancelIdleCallback === "function") {
+          window.cancelIdleCallback(idleId);
+        } else {
+          window.clearTimeout(idleId);
+        }
+      }
     };
   }, []);
 
@@ -151,9 +229,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!isFirebaseConfigured()) {
       throw new Error("Firebase is not configured. Add keys to .env.local");
     }
-    const nextUser = await signIn(email, password);
-    const redirectTo = await persistSession(nextUser);
-    setUser(nextUser);
+    const authApi = await loadAuthApi();
+    const nextUser = await authApi.signIn(email, password);
+    const mapped = asAuthUser(nextUser);
+    const redirectTo = await persistSession(mapped);
+    setUser(mapped);
     return redirectTo;
   }, []);
 
@@ -161,10 +241,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!isFirebaseConfigured()) {
       throw new Error("Firebase is not configured. Add keys to .env.local");
     }
-    const result = await signInWithGoogle();
+    const authApi = await loadAuthApi();
+    const result = await authApi.signInWithGoogle();
     if (result === "redirecting") return "redirecting";
-    const redirectTo = await persistSession(result);
-    setUser(result);
+    const mapped = asAuthUser(result);
+    const redirectTo = await persistSession(mapped);
+    setUser(mapped);
     return redirectTo;
   }, []);
 
@@ -173,9 +255,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!isFirebaseConfigured()) {
         throw new Error("Firebase is not configured. Add keys to .env.local");
       }
-      const nextUser = await signUp(email, password, displayName);
-      const redirectTo = await persistSession(nextUser);
-      setUser(nextUser);
+      const authApi = await loadAuthApi();
+      const nextUser = await authApi.signUp(email, password, displayName);
+      const mapped = asAuthUser(nextUser);
+      const redirectTo = await persistSession(mapped);
+      setUser(mapped);
       return redirectTo;
     },
     [],
@@ -183,12 +267,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const handleSignOut = useCallback(async () => {
     await clearSession();
-    await firebaseLogOut();
+    if (isFirebaseConfigured()) {
+      const authApi = await loadAuthApi();
+      await authApi.logOut();
+    }
     setUser(null);
   }, []);
 
   const handleForgotPassword = useCallback(async (email: string) => {
-    await resetPassword(email);
+    const authApi = await loadAuthApi();
+    await authApi.resetPassword(email);
   }, []);
 
   const refreshSession = useCallback(async () => {

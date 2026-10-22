@@ -8,13 +8,19 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { routes } from "@/config/routes";
 import { getAuthErrorMessage } from "@/features/auth/lib/auth-errors";
+import dynamic from "next/dynamic";
 import { GoogleGlyph } from "@/features/auth/components/google-glyph";
-import {
-  MascotCharacter,
-  type MascotState,
-} from "@/features/auth/components/mascot-character";
+import type { MascotState } from "@/features/auth/components/mascot-character";
 import { cn } from "@/lib/utils";
 import { AUTH_POST_LOGIN_KEY } from "@/firebase/auth";
+
+const MascotCharacter = dynamic(
+  () =>
+    import("@/features/auth/components/mascot-character").then((m) => ({
+      default: m.MascotCharacter,
+    })),
+  { ssr: false },
+);
 
 function CompassMark({ className }: { className?: string }) {
   return (

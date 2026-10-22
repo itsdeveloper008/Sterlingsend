@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "check:contrast": "npx tsx scripts/check-contrast.ts"
+    "check:contrast": "npx tsx scripts/check-contrast.ts",
+    "analyze": "ANALYZE=true next build",
+    "perf:lh": "node scripts/perf-lighthouse.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -16,7 +18,6 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
-    "date-fns": "^4.4.0",
     "firebase": "^12.16.0",
     "firebase-admin": "^14.1.0",
     "framer-motion": "^12.42.2",
@@ -33,7 +34,7 @@
     "react-dom": "19.2.4",
     "react-hook-form": "^7.81.0",
     "server-only": "^0.0.1",
-    "shadcn": "^4.13.0",
+    "shadcn": "^4.22.1",
     "sonner": "^2.0.7",
     "stripe": "^22.3.1",
     "tailwind-merge": "^3.6.0",
@@ -44,6 +45,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
+    "@next/bundle-analyzer": "^16.4.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20.19.43",
     "@types/react": "^19",

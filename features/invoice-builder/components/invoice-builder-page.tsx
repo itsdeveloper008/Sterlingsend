@@ -6,18 +6,33 @@ import { Download, LayoutTemplate, Loader2, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/design-system/logo";
-import { Skeleton } from "@/components/ui/skeleton";
 import { EditableInvoiceCard } from "@/features/invoice-builder/components/editable-invoice-card";
 import { InvoiceSheetScroller } from "@/features/invoice-builder/components/invoice-sheet-scroller";
-import { TemplatePickerDialog } from "@/features/invoice-builder/components/template-picker-dialog";
+import dynamic from "next/dynamic";
 import { UnsavedChangesGuard } from "@/features/invoice-builder/components/unsaved-changes-guard";
 import { useInvoiceBuilder } from "@/features/invoice-builder/hooks/use-invoice-builder";
-import { downloadBuilderInvoicePdf } from "@/pdf/utils/download-builder-with-template";
 import { writeSessionTemplateId } from "@/lib/template-preference";
 import { getInvoiceTemplate } from "@/pdf/templates/catalog";
 import { useAuth } from "@/hooks/use-auth";
 import { routes } from "@/config/routes";
 import "@/features/invoice-builder/styles/invoice-builder.css";
+
+const TemplatePickerDialog = dynamic(
+  () =>
+    import("@/features/invoice-builder/components/template-picker-dialog").then(
+      (m) => ({ default: m.TemplatePickerDialog }),
+    ),
+  { ssr: false },
+);
+
+async function downloadPdf(invoice: Parameters<
+  typeof import("@/pdf/utils/download-builder-with-template").downloadBuilderInvoicePdf
+>[0]) {
+  const { downloadBuilderInvoicePdf } = await import(
+    "@/pdf/utils/download-builder-with-template"
+  );
+  return downloadBuilderInvoicePdf(invoice);
+}
 
 export function InvoiceBuilderPage() {
   const { user, loading: authLoading } = useAuth();
@@ -34,7 +49,7 @@ export function InvoiceBuilderPage() {
   async function handleDownloadPdf() {
     try {
       setBusy(true);
-      await downloadBuilderInvoicePdf(invoice);
+      await downloadPdf(invoice);
       toast.success("PDF downloaded");
       if (isGuest) setShowLoginHint(true);
     } catch (error) {
@@ -54,16 +69,7 @@ export function InvoiceBuilderPage() {
     dispatch({ type: "patch", patch: { templateId } });
   }
 
-  if (!hydrated) {
-    return (
-      <div className="builder-page">
-        <div className="mx-auto max-w-[1100px] space-y-4 px-4 py-10">
-          <Skeleton className="h-14 w-full" />
-          <Skeleton className="h-[720px] w-full" />
-        </div>
-      </div>
-    );
-  }
+  void hydrated;
 
   return (
     <div className="builder-page">

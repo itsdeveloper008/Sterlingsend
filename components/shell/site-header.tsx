@@ -1,23 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { History, LogOut, Menu, Search, Settings, X } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { routes } from "@/config/routes";
 import { Logo } from "@/components/design-system/logo";
 import { ButtonLink } from "@/components/ui/button-link";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { useAuth } from "@/hooks/use-auth";
 import { ThemeToggle } from "@/components/shell/theme-toggle";
+
+const MobileNavSheet = dynamic(
+  () =>
+    import("@/components/shell/mobile-nav-sheet").then((m) => ({
+      default: m.MobileNavSheet,
+    })),
+  { ssr: false },
+);
 
 const NAV = [
   { href: routes.createInvoice, label: "Create invoice" },
@@ -34,6 +36,7 @@ export function SiteHeader({
   const { user, loading, signOut } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileReady, setMobileReady] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -95,120 +98,56 @@ export function SiteHeader({
           </Button>
           <ThemeToggle />
 
-          {!loading && user ? (
-            <div className="hidden items-center gap-1 sm:flex">
-              <ButtonLink variant="ghost" href={routes.invoices} size="sm">
-                History
-              </ButtonLink>
-              <ButtonLink variant="ghost" href={routes.settings} size="sm">
-                Account
-              </ButtonLink>
-              <Button type="button" variant="ghost" size="sm" onClick={() => signOut()}>
-                Log out
-              </Button>
-            </div>
-          ) : (
-            <ButtonLink
-              variant="outline"
-              href={routes.login}
-              size="sm"
-              className="hidden sm:inline-flex"
-            >
-              Log in
-            </ButtonLink>
-          )}
-
-          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <SheetTrigger
-              render={
+          <div className="hidden min-w-[5.5rem] items-center justify-end gap-1 sm:flex">
+            {!loading && user ? (
+              <>
+                <ButtonLink variant="ghost" href={routes.invoices} size="sm">
+                  History
+                </ButtonLink>
+                <ButtonLink variant="ghost" href={routes.settings} size="sm">
+                  Account
+                </ButtonLink>
                 <Button
                   type="button"
                   variant="ghost"
-                  size="icon"
-                  className="md:hidden"
-                  aria-label={mobileOpen ? "Close menu" : "Open menu"}
-                />
-              }
-            >
-              {mobileOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
-            </SheetTrigger>
-            <SheetContent side="right" className="w-full max-w-sm p-0">
-              <SheetHeader className="border-b border-border-subtle px-4 py-4">
-                <SheetTitle className="text-left">Menu</SheetTitle>
-              </SheetHeader>
-              <div className="flex flex-col gap-1 p-3">
-                {NAV.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="flex min-h-11 items-center rounded-[var(--radius-md)] px-3 text-sm font-medium text-foreground hover:bg-muted"
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-                <button
-                  type="button"
-                  className="flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] px-3 text-left text-sm font-medium hover:bg-muted"
-                  onClick={() => {
-                    setMobileOpen(false);
-                    onOpenSearch?.();
-                  }}
+                  size="sm"
+                  onClick={() => void signOut()}
                 >
-                  <Search className="h-4 w-4" aria-hidden />
-                  Search
-                </button>
-                <div className="flex items-center justify-between rounded-[var(--radius-md)] px-3 py-2">
-                  <span className="text-sm font-medium">Theme</span>
-                  <ThemeToggle />
-                </div>
-                <div className="my-2 h-px bg-border-subtle" />
-                {!loading && user ? (
-                  <>
-                    <Link
-                      href={routes.invoices}
-                      className="flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] px-3 text-sm font-medium hover:bg-muted"
-                      onClick={() => setMobileOpen(false)}
-                    >
-                      <History className="h-4 w-4" aria-hidden />
-                      History
-                    </Link>
-                    <Link
-                      href={routes.settings}
-                      className="flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] px-3 text-sm font-medium hover:bg-muted"
-                      onClick={() => setMobileOpen(false)}
-                    >
-                      <Settings className="h-4 w-4" aria-hidden />
-                      Account
-                    </Link>
-                    <button
-                      type="button"
-                      className="flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] px-3 text-left text-sm font-medium hover:bg-muted"
-                      onClick={() => {
-                        setMobileOpen(false);
-                        void signOut();
-                      }}
-                    >
-                      <LogOut className="h-4 w-4" aria-hidden />
-                      Log out
-                    </button>
-                  </>
-                ) : (
-                  <ButtonLink
-                    href={routes.login}
-                    className="mt-1"
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    Log in
-                  </ButtonLink>
-                )}
-              </div>
-            </SheetContent>
-          </Sheet>
+                  Log out
+                </Button>
+              </>
+            ) : (
+              <ButtonLink variant="outline" href={routes.login} size="sm">
+                Log in
+              </ButtonLink>
+            )}
+          </div>
+
+          <div className="md:hidden">
+            {mobileReady || mobileOpen ? (
+              <MobileNavSheet
+                open={mobileOpen}
+                onOpenChange={setMobileOpen}
+                onOpenSearch={onOpenSearch}
+                user={user}
+                loading={loading}
+                onSignOut={() => void signOut()}
+              />
+            ) : (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Open menu"
+                onClick={() => {
+                  setMobileReady(true);
+                  setMobileOpen(true);
+                }}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </header>

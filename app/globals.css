@@ -590,7 +590,26 @@ body {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-12px);
+    transform: translateY(-16px);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (hover: hover) and (pointer: fine) {
+    html:not(.ss-reduce-motion) .ss-parallax-clay {
+      animation: ss-parallax-y linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 40%;
+    }
+  }
+}
+
+@keyframes ss-parallax-y {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-24px);
   }
 }
 

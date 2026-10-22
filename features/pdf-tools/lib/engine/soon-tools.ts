@@ -13,53 +13,23 @@ import {
 } from "@/features/pdf-tools/lib/engine/pdfjs-helpers";
 import type { ProcessResult, ToolOptions } from "@/features/pdf-tools/lib/engine/types";
 
-type PptxSlide = {
-  addImage: (options: {
-    data: string;
-    x: number;
-    y: number;
-    w: string;
-    h: string;
-  }) => void;
-  addNotes: (notes: string) => void;
-};
-
-type PptxInstance = {
-  author: string;
-  title: string;
-  addSlide: () => PptxSlide;
-  write: (options: { outputType: "arraybuffer" }) => Promise<ArrayBuffer>;
-};
-
-type PptxConstructor = new () => PptxInstance;
-
-declare global {
-  interface Window {
-    PptxGenJS?: PptxConstructor;
-  }
-}
-
-let pptxLoader: Promise<PptxConstructor> | null = null;
-
-function loadPptxGenJs() {
-  if (window.PptxGenJS) return Promise.resolve(window.PptxGenJS);
-  if (pptxLoader) return pptxLoader;
-
-  pptxLoader = new Promise<PptxConstructor>((resolve, reject) => {
-    const script = document.createElement("script");
-    script.src =
-      "https://unpkg.com/pptxgenjs@4.0.1/dist/pptxgen.bundle.js";
-    script.async = true;
-    script.onload = () => {
-      if (window.PptxGenJS) resolve(window.PptxGenJS);
-      else reject(new Error("PowerPoint converter failed to initialize."));
+async function loadPptxGenJs() {
+  const mod = await import("pptxgenjs");
+  return (mod.default ?? mod) as new () => {
+    author: string;
+    title: string;
+    addSlide: () => {
+      addImage: (options: {
+        data: string;
+        x: number;
+        y: number;
+        w: string;
+        h: string;
+      }) => void;
+      addNotes: (notes: string) => void;
     };
-    script.onerror = () =>
-      reject(new Error("Could not load the PowerPoint converter."));
-    document.head.appendChild(script);
-  });
-
-  return pptxLoader;
+    write: (options: { outputType: "arraybuffer" }) => Promise<ArrayBuffer>;
+  };
 }
 
 async function readBytes(file: File) {

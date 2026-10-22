@@ -47,3 +47,5 @@ next-env.d.ts
 .tmp-ref/
 .tmp-tool-test/
 .phase3a-lighthouse/*.json
+.perf/
+.next-analyze/

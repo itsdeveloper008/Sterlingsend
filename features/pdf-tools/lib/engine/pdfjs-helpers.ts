@@ -2,9 +2,18 @@
 
 import type { PDFDocumentProxy } from "pdfjs-dist";
 
+let workerReady = false;
+
 export async function getPdfjs() {
   const pdfjs = await import("pdfjs-dist");
-  pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+  if (!workerReady) {
+    // Local worker via bundler URL — no unpkg CDN on first paint of the tool page
+    pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+      "pdfjs-dist/build/pdf.worker.min.mjs",
+      import.meta.url,
+    ).toString();
+    workerReady = true;
+  }
   return pdfjs;
 }
 
@@ -51,8 +60,6 @@ export async function extractPageText(
       lastXEnd = null;
     }
 
-    // Only insert a space when there is a real horizontal gap.
-    // Glyph-per-item PDFs would otherwise become "D a t e r a n g e".
     const gap = lastXEnd === null ? 0 : x - lastXEnd;
     const needsSpace =
       current.length > 0 &&

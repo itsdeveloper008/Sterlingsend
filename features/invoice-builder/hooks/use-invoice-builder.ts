@@ -70,7 +70,9 @@ export function useInvoiceBuilder(options?: { seed?: "empty" | "demo" }) {
     undefined,
     seed === "demo" ? createLandingDemoInvoice : createDefaultBuilderInvoice,
   );
-  const [hydrated, setHydrated] = useState(false);
+  // Start true so first paint can render the sheet (LCP). Session template
+  // is applied after mount without blanking the UI.
+  const [hydrated] = useState(true);
   const [dirty, setDirty] = useState(false);
   const logoObjectUrl = useRef<string | null>(null);
 
@@ -81,7 +83,6 @@ export function useInvoiceBuilder(options?: { seed?: "empty" | "demo" }) {
       type: "patch",
       patch: { templateId: readSessionTemplateId() },
     });
-    setHydrated(true);
   }, []);
 
   const dispatchTracked = useCallback((action: BuilderInvoiceAction) => {
