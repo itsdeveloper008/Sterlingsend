@@ -27,16 +27,21 @@ const NAV = [
   { href: routes.templates, label: "Templates" },
 ] as const;
 
+function openSiteSearch() {
+  window.dispatchEvent(new Event("ss-open-search"));
+}
+
 export function SiteHeader({
   onOpenSearch,
 }: {
   onOpenSearch?: () => void;
-}) {
+} = {}) {
   const pathname = usePathname();
   const { user, loading, signOut } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileReady, setMobileReady] = useState(false);
+  const openSearch = onOpenSearch ?? openSiteSearch;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -92,7 +97,7 @@ export function SiteHeader({
             size="icon"
             className="hidden sm:inline-flex"
             aria-label="Search"
-            onClick={() => onOpenSearch?.()}
+            onClick={() => openSearch()}
           >
             <Search className="h-4 w-4" />
           </Button>
@@ -128,7 +133,7 @@ export function SiteHeader({
               <MobileNavSheet
                 open={mobileOpen}
                 onOpenChange={setMobileOpen}
-                onOpenSearch={onOpenSearch}
+                onOpenSearch={openSearch}
                 user={user}
                 loading={loading}
                 onSignOut={() => void signOut()}

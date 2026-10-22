@@ -1,5 +1,3 @@
-"use client";
-
 import { siteConfig } from "@/config/site";
 import { MotionReveal } from "@/features/marketing/lib/motion-reveal";
 
@@ -30,6 +28,7 @@ const FAQS = [
   },
 ] as const;
 
+/** Server section; MotionReveal is the only client island. */
 export function HomeFaqSection() {
   return (
     <section className="bg-background py-16 sm:py-20">

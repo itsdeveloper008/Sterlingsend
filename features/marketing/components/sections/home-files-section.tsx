@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { routes } from "@/config/routes";
 import { MotionReveal } from "@/features/marketing/lib/motion-reveal";
