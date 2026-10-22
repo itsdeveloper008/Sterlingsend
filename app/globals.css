@@ -499,6 +499,113 @@ body {
   max-width: 100%;
 }
 
+/* Phase 3A motion — gated; calm zones disable nested effects.
+   Reveal never starts hidden: content stays visible without JS. */
+.ss-reveal {
+  --ss-reveal-delay: 0ms;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html:not(.ss-reduce-motion) .ss-reveal.ss-reveal-in {
+    animation: ss-reveal-rise 450ms var(--ease) var(--ss-reveal-delay) both;
+  }
+}
+
+@keyframes ss-reveal-rise {
+  from {
+    opacity: 0.92;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.ss-tilt-host {
+  transform-style: preserve-3d;
+  transition: transform 120ms var(--ease);
+  will-change: transform;
+}
+
+.ss-tilt-host,
+.ss-tilt-host * {
+  backface-visibility: hidden;
+}
+
+.ss-card-tilt {
+  transition: transform 160ms var(--ease);
+  transform-style: preserve-3d;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html:not(.ss-reduce-motion) .ss-card-tilt:hover {
+    transform: perspective(800px) rotateX(2deg) rotateY(-3deg);
+  }
+
+  html:not(.ss-reduce-motion) .ss-icon-tilt {
+    transition: transform 160ms var(--ease);
+  }
+
+  html:not(.ss-reduce-motion) .group:hover .ss-icon-tilt,
+  html:not(.ss-reduce-motion) .ss-card-tilt:hover .ss-icon-tilt {
+    transform: rotate(4deg);
+  }
+}
+
+.ss-card-spotlight {
+  position: relative;
+  overflow: hidden;
+}
+
+.ss-card-spotlight::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: radial-gradient(
+    220px circle at var(--ss-spot-x, 50%) var(--ss-spot-y, 50%),
+    color-mix(in srgb, var(--brand-500) 18%, transparent),
+    transparent 70%
+  );
+  transition: opacity 160ms var(--ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html:not(.ss-reduce-motion) .ss-card-spotlight:hover::after {
+    opacity: 1;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html:not(.ss-reduce-motion) .ss-float {
+    animation: ss-float 6s ease-in-out infinite;
+  }
+}
+
+@keyframes ss-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+.ss-calm-zone .ss-card-tilt:hover,
+.ss-calm-zone .ss-tilt-host,
+.ss-calm-zone .ss-reveal,
+.ss-calm-zone .ss-float,
+.ss-calm-zone .ss-card-spotlight::after {
+  transform: none !important;
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+/* CSS-only tilt host (no pointer JS): disabled on touch / reduced motion via media queries above */
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -508,14 +615,30 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
+  .ss-reveal:not(.ss-reveal-in),
+  .ss-float,
+  .ss-card-tilt,
+  .ss-tilt-host {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
 }
 
 @media print {
   .glass,
   .neu,
   .neu-inset,
-  .clay {
+  .clay,
+  .ss-float,
+  .ss-card-tilt,
+  .ss-tilt-host,
+  .ss-card-spotlight::after {
     box-shadow: none !important;
     backdrop-filter: none !important;
+    transform: none !important;
+    animation: none !important;
+    opacity: 1 !important;
   }
 }

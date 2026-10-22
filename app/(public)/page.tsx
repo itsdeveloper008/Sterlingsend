@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { HomePage, MarketingShell } from "@/features/marketing";
 import { siteConfig } from "@/config/site";
 
-const title = `${siteConfig.name} - Professional invoicing for service businesses`;
+const title = "Free invoice maker and PDF tools";
 const description =
-  "Create invoices and use every PDF tool free, no login required. Create an account only when you want to save invoice history.";
+  "Create UK invoices with VAT, download PDFs and use browser PDF tools free. No signup needed. Log in only if you want saved invoice history.";
 
 export const metadata: Metadata = {
   title,
@@ -20,10 +20,10 @@ export const metadata: Metadata = {
     siteName: siteConfig.name,
     locale: "en_GB",
     type: "website",
+    images: [{ url: "/opengraph-image" }],
   },
 };
 
-/** Marketing homepage - Bonsai-style layout (hellobonsai.com structure). */
 export default function Page() {
   return (
     <MarketingShell>

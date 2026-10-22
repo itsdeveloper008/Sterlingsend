@@ -3,14 +3,12 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  ArrowLeft,
   ArrowDown,
   ArrowUp,
   CheckCircle2,
   Download,
   FileUp,
   Loader2,
-  Sparkles,
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -28,7 +26,6 @@ import type { ToolOptions } from "@/features/pdf-tools/lib/engine/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -117,12 +114,16 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
   const [signerName, setSignerName] = useState("");
   const [signPage, setSignPage] = useState(1);
   const [editReady, setEditReady] = useState(false);
+  const [translateConfirmed, setTranslateConfirmed] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const editRef = useRef<EditPdfHandle>(null);
 
   const htmlReady = tool.slug === "html-to-pdf" && htmlContent.trim().length > 0;
+  const translateBlocked =
+    tool.slug === "translate-pdf" && !translateConfirmed;
   const canRun =
     !busy &&
+    !translateBlocked &&
     (tool.slug === "edit-pdf"
       ? files.length >= 1 && editReady
       : files.length >= tool.minFiles ||
@@ -281,27 +282,6 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <Link
-            href={routes.tools}
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-primary"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            All PDF tools
-          </Link>
-          <h1 className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
-            {tool.title}
-          </h1>
-          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            {tool.description}
-          </p>
-        </div>
-        <Badge className="bg-primary/15 text-primary hover:bg-primary/15">
-          Ready
-        </Badge>
-      </div>
-
       <Card className="overflow-hidden border-border/80 shadow-sm">
         <CardHeader className="border-b border-border/60 bg-muted/20">
           <CardTitle className="text-base">Files</CardTitle>
@@ -457,11 +437,33 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
         setSignPage={setSignPage}
       />
 
-      <Card className="border-primary/20 bg-gradient-to-r from-primary/5 via-card to-card">
+      {tool.slug === "translate-pdf" ? (
+        <div
+          className="rounded-[var(--radius-md)] border border-amber-500/40 bg-amber-50 px-4 py-3 text-sm text-foreground dark:bg-amber-950/30"
+          role="status"
+        >
+          <p>
+            Extracted text from your PDF is sent to a translation service before
+            processing continues. Confirm below to enable the download button.
+          </p>
+          <label className="mt-3 flex items-start gap-2">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={translateConfirmed}
+              onChange={(e) => setTranslateConfirmed(e.target.checked)}
+            />
+            <span>
+              I understand extracted text will be sent to a translation service.
+            </span>
+          </label>
+        </div>
+      ) : null}
+
+      <Card className="border-border-subtle">
         <CardContent className="flex flex-wrap items-center justify-between gap-4 py-5">
           <div className="min-w-0">
-            <p className="flex items-center gap-2 text-sm font-medium text-foreground">
-              <Sparkles className="h-4 w-4 text-primary" />
+            <p className="text-sm font-medium text-foreground">
               {busy
                 ? progress || "Processing…"
                 : doneName
@@ -469,13 +471,12 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
                   : "Ready when you are"}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
+              {tool.privacyTag}
               {tool.slug === "ocr-pdf"
-                ? "OCR runs locally and may take longer on multi-page scans."
-                : tool.slug === "translate-pdf"
-                  ? "Translation uses a free public API for short passages."
-                  : tool.slug === "edit-pdf"
-                    ? "Edit text on the page, then download your updated PDF."
-                  : "Private browser processing. No account needed to download."}
+                ? " OCR may take longer on multi-page scans."
+                : tool.slug === "edit-pdf"
+                  ? " Edit text on the page, then download your updated PDF."
+                  : ""}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -488,13 +489,14 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
                   setPageOrder([]);
                   setDoneName("");
                   setEditReady(false);
+                  setTranslateConfirmed(false);
                   if (tool.slug === "html-to-pdf") setHtmlContent("");
                 }}
               >
                 Clear
               </Button>
             ) : null}
-            <Button onClick={onProcess} disabled={!canRun} size="lg">
+            <Button onClick={() => void onProcess()} disabled={!canRun} size="lg">
               {busy ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -508,7 +510,7 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
               ) : (
                 <>
                   <Download className="mr-2 h-4 w-4" />
-                  Process & download
+                  Process and download
                 </>
               )}
             </Button>
@@ -517,13 +519,9 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
       </Card>
 
       <p className="text-center text-sm text-muted-foreground">
-        Want to save invoices and reuse client details later?{" "}
-        <Link href={routes.login} className="font-semibold text-primary hover:underline">
+        Want to save invoices to your history later?{" "}
+        <Link href={routes.login} className="ss-link-underline font-semibold text-foreground">
           Log in
-        </Link>{" "}
-        or{" "}
-        <Link href={routes.signup} className="font-semibold text-primary hover:underline">
-          create a free account
         </Link>
         .
       </p>

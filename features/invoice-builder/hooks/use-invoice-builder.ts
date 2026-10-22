@@ -11,6 +11,7 @@ import type {
   BuilderInvoice,
   BuilderInvoiceAction,
 } from "@/features/invoice-builder/types";
+import { readSessionTemplateId } from "@/lib/template-preference";
 
 function reducer(state: BuilderInvoice, action: BuilderInvoiceAction): BuilderInvoice {
   switch (action.type) {
@@ -76,6 +77,10 @@ export function useInvoiceBuilder(options?: { seed?: "empty" | "demo" }) {
   useEffect(() => {
     // Wipe any previously saved drafts so refresh never shows old client data
     clearBuilderInvoice();
+    dispatch({
+      type: "patch",
+      patch: { templateId: readSessionTemplateId() },
+    });
     setHydrated(true);
   }, []);
 

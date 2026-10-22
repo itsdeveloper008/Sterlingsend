@@ -1,3 +1,12 @@
+import {
+  buildToolContent,
+  type PrivacyTag,
+  type ToolContent,
+  type ToolFaq,
+} from "./catalog-content";
+
+export type { PrivacyTag, ToolContent, ToolFaq };
+
 export type ToolCategory =
   | "optimize"
   | "convert"
@@ -21,7 +30,22 @@ export type PdfTool = {
   /** Soft max for UI (0 = unlimited) */
   maxFiles: number;
   icon: string;
+  privacyTag: PrivacyTag;
+  seoTitle: string;
+  seoDescription: string;
+  steps: [string, string, string];
+  faq: ToolFaq[];
 };
+
+type PdfToolSeed = Omit<
+  PdfTool,
+  "privacyTag" | "seoTitle" | "seoDescription" | "steps" | "faq"
+>;
+
+function defineTool(seed: PdfToolSeed): PdfTool {
+  const content = buildToolContent(seed);
+  return { ...seed, ...content };
+}
 
 export const CATEGORY_META: Record<
   ToolCategory,
@@ -45,11 +69,11 @@ export const CATEGORY_META: Record<
   },
   security: {
     title: "PDF Security & Signing",
-    description: "Protect, unlock, redact, sign, and compare documents.",
+    description: "Protect, remove passwords, redact, sign, and compare documents.",
   },
 };
 
-export const PDF_TOOLS: PdfTool[] = [
+const PDF_TOOL_SEEDS: PdfToolSeed[] = [
   // Optimize
   {
     slug: "compress-pdf",
@@ -143,7 +167,7 @@ export const PDF_TOOLS: PdfTool[] = [
   {
     slug: "word-to-pdf",
     title: "Word to PDF",
-    description: "Convert DOC/DOCX files into polished PDFs.",
+    description: "Convert DOC/DOCX files into PDF documents.",
     category: "convert",
     status: "ready",
     accept: "word",
@@ -317,7 +341,7 @@ export const PDF_TOOLS: PdfTool[] = [
     accept: "pdf",
     minFiles: 1,
     maxFiles: 1,
-    icon: "Unlock",
+    icon: "LockOpen",
   },
   {
     slug: "protect-pdf",
@@ -375,6 +399,8 @@ export const PDF_TOOLS: PdfTool[] = [
     icon: "Languages",
   },
 ];
+
+export const PDF_TOOLS: PdfTool[] = PDF_TOOL_SEEDS.map(defineTool);
 
 export const CATEGORY_ORDER: ToolCategory[] = [
   "optimize",

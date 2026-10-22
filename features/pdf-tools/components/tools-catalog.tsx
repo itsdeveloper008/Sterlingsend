@@ -20,6 +20,7 @@ import {
   Languages,
   LayoutList,
   Lock,
+  LockOpen,
   Minimize2,
   PenLine,
   Presentation,
@@ -30,7 +31,6 @@ import {
   Signature,
   Square,
   Stamp,
-  Unlock,
   Wrench,
   type LucideIcon,
 } from "lucide-react";
@@ -43,7 +43,6 @@ import {
   type ToolCategory,
 } from "@/features/pdf-tools/catalog";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 
 const ICONS: Record<string, LucideIcon> = {
   Minimize2,
@@ -69,8 +68,8 @@ const ICONS: Record<string, LucideIcon> = {
   Hash,
   Stamp,
   ClipboardList,
-  Unlock,
   Lock,
+  LockOpen,
   Signature,
   Square,
   Columns2,
@@ -93,22 +92,21 @@ export function ToolsCatalog() {
     });
   }, [query, category]);
 
-  const groups = CATEGORY_ORDER.map((key) => ({
-    key,
-    ...CATEGORY_META[key],
-    tools: filtered.filter((t) => t.category === key),
-  })).filter((g) => g.tools.length > 0);
-
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search PDF tools…"
+          placeholder="Search PDF tools"
+          aria-label="Search PDF tools"
           className="sm:max-w-sm"
         />
-        <div className="flex flex-wrap gap-2">
+        <div
+          className="flex flex-wrap gap-2"
+          role="tablist"
+          aria-label="Tool categories"
+        >
           <FilterChip
             active={category === "all"}
             onClick={() => setCategory("all")}
@@ -127,52 +125,66 @@ export function ToolsCatalog() {
         </div>
       </div>
 
-      {groups.length === 0 ? (
+      <p className="text-sm text-muted-foreground" aria-live="polite">
+        Showing {filtered.length} of {PDF_TOOLS.length} tools
+      </p>
+
+      {filtered.length === 0 ? (
         <p className="text-sm text-muted-foreground">No tools match your search.</p>
       ) : (
-        groups.map((group) => (
-          <section key={group.key} className="space-y-3">
-            <div>
-              <h2 className="text-lg font-semibold tracking-tight text-foreground">
-                {group.title}
-              </h2>
-              <p className="text-sm text-muted-foreground">{group.description}</p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {group.tools.map((tool) => {
-                const Icon = ICONS[tool.icon] ?? FileText;
-                return (
-                  <Link
-                    key={tool.slug}
-                    href={routes.tool(tool.slug)}
-                    className={cn(
-                      "group flex gap-3 rounded-xl border border-border bg-card p-4 shadow-xs",
-                      "transition duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md",
-                    )}
-                  >
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 text-primary transition group-hover:from-primary/25 group-hover:to-primary/10">
-                      <Icon className="h-5 w-5" aria-hidden />
+        <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {filtered.map((tool) => {
+            const Icon = ICONS[tool.icon] ?? FileText;
+            return (
+              <li key={tool.slug}>
+                <Link
+                  href={routes.tool(tool.slug)}
+                  className={cn(
+                    "ss-card-tilt ss-card-spotlight group flex gap-3 rounded-[var(--radius-lg)] border border-border-subtle bg-card p-4",
+                    "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-500)]",
+                  )}
+                  onPointerMove={(event) => {
+                    const node = event.currentTarget;
+                    const rect = node.getBoundingClientRect();
+                    node.style.setProperty(
+                      "--ss-spot-x",
+                      `${((event.clientX - rect.left) / rect.width) * 100}%`,
+                    );
+                    node.style.setProperty(
+                      "--ss-spot-y",
+                      `${((event.clientY - rect.top) / rect.height) * 100}%`,
+                    );
+                  }}
+                >
+                  <span className="clay ss-icon-tilt flex h-11 w-11 shrink-0 items-center justify-center text-[var(--brand-700)]">
+                    <Icon className="h-5 w-5" aria-hidden />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-medium text-foreground">
+                      {tool.title}
                     </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="flex items-center gap-2">
-                        <span className="truncate font-medium text-foreground group-hover:text-primary">
-                          {tool.title}
-                        </span>
-                        <Badge className="shrink-0 bg-primary/15 text-[10px] text-primary hover:bg-primary/15">
-                          Ready
-                        </Badge>
-                      </span>
-                      <span className="mt-1 line-clamp-2 block text-sm text-muted-foreground">
-                        {tool.description}
-                      </span>
+                    <span className="mt-1 line-clamp-2 block text-sm text-muted-foreground">
+                      {tool.description}
                     </span>
-                  </Link>
-                );
-              })}
-            </div>
-          </section>
-        ))
+                    <span className="mt-2 block text-xs font-medium text-muted-foreground">
+                      {tool.privacyTag}
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       )}
+
+      <p className="rounded-[var(--radius-md)] border border-border-subtle bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+        Most tools run in your browser. Translate PDF sends extracted text to a
+        translation service. OCR may download language data on first use. See{" "}
+        <Link href={routes.privacy} className="ss-link-underline font-medium text-foreground">
+          Privacy
+        </Link>
+        .
+      </p>
     </div>
   );
 }
@@ -189,12 +201,14 @@ function FilterChip({
   return (
     <button
       type="button"
+      role="tab"
+      aria-selected={active}
       onClick={onClick}
       className={cn(
         "rounded-[var(--radius-md)] px-3 py-1.5 text-xs font-medium transition",
         active
-          ? "bg-primary text-primary-foreground"
-          : "bg-muted text-muted-foreground hover:text-foreground",
+          ? "bg-[var(--brand-700)] text-white"
+          : "bg-muted text-muted-foreground hover-fine:hover:text-foreground",
       )}
     >
       {children}

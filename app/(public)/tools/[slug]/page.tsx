@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { MarketingShell } from "@/features/marketing";
-import { getToolBySlug, ToolWorkspace } from "@/features/pdf-tools";
+import {
+  getToolBySlug,
+  PDF_TOOLS,
+  ToolWorkspace,
+} from "@/features/pdf-tools";
 import { routes } from "@/config/routes";
 import { siteConfig } from "@/config/site";
 
@@ -13,13 +17,22 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const tool = getToolBySlug(slug);
-  if (!tool) return { title: "PDF Tool" };
+  if (!tool) return { title: "PDF tool" };
   return {
-    title: tool.title,
-    description: tool.description,
+    title: tool.seoTitle,
+    description: tool.seoDescription,
     metadataBase: new URL(siteConfig.url),
     alternates: {
       canonical: `/tools/${slug}`,
+    },
+    openGraph: {
+      title: tool.seoTitle,
+      description: tool.seoDescription,
+      url: `${siteConfig.url}/tools/${slug}`,
+      siteName: siteConfig.name,
+      locale: "en_GB",
+      type: "website",
+      images: [{ url: "/tools/opengraph-image" }],
     },
   };
 }
@@ -33,26 +46,66 @@ export default async function PublicToolPage({
   const tool = getToolBySlug(slug);
   if (!tool) notFound();
 
+  const related = PDF_TOOLS.filter(
+    (t) => t.category === tool.category && t.slug !== tool.slug,
+  ).slice(0, 4);
+
   return (
     <MarketingShell>
-      <div className="border-b border-border/70 bg-muted/30">
-        <div className="bonsai-container flex flex-wrap items-center justify-between gap-3 py-3 text-sm">
-          <p className="text-muted-foreground">
-            Running in your browser · nothing uploaded to our servers
-          </p>
-          <p className="text-muted-foreground">
-            Save invoices & clients?{" "}
-            <Link
-              href={routes.login}
-              className="font-semibold text-primary hover:underline"
-            >
-              Log in
-            </Link>
-          </p>
+      <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
+        <p className="text-sm text-muted-foreground">
+          <Link href={routes.tools} className="ss-link-underline">
+            PDF tools
+          </Link>
+          <span aria-hidden> / </span>
+          {tool.title}
+        </p>
+        <h1 className="mt-3 type-h1 text-foreground">{tool.title}</h1>
+        <p className="mt-2 max-w-2xl text-muted-foreground">{tool.description}</p>
+        <p className="mt-3 text-sm font-medium text-foreground">{tool.privacyTag}</p>
+
+        <div className="ss-calm-zone mt-8">
+          <ToolWorkspace tool={tool} />
         </div>
-      </div>
-      <div className="bonsai-container py-8 sm:py-10">
-        <ToolWorkspace tool={tool} />
+
+        <section className="mt-12 max-w-2xl">
+          <h2 className="type-h2 text-foreground">How it works</h2>
+          <ol className="mt-4 list-decimal space-y-2 pl-5 text-muted-foreground">
+            {tool.steps.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+        </section>
+
+        <section className="mt-10 max-w-2xl">
+          <h2 className="type-h2 text-foreground">Questions</h2>
+          <dl className="mt-4 space-y-4">
+            {tool.faq.map((item) => (
+              <div key={item.question}>
+                <dt className="font-medium text-foreground">{item.question}</dt>
+                <dd className="mt-1 text-sm text-muted-foreground">{item.answer}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        {related.length > 0 ? (
+          <section className="mt-10">
+            <h2 className="type-h2 text-foreground">Related tools</h2>
+            <ul className="mt-4 flex flex-wrap gap-3">
+              {related.map((item) => (
+                <li key={item.slug}>
+                  <Link
+                    href={routes.tool(item.slug)}
+                    className="ss-link-underline text-sm font-medium text-[var(--brand-700)]"
+                  >
+                    {item.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
       </div>
     </MarketingShell>
   );

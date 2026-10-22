@@ -2,16 +2,32 @@ import type { Metadata } from "next";
 import { InvoiceBuilderPage } from "@/features/invoice-builder";
 import { siteConfig } from "@/config/site";
 
+const title = "Create an invoice";
+const description =
+  "Build a UK invoice with VAT, pick a template, then download or print a PDF. No account required. Log in later if you want saved history.";
+
 export const metadata: Metadata = {
-  title: "Create Invoice",
-  description:
-    "Create a professional invoice in minutes. No account required - edit on the sheet, then download or print.",
+  title,
+  description,
   metadataBase: new URL(siteConfig.url),
   alternates: {
     canonical: "/create-invoice",
   },
+  openGraph: {
+    title,
+    description,
+    url: `${siteConfig.url}/create-invoice`,
+    siteName: siteConfig.name,
+    locale: "en_GB",
+    type: "website",
+    images: [{ url: "/create-invoice/opengraph-image" }],
+  },
 };
 
 export default function CreateInvoicePage() {
-  return <InvoiceBuilderPage />;
+  return (
+    <div className="ss-calm-zone">
+      <InvoiceBuilderPage />
+    </div>
+  );
 }

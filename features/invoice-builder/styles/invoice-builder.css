@@ -595,7 +595,16 @@ tr:hover .builder-row-remove {
   .builder-logo-box,
   .builder-discount-toggle,
   .builder-empty-print,
-  .no-print {
+  .no-print,
+  header,
+  footer,
+  [data-sonner-toaster],
+  [data-radix-portal],
+  .cookie-banner,
+  .floating-contact,
+  .back-to-top,
+  .scroll-progress,
+  .route-progress {
     display: none !important;
   }
 
