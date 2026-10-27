@@ -64,7 +64,7 @@ export type InvoiceLayoutId = (typeof INVOICE_LAYOUTS)[number]["id"];
 
 /** @deprecated Palette ids kept only for migrating old `layout-palette` template ids. */
 export const LEGACY_PALETTE_HEX: Record<string, string> = {
-  teal: "#0D9488",
+  teal: "#0E9BA6",
   navy: "#1E3A8A",
   slate: "#334155",
   emerald: "#047857",
@@ -117,7 +117,7 @@ export type InvoiceTemplateDefinition = {
   description: string;
 };
 
-export const DEFAULT_ACCENT = "#0D9488";
+export const DEFAULT_ACCENT = "#0E9BA6";
 export const DEFAULT_INVOICE_TEMPLATE_ID: InvoiceLayoutId = "classic";
 
 export const INVOICE_TEMPLATES: InvoiceTemplateDefinition[] =

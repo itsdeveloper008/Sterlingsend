@@ -3,7 +3,12 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { FloatingLabelField, FormStatus } from "@/components/ui/form-field";
+import {
+  FloatingLabelField,
+  FloatingLabelSelect,
+  FormStatus,
+} from "@/components/ui/form-field";
+import { BUSINESS_TYPES } from "@/lib/business-types";
 import { BusinessLogoUploadForm } from "@/features/settings/components/business-logo-upload-form";
 import { InvoiceTemplatePicker } from "@/features/settings/components/invoice-template-picker";
 import { updateAccountAction } from "@/actions/account.actions";
@@ -21,6 +26,11 @@ export function AccountPage({
   businessId,
   businessName,
   email,
+  businessType,
+  phone,
+  addressLine1,
+  city,
+  postcode,
   logoUrl,
   templateId,
   accentColor,
@@ -28,6 +38,11 @@ export function AccountPage({
   businessId: string;
   businessName: string;
   email: string;
+  businessType: string;
+  phone: string;
+  addressLine1: string;
+  city: string;
+  postcode: string;
   logoUrl?: string | null;
   templateId: string;
   accentColor?: string;
@@ -35,6 +50,12 @@ export function AccountPage({
   const { signOut } = useAuth();
   const [name, setName] = useState(businessName);
   const [accountEmail, setAccountEmail] = useState(email);
+  const [type, setType] = useState(businessType);
+  const [accountPhone, setAccountPhone] = useState(phone);
+  const [address, setAddress] = useState(addressLine1);
+  const [accountCity, setAccountCity] = useState(city);
+  const [accountPostcode, setAccountPostcode] = useState(postcode);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [accent, setAccent] = useState(accentColor ?? DEFAULT_ACCENT_HEX);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -46,12 +67,23 @@ export function AccountPage({
       const result = await updateAccountAction({
         businessName: name,
         email: accountEmail,
+        businessType: type as (typeof BUSINESS_TYPES)[number],
+        phone: accountPhone,
+        addressLine1: address,
+        city: accountCity,
+        postcode: accountPostcode,
       });
       if (!result.success) {
+        const next: Record<string, string> = {};
+        for (const [key, messages] of Object.entries(result.fieldErrors ?? {})) {
+          if (messages?.[0]) next[key] = messages[0];
+        }
+        setFieldErrors(next);
         setError(result.error);
         toast.error(result.error);
         return;
       }
+      setFieldErrors({});
       toast.success("Account saved");
     });
   }
@@ -69,6 +101,7 @@ export function AccountPage({
           label="Business name"
           value={name}
           onChange={setName}
+          error={fieldErrors.businessName}
           required
         />
         <FloatingLabelField
@@ -77,8 +110,53 @@ export function AccountPage({
           type="email"
           value={accountEmail}
           onChange={setAccountEmail}
+          error={fieldErrors.email}
           required
         />
+        <div className="grid gap-x-4 sm:grid-cols-2">
+          <FloatingLabelSelect
+            id="account-business-type"
+            label="Type of business"
+            value={type}
+            onChange={setType}
+            options={BUSINESS_TYPES}
+            error={fieldErrors.businessType}
+            required
+          />
+          <FloatingLabelField
+            id="account-phone"
+            label="Phone number"
+            type="tel"
+            value={accountPhone}
+            onChange={setAccountPhone}
+            error={fieldErrors.phone}
+            autoComplete="tel"
+            required
+          />
+        </div>
+        <FloatingLabelField
+          id="account-address"
+          label="Street address"
+          value={address}
+          onChange={setAddress}
+          autoComplete="address-line1"
+        />
+        <div className="grid gap-x-4 sm:grid-cols-2">
+          <FloatingLabelField
+            id="account-city"
+            label="Town / city"
+            value={accountCity}
+            onChange={setAccountCity}
+            autoComplete="address-level2"
+          />
+          <FloatingLabelField
+            id="account-postcode"
+            label="Postcode"
+            value={accountPostcode}
+            onChange={setAccountPostcode}
+            autoComplete="postal-code"
+          />
+        </div>
         <FormStatus message={error} tone="error" />
         <Button type="submit" disabled={pending}>
           {pending ? "Saving…" : "Save"}
@@ -112,7 +190,7 @@ export function AccountPage({
                 className={cn(
                   "size-6 rounded-md border border-[#E2E8F0]",
                   accent.toUpperCase() === p.hex.toUpperCase() &&
-                    "ring-2 ring-offset-2 ring-[#0F766E]",
+                    "ring-2 ring-offset-2 ring-[#0B7480]",
                 )}
                 style={{ background: p.hex }}
                 onClick={() => {
@@ -150,7 +228,7 @@ export function AccountPage({
             />
             <button
               type="button"
-              className="text-sm font-semibold text-[#0F766E]"
+              className="text-sm font-semibold text-[#0B7480]"
               onClick={() => {
                 setAccent(DEFAULT_ACCENT_HEX);
                 startTransition(async () => {

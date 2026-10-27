@@ -21,7 +21,7 @@ export function HomeFilesSection() {
   return (
     <section className="ss-section bg-[var(--dark-band)] px-4 text-[#CBD5E1] sm:px-6">
       <div className="bonsai-container">
-        <p className="ss-eyebrow" style={{ color: "#5EEAD4" }}>
+        <p className="ss-eyebrow" style={{ color: "#6FD9DD" }}>
           Privacy
         </p>
         <h2 className="type-h2 mt-6 text-white">How your files are handled</h2>
@@ -30,7 +30,7 @@ export function HomeFilesSection() {
           the{" "}
           <Link
             href={routes.privacy}
-            className="font-semibold text-[#5EEAD4] underline-offset-2 hover:underline"
+            className="font-semibold text-[#6FD9DD] underline-offset-2 hover:underline"
           >
             privacy policy
           </Link>

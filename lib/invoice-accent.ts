@@ -1,7 +1,7 @@
 /** Accent colour presets and CSS variable computation (no color-mix). */
 
 export const ACCENT_PRESETS = [
-  { id: "teal", name: "Teal", hex: "#0D9488" },
+  { id: "teal", name: "Teal", hex: "#0E9BA6" },
   { id: "emerald", name: "Emerald", hex: "#047857" },
   { id: "green", name: "Green", hex: "#15803D" },
   { id: "olive", name: "Olive", hex: "#4D7C0F" },
@@ -19,7 +19,7 @@ export const ACCENT_PRESETS = [
   { id: "charcoal", name: "Charcoal", hex: "#1F2937" },
 ] as const;
 
-export const DEFAULT_ACCENT_HEX = "#0D9488";
+export const DEFAULT_ACCENT_HEX = "#0E9BA6";
 export const ACCENT_SESSION_KEY = "ss_accent";
 
 export type AccentVars = {

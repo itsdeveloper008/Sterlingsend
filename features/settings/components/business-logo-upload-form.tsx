@@ -136,7 +136,7 @@ export function BusinessLogoUploadForm({
             className="h-full w-full object-contain p-2"
           />
         ) : (
-          <span className="text-2xl font-bold text-[#14B8A6]">{initial}</span>
+          <span className="text-2xl font-bold text-[#16C2C6]">{initial}</span>
         )}
       </div>
 

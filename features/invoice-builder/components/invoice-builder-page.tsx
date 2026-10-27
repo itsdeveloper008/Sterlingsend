@@ -358,7 +358,7 @@ export function InvoiceBuilderPage({
         <div className="builder-workspace-sheet">
           {showRestoredBanner && isLoggedIn ? (
             <p
-              className="no-print mb-4 rounded-[14px] border border-[#A7F3D0] bg-[#ECFDF5] px-4 py-3 text-sm text-[#065F46]"
+              className="no-print mb-4 rounded-[14px] border border-[#A5E9EB] bg-[#E7F7F8] px-4 py-3 text-sm text-[#0B4652]"
               role="status"
             >
               Your draft is back.{" "}
@@ -383,7 +383,7 @@ export function InvoiceBuilderPage({
               <span className="flex gap-2">
                 <Link
                   href={routes.onboarding}
-                  className="font-semibold text-[#0F766E] underline-offset-2 hover:underline"
+                  className="font-semibold text-[#0B7480] underline-offset-2 hover:underline"
                 >
                   Finish setup
                 </Link>

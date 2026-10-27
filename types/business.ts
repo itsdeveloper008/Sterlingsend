@@ -7,6 +7,8 @@ export interface Business extends BaseDocument {
   businessName: string;
   email: string;
   phone?: string;
+  /** Category from BUSINESS_TYPES (collected for admin reporting). */
+  businessType?: string;
   website?: string;
   addressLine1: string;
   addressLine2?: string;

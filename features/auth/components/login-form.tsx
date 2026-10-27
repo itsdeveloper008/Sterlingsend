@@ -304,7 +304,7 @@ export function LoginForm() {
                   className={cn(
                     "flex h-12 w-full items-center justify-center rounded-[var(--radius-md)] bg-primary text-sm font-semibold text-white",
                     "transition-[transform,box-shadow,background-color] duration-[var(--duration-150)]",
-                    "hover-fine:hover:-translate-y-0.5 hover-fine:hover:bg-[#0d9488] hover-fine:hover:shadow-[var(--shadow-2)]",
+                    "hover-fine:hover:-translate-y-0.5 hover-fine:hover:bg-[#0e9ba6] hover-fine:hover:shadow-[var(--shadow-2)]",
                     "active:translate-y-px disabled:opacity-60",
                   )}
                 >

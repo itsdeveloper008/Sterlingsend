@@ -49,7 +49,7 @@ export function Logo({
           )}
         >
           Sterling
-          <span className={tone === "onDark" ? "text-teal-300" : "text-[#0D9488]"}>
+          <span className={tone === "onDark" ? "text-teal-300" : "text-[#0E9BA6]"}>
             Send
           </span>
         </span>

@@ -13,6 +13,7 @@ const protectedPrefixes = [
   "/files",
   "/settings",
   "/account",
+  "/admin",
 ];
 
 export async function middleware(request: NextRequest) {
@@ -67,6 +68,8 @@ export const config = {
     "/settings/:path*",
     "/account",
     "/account/:path*",
+    "/admin",
+    "/admin/:path*",
     "/login",
     "/signup",
     "/forgot-password",

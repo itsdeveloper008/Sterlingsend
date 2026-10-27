@@ -48,7 +48,7 @@
   text-align: center;
   font-size: 0.8125rem;
   font-weight: 500;
-  color: #065f46;
+  color: #0b4652;
 }
 
 .bonsai-announce-link {
@@ -56,14 +56,14 @@
   align-items: center;
   gap: 0.25rem;
   font-weight: 700;
-  color: #0f766e;
+  color: #0b7480;
   text-decoration: underline;
   text-underline-offset: 2px;
   transition: color 0.15s ease;
 }
 
 .bonsai-announce-link:hover {
-  color: #115e59;
+  color: #0b5866;
 }
 
 .bonsai-eyebrow {
@@ -415,7 +415,7 @@
 
 .bonsai-nav-user:hover {
   background: #f8fafc;
-  border-color: #99f6e4;
+  border-color: #a5e9eb;
   box-shadow: var(--shadow-2);
 }
 
@@ -482,8 +482,8 @@
 }
 
 .bonsai-account-menu-item:hover {
-  background: #f0fdfa;
-  color: #0f766e;
+  background: #effbfc;
+  color: #0b7480;
 }
 
 .bonsai-menu-toggle {
@@ -503,8 +503,8 @@
 }
 
 .bonsai-menu-toggle:hover {
-  border-color: rgba(13, 148, 136, 0.35);
-  background: #f0fdfa;
+  border-color: rgba(14, 155, 166, 0.35);
+  background: #effbfc;
 }
 
 @media (min-width: 1024px) {
@@ -626,7 +626,7 @@
   right: 10%;
   width: 260px;
   height: 260px;
-  background: rgba(13, 148, 136, 0.16);
+  background: rgba(14, 155, 166, 0.16);
   animation-delay: -4s;
 }
 
@@ -723,7 +723,7 @@ button.bonsai-pill {
 
 .bonsai-pillar:hover {
   transform: translateY(-6px);
-  border-color: rgba(13, 148, 136, 0.35);
+  border-color: rgba(14, 155, 166, 0.35);
   box-shadow: var(--shadow-4);
 }
 
@@ -734,7 +734,7 @@ button.bonsai-pill {
   align-items: center;
   justify-content: center;
   border-radius: 14px;
-  background: #f0fdfa;
+  background: #effbfc;
   color: var(--m-teal-hover);
   box-shadow: var(--shadow-2);
   transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
@@ -846,7 +846,7 @@ button.bonsai-pill {
 }
 
 .bonsai-chip:hover {
-  border-color: #99f6e4;
+  border-color: #a5e9eb;
   color: var(--m-teal-hover);
   transform: translateY(-2px);
   box-shadow: var(--shadow-2);
@@ -938,7 +938,7 @@ button.bonsai-pill {
 
 .bonsai-quote:hover {
   transform: translateY(-5px);
-  border-color: rgba(13, 148, 136, 0.28);
+  border-color: rgba(14, 155, 166, 0.28);
   box-shadow: var(--shadow-4);
 }
 
@@ -1046,7 +1046,7 @@ button.bonsai-pill {
 
 .bonsai-product-card:hover {
   transform: translateY(-7px);
-  border-color: rgba(13, 148, 136, 0.4);
+  border-color: rgba(14, 155, 166, 0.4);
   box-shadow: var(--shadow-4);
 }
 
@@ -1057,7 +1057,7 @@ button.bonsai-pill {
   align-items: center;
   justify-content: center;
   border-radius: 14px;
-  background: #f0fdfa;
+  background: #effbfc;
   color: var(--m-teal-hover);
   transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }

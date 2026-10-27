@@ -12,19 +12,19 @@
   --inv-border: #e5e7eb;
   --inv-border-soft: #e2e8f0;
   --inv-paper: #ffffff;
-  --inv-page: #e8f3f0;
-  --inv-layer-1: #e8f3f0;
-  --inv-layer-2: #e8f3f0;
-  --inv-teal: #14b8a6;
-  --inv-teal-deep: #0d9488;
-  --inv-teal-hover: #0f766e;
+  --inv-page: #eaf5f7;
+  --inv-layer-1: #eaf5f7;
+  --inv-layer-2: #eaf5f7;
+  --inv-teal: #16c2c6;
+  --inv-teal-deep: #0e9ba6;
+  --inv-teal-hover: #0b7480;
   --inv-primary: var(--inv-teal-hover);
   --inv-accent: var(--inv-teal);
   --inv-soft: #f8fafc;
-  --inv-soft-teal: #f0fdfa;
-  --inv-banner-bg: #ecfdf5;
-  --inv-banner-border: #a7f3d0;
-  --inv-banner-text: #065f46;
+  --inv-soft-teal: #effbfc;
+  --inv-banner-bg: #e7f7f8;
+  --inv-banner-border: #a5e9eb;
+  --inv-banner-text: #0b4652;
   --inv-placeholder: #64748b;
   --inv-danger: #b91c1c;
   --inv-secondary: #475569;
@@ -120,7 +120,7 @@
   top: 100px;
   bottom: 0;
   border-radius: 24px;
-  background: #e8f3f0;
+  background: #eaf5f7;
 }
 
 @media (max-width: 899px), (pointer: coarse) {
@@ -139,11 +139,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  border-bottom: 1px solid #a7f3d0;
-  background: #ecfdf5;
+  border-bottom: 1px solid #a5e9eb;
+  background: #e7f7f8;
   padding: 0.55rem 1rem;
   font-size: 0.875rem;
-  color: #065f46;
+  color: #0b4652;
 }
 
 .builder-actions-row {
@@ -185,9 +185,9 @@
 
 .builder-btn-primary {
   border: 0;
-  background: #0f766e;
+  background: #0b7480;
   color: #ffffff;
-  box-shadow: 0 6px 16px rgba(15, 118, 110, 0.25);
+  box-shadow: 0 6px 16px rgba(11, 116, 128, 0.25);
 }
 
 .builder-btn-secondary:hover,
@@ -216,7 +216,7 @@
   padding: 0;
   font: inherit;
   font-weight: 700;
-  color: #0f766e;
+  color: #0b7480;
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -312,11 +312,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  border-bottom: 1px solid #a7f3d0;
-  background: #ecfdf5;
+  border-bottom: 1px solid #a5e9eb;
+  background: #e7f7f8;
   padding: 0.625rem 1rem;
   font-size: 0.875rem;
-  color: #065f46;
+  color: #0b4652;
 }
 
 /* Horizontal containment: page body must not scroll sideways. */
@@ -333,7 +333,7 @@
 }
 
 .invoice-sheet-scroller:focus-visible {
-  outline: 2px solid #14b8a6;
+  outline: 2px solid #16c2c6;
   outline-offset: 2px;
 }
 
@@ -1062,8 +1062,8 @@
 }
 
 .builder-optional-chip:hover {
-  border-color: var(--inv-accent-text, #0f766e);
-  color: var(--inv-accent-text, #0f766e);
+  border-color: var(--inv-accent-text, #0b7480);
+  color: var(--inv-accent-text, #0b7480);
 }
 
 .builder-table tbody tr {
@@ -1471,13 +1471,13 @@ button:has(.builder-logo-preview):focus-visible {
 }
 
 .builder-discount-suffix:focus-visible {
-  outline: 2px solid #14b8a6;
+  outline: 2px solid #16c2c6;
   outline-offset: -2px;
 }
 
 .builder-discount-suffix[aria-pressed="true"] {
-  background: #ccfbf1;
-  color: #0f766e;
+  background: #d0f4f5;
+  color: #0b7480;
 }
 
 /* Keep values clear of column rules (Ledger, Corporate, etc.). */
@@ -1695,7 +1695,7 @@ button:has(.builder-logo-preview):focus-visible {
 }
 
 .builder-add-item:focus-visible {
-  outline: 2px solid #14b8a6;
+  outline: 2px solid #16c2c6;
   outline-offset: 2px;
 }
 
@@ -1840,7 +1840,7 @@ tr:hover .builder-row-remove {
 }
 
 .builder-total-vat {
-  color: #0f766e;
+  color: #0b7480;
 }
 
 .builder-total-final {
@@ -1853,7 +1853,7 @@ tr:hover .builder-row-remove {
   max-width: 100%;
   margin-top: 4px;
   border-radius: 14px;
-  background: #ecfdf5;
+  background: #e7f7f8;
   padding: 16px 20px;
   overflow: visible;
 }
@@ -1893,7 +1893,7 @@ tr:hover .builder-row-remove {
   font-size: 28px;
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: #0f766e;
+  color: #0b7480;
   line-height: 1.15;
   text-align: right;
   white-space: nowrap;
@@ -2541,7 +2541,7 @@ body.builder-pdf-export .builder-stamp-done {
   gap: 6px;
   height: 28px;
   padding: 0 10px;
-  border-radius: 16px;
+  border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
   color: #0f172a;
@@ -2590,7 +2590,7 @@ body.builder-pdf-export .builder-stamp-done {
 .inv-panel-thumb-preview .thumb-rule {
   height: 3px;
   border-radius: 1px;
-  background: var(--thumb-accent, #0f766e);
+  background: var(--thumb-accent, #0b7480);
 }
 
 .inv-panel-thumb-preview .thumb-line {
@@ -2605,7 +2605,7 @@ body.builder-pdf-export .builder-stamp-done {
   width: 40%;
   height: 8px;
   border-radius: 3px;
-  background: var(--inv-accent-soft, #E6F5F2);
+  background: var(--inv-accent-soft, #E6F4F6);
 }
 
 .inv-panel-template-name {
@@ -2622,7 +2622,7 @@ body.builder-pdf-export .builder-stamp-done {
   font: inherit;
   font-size: 13px;
   font-weight: 700;
-  color: #0f766e;
+  color: #0b7480;
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -2633,7 +2633,7 @@ body.builder-pdf-export .builder-stamp-done {
 .inv-panel-btn-primary:focus-visible,
 .inv-stamp-chip:focus-visible,
 .inv-stamp-size:focus-visible {
-  outline: 2px solid #0f766e;
+  outline: 2px solid #0b7480;
   outline-offset: 2px;
 }
 
@@ -2644,7 +2644,7 @@ body.builder-pdf-export .builder-stamp-done {
   justify-content: center;
   gap: 8px;
   width: 100%;
-  border-radius: 16px;
+  border-radius: 10px;
   border: 0;
   font-size: 15px;
   font-weight: 600;
@@ -2676,7 +2676,7 @@ body.builder-pdf-export .builder-stamp-done {
   margin: 10px 0 0;
   font-size: 13px;
   font-weight: 600;
-  color: #0f766e;
+  color: #0b7480;
 }
 
 .inv-panel-guest {
@@ -2719,7 +2719,7 @@ body.builder-pdf-export .builder-stamp-done {
 
 .inv-accent-swatch.is-selected {
   box-shadow:
-    0 0 0 2px #0f766e,
+    0 0 0 2px #0b7480,
     0 4px 8px rgba(15, 23, 42, 0.12),
     inset 2px 2px 4px rgba(255, 255, 255, 0.35);
 }
@@ -2735,7 +2735,7 @@ body.builder-pdf-export .builder-stamp-done {
 }
 
 .inv-accent-native.is-selected {
-  box-shadow: 0 0 0 2px #0f766e;
+  box-shadow: 0 0 0 2px #0b7480;
 }
 
 .inv-accent-hex {
@@ -2860,7 +2860,7 @@ body.builder-pdf-export .builder-stamp-done {
   .builder-mobile-bar .inv-panel-btn-primary {
     flex: 1;
     height: 48px;
-    background: #0f766e;
+    background: #0b7480;
     color: #ffffff;
     box-shadow: var(--btn-inner-hi, inset 0 1px 0 rgba(255, 255, 255, 0.18));
   }

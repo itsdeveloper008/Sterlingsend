@@ -49,7 +49,7 @@ export function ProductPillsSection() {
             {" - "}
             <Link
               href={routes.features}
-              className="font-semibold text-[#0D9488] underline-offset-2 hover:underline"
+              className="font-semibold text-[#0E9BA6] underline-offset-2 hover:underline"
             >
               see all features
             </Link>

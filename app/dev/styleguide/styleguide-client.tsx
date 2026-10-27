@@ -38,11 +38,11 @@ import {
 
 
 const COLOURS = [
-  { name: "brand-700", value: "#0F766E", role: "buttons, links, teal text" },
-  { name: "brand-600", value: "#0D9488", role: "large text / icons" },
-  { name: "brand-500", value: "#14B8A6", role: "ring, dark accent, shapes" },
-  { name: "brand-tint", value: "#F0FDFA", role: "tint" },
-  { name: "brand-soft", value: "#CCFBF1", role: "soft tint" },
+  { name: "brand-700", value: "#0B7480", role: "buttons, links, teal text" },
+  { name: "brand-600", value: "#0E9BA6", role: "large text / icons" },
+  { name: "brand-500", value: "#16C2C6", role: "ring, dark accent, shapes" },
+  { name: "brand-tint", value: "#EFFBFC", role: "tint" },
+  { name: "brand-soft", value: "#D0F4F5", role: "soft tint" },
   { name: "ink", value: "#0F172A", role: "body text" },
   { name: "dark-band", value: "#07111F", role: "dark band" },
   { name: "white", value: "#FFFFFF", role: "surface" },

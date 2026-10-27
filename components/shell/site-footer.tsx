@@ -18,10 +18,10 @@ export function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-auto bg-[#071a19] text-slate-300">
+    <footer className="mt-auto bg-[#06222a] text-slate-300">
       {/* CTA card: real photo with a live template preview floating over it */}
       <div className="mx-auto w-full max-w-[1200px] px-4 pt-20 sm:px-6">
-        <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[var(--brand-700)] via-[var(--brand-800)] to-[#0b2b29] shadow-[0_30px_80px_-30px_rgba(13,148,136,0.55)]">
+        <div className="relative overflow-hidden rounded-2xl bg-[var(--brand-900)] ring-1 ring-white/10">
           <div className="grid items-center gap-10 p-8 sm:p-12 lg:grid-cols-[1.1fr_1fr]">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-200">
@@ -37,14 +37,14 @@ export function SiteFooter() {
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
                   href={routes.createInvoice}
-                  className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-[15px] font-semibold text-[var(--brand-800)] shadow-lg transition-transform hover:-translate-y-0.5"
+                  className="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 text-[15px] font-semibold text-[var(--brand-800)] transition-colors hover:bg-teal-50"
                 >
                   Create an invoice
                   <ArrowRight className="h-4 w-4" aria-hidden />
                 </Link>
                 <Link
                   href={routes.templates}
-                  className="inline-flex items-center rounded-full border border-white/30 px-6 py-3 text-[15px] font-semibold text-white transition-colors hover:bg-white/10"
+                  className="inline-flex items-center rounded-lg border border-white/30 px-6 py-3 text-[15px] font-semibold text-white transition-colors hover:bg-white/10"
                 >
                   Browse templates
                 </Link>
@@ -62,7 +62,7 @@ export function SiteFooter() {
             </div>
 
             <div className="relative hidden min-h-[320px] sm:block">
-              <div className="absolute inset-0 overflow-hidden rounded-2xl ring-1 ring-white/15">
+              <div className="absolute inset-0 overflow-hidden rounded-xl ring-1 ring-white/15">
                 <Image
                   src="/marketing/footer-team.jpg"
                   alt="Two colleagues celebrating at a desk with a laptop and paperwork"
@@ -70,12 +70,11 @@ export function SiteFooter() {
                   sizes="(min-width: 1024px) 520px, 90vw"
                   className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#071a19]/60 via-transparent to-transparent" />
               </div>
               {/* Preview renders at a readable width, then scales down into a small card. */}
-              <div className="absolute -bottom-4 -left-4 h-[200px] w-[204px] rotate-[-4deg] overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black/5">
+              <div className="absolute -bottom-4 -left-4 h-[200px] w-[204px] rotate-[-4deg] overflow-hidden rounded-lg bg-white shadow-xl ring-1 ring-black/5">
                 <div className="w-[340px] origin-top-left scale-[0.6]">
-                  <TemplateMiniPreview layoutId="banner" accent="#0D9488" />
+                  <TemplateMiniPreview layoutId="banner" accent="#0E9BA6" />
                 </div>
               </div>
             </div>
@@ -93,7 +92,7 @@ export function SiteFooter() {
           </p>
           <a
             href={`mailto:${siteConfig.supportEmail}`}
-            className="mt-5 inline-flex items-center gap-2 break-all rounded-full bg-white/5 px-4 py-2 text-sm font-medium text-teal-200 ring-1 ring-white/10 transition-colors hover:bg-white/10"
+            className="mt-5 inline-flex items-center gap-2 break-all rounded-lg bg-white/5 px-4 py-2 text-sm font-medium text-teal-200 ring-1 ring-white/10 transition-colors hover:bg-white/10"
           >
             <Mail className="h-4 w-4" aria-hidden />
             {siteConfig.supportEmail}

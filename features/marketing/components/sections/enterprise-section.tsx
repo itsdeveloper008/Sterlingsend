@@ -43,7 +43,7 @@ export function EnterpriseSection() {
               <MotionReveal key={point.title} delay={index * 0.06}>
                 <li className="flex gap-3">
                   <CheckCircle2
-                    className="mt-0.5 h-5 w-5 shrink-0 text-[#0D9488]"
+                    className="mt-0.5 h-5 w-5 shrink-0 text-[#0E9BA6]"
                     aria-hidden
                   />
                   <div>

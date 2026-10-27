@@ -281,7 +281,7 @@ export function InvoiceOptionsPanel({
                 const hex = normalizeHex(e.target.value);
                 if (hex) onAccentChange?.(hex);
               }}
-              placeholder="#0F766E"
+              placeholder="#0B7480"
               aria-label="Accent hex"
             />
           </div>
@@ -308,7 +308,7 @@ export function InvoiceOptionsPanel({
           <StampIcon className="h-4 w-4" aria-hidden />
           Stamp
           {stampLabel ? (
-            <span className="ml-auto text-[13px] text-[#0F766E]">{stampLabel}</span>
+            <span className="ml-auto text-[13px] text-[#0B7480]">{stampLabel}</span>
           ) : null}
         </button>
         {stampOpen ? (

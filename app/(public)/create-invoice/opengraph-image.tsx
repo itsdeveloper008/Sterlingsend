@@ -22,7 +22,7 @@ export default async function Image() {
           fontFamily: "ui-sans-serif, system-ui, sans-serif",
         }}
       >
-        <div style={{ fontSize: 28, fontWeight: 700, color: "#0f766e" }}>
+        <div style={{ fontSize: 28, fontWeight: 700, color: "#0b7480" }}>
           {siteConfig.name}
         </div>
         <div

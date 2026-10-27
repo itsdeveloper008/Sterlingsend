@@ -117,7 +117,7 @@ export function PublicInvoicePage({
       <header className="border-b border-[#E2E8F0]/80 bg-white/90 backdrop-blur-md print:hidden">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#14B8A6]/10 text-[#14B8A6]">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#16C2C6]/10 text-[#16C2C6]">
               <FileText className="h-5 w-5" aria-hidden />
             </div>
             <div className="min-w-0">
@@ -159,7 +159,7 @@ export function PublicInvoicePage({
             {showPayButton ? (
               <Button
                 type="button"
-                className="hidden h-10 rounded-xl bg-[#14B8A6] px-4 hover:bg-[#0D9488] sm:inline-flex"
+                className="hidden h-10 rounded-xl bg-[#16C2C6] px-4 hover:bg-[#0E9BA6] sm:inline-flex"
                 onClick={() => void handlePayNow()}
                 disabled={paying}
               >
@@ -200,7 +200,7 @@ export function PublicInvoicePage({
           {showPayButton ? (
             <div className="mt-8 space-y-3 print:hidden sm:hidden">
               <Button
-                className="h-12 w-full rounded-xl bg-[#14B8A6] text-base hover:bg-[#0D9488]"
+                className="h-12 w-full rounded-xl bg-[#16C2C6] text-base hover:bg-[#0E9BA6]"
                 size="lg"
                 onClick={() => void handlePayNow()}
                 disabled={paying}

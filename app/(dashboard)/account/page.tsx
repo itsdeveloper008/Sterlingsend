@@ -13,6 +13,11 @@ export default async function AccountRoutePage() {
       businessId={business.id}
       businessName={business.businessName}
       email={business.email}
+      businessType={business.businessType ?? ""}
+      phone={business.phone ?? ""}
+      addressLine1={business.addressLine1 ?? ""}
+      city={business.city ?? ""}
+      postcode={business.postcode ?? ""}
       logoUrl={business.logoUrl}
       templateId={template.id}
       accentColor={settings.branding.accentColor ?? template.accent}

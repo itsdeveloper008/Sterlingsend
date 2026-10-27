@@ -97,6 +97,8 @@ export async function completeOnboarding(
     businessName: values.businessName.trim(),
     email: values.email.trim(),
     ...ONBOARDING_BUSINESS_DEFAULTS,
+    businessType: values.businessType,
+    phone: values.phone,
   });
 
   try {

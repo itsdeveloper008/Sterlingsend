@@ -144,7 +144,7 @@ export function MobileNavSheet({
                   ))}
                   <Link
                     href={routes.tools}
-                    className="flex h-10 items-center rounded-lg px-2 text-sm font-semibold text-[#0F766E]"
+                    className="flex h-10 items-center rounded-lg px-2 text-sm font-semibold text-[#0B7480]"
                     onClick={() => onOpenChange(false)}
                   >
                     See all tools
@@ -207,7 +207,7 @@ export function MobileNavSheet({
                 </ButtonLink>
                 <ButtonLink
                   href={routes.signup}
-                  className="h-12 w-full rounded-xl bg-[#0F766E] text-white hover:bg-[#0F766E]/90"
+                  className="h-12 w-full rounded-xl bg-[#0B7480] text-white hover:bg-[#0B7480]/90"
                   onClick={() => onOpenChange(false)}
                 >
                   Sign up

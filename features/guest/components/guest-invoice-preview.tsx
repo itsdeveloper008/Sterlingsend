@@ -166,7 +166,7 @@ export function GuestInvoicePreview() {
             <Button
               onClick={() => void handleDownload()}
               disabled={actionState === "generating"}
-              className="h-10 rounded-xl bg-[#14B8A6] px-4 hover:bg-[#0D9488]"
+              className="h-10 rounded-xl bg-[#16C2C6] px-4 hover:bg-[#0E9BA6]"
             >
               {actionState === "generating" ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

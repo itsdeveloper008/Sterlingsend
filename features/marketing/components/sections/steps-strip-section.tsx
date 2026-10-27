@@ -18,7 +18,7 @@ export function StepsStripSection() {
               key={step.number}
               className="flex items-center gap-3 sm:px-6"
             >
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#14B8A6]/10 text-sm font-semibold text-[#0D9488]">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#16C2C6]/10 text-sm font-semibold text-[#0E9BA6]">
                 {step.number}
               </span>
               <span className="text-sm font-medium text-[#0F172A]">{step.label}</span>

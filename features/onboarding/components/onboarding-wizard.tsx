@@ -4,7 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { FloatingLabelField, FormStatus } from "@/components/ui/form-field";
+import {
+  FloatingLabelField,
+  FloatingLabelSelect,
+  FormStatus,
+} from "@/components/ui/form-field";
+import { BUSINESS_TYPES } from "@/lib/business-types";
 import { BusinessLogoUploadForm } from "@/features/settings/components/business-logo-upload-form";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
 import { onboardingSchema } from "@/lib/validations/onboarding";
@@ -146,8 +151,8 @@ export function OnboardingWizard({ userEmail }: { userEmail?: string }) {
     <div className="ss-calm-zone mx-auto w-full max-w-lg rounded-[var(--radius-lg)] border border-border-subtle bg-card p-6 sm:p-8">
       <h1 className="type-h2 text-foreground">Set up your business</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        One step: business name, email, and optional logo. You can skip and
-        finish later from Account.
+        One step: your business details and an optional logo. You can skip
+        and finish later from Account.
       </p>
 
       <form
@@ -171,6 +176,30 @@ export function OnboardingWizard({ userEmail }: { userEmail?: string }) {
           onChange={(value) => updateField("email", value)}
           error={errors.email}
           autoComplete="email"
+          required
+        />
+        <FloatingLabelSelect
+          id="businessType"
+          label="Type of business"
+          value={data.businessType}
+          onChange={(value) =>
+            updateField(
+              "businessType",
+              value as (typeof data)["businessType"],
+            )
+          }
+          options={BUSINESS_TYPES}
+          error={errors.businessType}
+          required
+        />
+        <FloatingLabelField
+          id="phone"
+          label="Phone number"
+          type="tel"
+          value={data.phone}
+          onChange={(value) => updateField("phone", value)}
+          error={errors.phone}
+          autoComplete="tel"
           required
         />
 

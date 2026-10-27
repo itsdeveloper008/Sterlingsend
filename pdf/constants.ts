@@ -1,8 +1,8 @@
 import { INVOICE_STATUSES, type InvoiceStatus } from "@/types";
 
 export const SS_BRAND = {
-  primary: "#14B8A6",
-  primaryHover: "#0D9488",
+  primary: "#16C2C6",
+  primaryHover: "#0E9BA6",
   text: "#111827",
   muted: "#6B7280",
   border: "#E5E7EB",

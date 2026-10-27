@@ -26,6 +26,9 @@ export function useOnboardingDraft(initialEmail?: string) {
         setData({
           businessName: parsed.businessName ?? "",
           email: parsed.email || initialEmail || "",
+          businessType:
+            parsed.businessType ?? defaultOnboardingValues.businessType,
+          phone: parsed.phone ?? "",
         });
       } else if (initialEmail) {
         setData((current) => ({ ...current, email: initialEmail }));

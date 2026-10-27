@@ -29,7 +29,7 @@ export const INVOICE_STAMPS = [
   {
     type: "paid" as const,
     label: "Paid",
-    color: "#0F766E",
+    color: "#0B7480",
     rotation: -10,
     src: "/stamps/paid.svg",
   },
