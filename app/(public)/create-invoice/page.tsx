@@ -9,7 +9,7 @@ import type { SerializedInvoice } from "@/features/invoices/lib/format";
 
 const title = "Create an invoice";
 const description =
-  "Create a UK invoice with VAT in minutes. Pick from 18 templates, add your logo and items, then download or print a PDF. Free, no account needed to start.";
+  "Create a UK invoice with VAT in minutes. Pick from 9 templates, add your logo and items, then download or print a PDF. Free, no account needed to start.";
 
 export const metadata: Metadata = {
   title,

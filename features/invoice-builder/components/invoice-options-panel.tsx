@@ -24,7 +24,7 @@ import {
   normalizeHex,
 } from "@/lib/invoice-accent";
 
-export type SaveStatus = "idle" | "saving" | "saved" | "error";
+export type SaveStatus = "idle" | "saving" | "saved" | "error" | "needs-client";
 
 type PanelProps = {
   templateId: string;
@@ -148,6 +148,7 @@ export function InvoiceOptionsPanel({
     if (saveStatus === "saving") return "Saving";
     if (saveStatus === "saved") return "Saved";
     if (saveStatus === "error") return "Could not save";
+    if (saveStatus === "needs-client") return "Add a client name to save";
     return "Ready";
   })();
 

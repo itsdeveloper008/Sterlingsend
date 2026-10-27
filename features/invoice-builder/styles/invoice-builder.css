@@ -857,26 +857,25 @@
 
 /* noir — charcoal header band + accent plate (outer shadow, no inset) */
 .builder-card[data-layout="noir"] .builder-accent {
-  height: 168px;
-  background: #1f2937;
-  position: relative;
+  height: 0;
 }
-.builder-card[data-layout="noir"] .builder-accent::after {
+/* Charcoal panel grows with the header (logo, long addresses); accent plate sits on its base. */
+.builder-card[data-layout="noir"] .builder-header {
+  position: relative;
+  background: #1f2937;
+  border-radius: 14px;
+  padding: 22px 24px 30px;
+}
+.builder-card[data-layout="noir"] .builder-header::after {
   content: "";
   position: absolute;
-  left: 28px;
-  bottom: 16px;
+  left: 24px;
+  bottom: 12px;
   width: 80px;
   height: 7px;
   border-radius: 2px;
   background: var(--inv-accent);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
-}
-.builder-card[data-layout="noir"] .builder-header {
-  margin-top: -152px;
-  position: relative;
-  z-index: 1;
-  min-height: 140px;
 }
 .builder-card[data-layout="noir"] .builder-header,
 .builder-card[data-layout="noir"] .builder-header .builder-field,
@@ -905,6 +904,95 @@
 .builder-card[data-layout="noir"] .builder-section,
 .builder-card[data-layout="noir"] .builder-totals {
   color: #0f172a;
+}
+
+/* banner — solid accent panel header (grows with logo) and white type */
+.builder-card[data-layout="banner"] .builder-accent {
+  height: 0;
+}
+.builder-card[data-layout="banner"] .builder-header {
+  background: var(--inv-accent-dark);
+  border-radius: 14px;
+  padding: 22px 24px;
+}
+.builder-card[data-layout="banner"] .builder-header,
+.builder-card[data-layout="banner"] .builder-header .builder-field,
+.builder-card[data-layout="banner"] .builder-header .builder-field--muted,
+.builder-card[data-layout="banner"] .builder-header .builder-vat-row,
+.builder-card[data-layout="banner"] .builder-header .builder-vat-label,
+.builder-card[data-layout="banner"] .builder-header .builder-title,
+.builder-card[data-layout="banner"] .builder-header .builder-invoice-no,
+.builder-card[data-layout="banner"] .builder-header .builder-reference {
+  color: #ffffff !important;
+}
+.builder-card[data-layout="banner"] .builder-header .builder-field::placeholder {
+  color: rgba(255, 255, 255, 0.75);
+}
+.builder-card[data-layout="banner"] .builder-logo-box {
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+.builder-card[data-layout="banner"] .builder-table th {
+  color: var(--inv-accent-dark);
+}
+
+/* mono — heavy black type, ink table header, outlined total */
+.builder-card[data-layout="mono"] .builder-accent {
+  height: 8px;
+  background: #0f172a;
+}
+.builder-card[data-layout="mono"] .builder-title {
+  font-size: 44px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+}
+.builder-card[data-layout="mono"] .builder-invoice-no {
+  color: var(--inv-accent-dark);
+  font-weight: 700;
+}
+.builder-card[data-layout="mono"] .builder-billed {
+  background: #fff;
+  border-top: 2px solid #0f172a;
+  border-radius: 0;
+}
+.builder-card[data-layout="mono"] .builder-table thead {
+  background: #0f172a;
+}
+.builder-card[data-layout="mono"] .builder-table th {
+  color: #f8fafc;
+  border-bottom-color: #0f172a;
+}
+.builder-card[data-layout="mono"] .builder-total-final {
+  background: #fff;
+  border: 2px solid #0f172a;
+  border-radius: 4px;
+}
+.builder-card[data-layout="mono"] .builder-total-final-amount {
+  color: #0f172a;
+}
+
+/* edge — tinted header panel and total with a thick accent edge */
+.builder-card[data-layout="edge"] .builder-accent {
+  height: 0;
+}
+.builder-card[data-layout="edge"] .builder-header {
+  background: var(--inv-accent-soft);
+  border-left: 8px solid var(--inv-accent);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.builder-card[data-layout="edge"] .builder-title {
+  color: var(--inv-accent-dark);
+}
+.builder-card[data-layout="edge"] .builder-table th {
+  color: var(--inv-accent-dark);
+  border-bottom: 2px solid var(--inv-accent);
+}
+.builder-card[data-layout="edge"] .builder-total-final {
+  background: var(--inv-accent-soft);
+  border-left: 8px solid var(--inv-accent);
 }
 
 .builder-card-inner {
@@ -2096,7 +2184,11 @@ tr:hover .builder-row-remove {
   .builder-card[data-layout="ribbon"] .builder-accent,
   .builder-card[data-layout="pillar"] .builder-sidebar-rail,
   .builder-card[data-layout="aurora"] .builder-accent,
-  .builder-card[data-layout="noir"] .builder-accent,
+  .builder-card[data-layout="noir"] .builder-header,
+  .builder-card[data-layout="banner"] .builder-header,
+  .builder-card[data-layout="mono"] .builder-accent,
+  .builder-card[data-layout="mono"] .builder-table thead,
+  .builder-card[data-layout="edge"] .builder-header,
   .builder-card[data-layout="clay"] .builder-billed,
   .builder-card[data-layout="clay"] .builder-total-final,
   .builder-card[data-layout="stack"] .builder-header,
@@ -2121,7 +2213,11 @@ body.builder-pdf-export .builder-total-final,
 body.builder-pdf-export .builder-card[data-layout="ribbon"] .builder-accent,
 body.builder-pdf-export .builder-card[data-layout="pillar"] .builder-sidebar-rail,
 body.builder-pdf-export .builder-card[data-layout="aurora"] .builder-accent,
-body.builder-pdf-export .builder-card[data-layout="noir"] .builder-accent,
+body.builder-pdf-export .builder-card[data-layout="noir"] .builder-header,
+body.builder-pdf-export .builder-card[data-layout="banner"] .builder-header,
+body.builder-pdf-export .builder-card[data-layout="mono"] .builder-accent,
+body.builder-pdf-export .builder-card[data-layout="mono"] .builder-table thead,
+body.builder-pdf-export .builder-card[data-layout="edge"] .builder-header,
 body.builder-pdf-export .builder-card[data-layout="clay"] .builder-billed,
 body.builder-pdf-export .builder-card[data-layout="clay"] .builder-total-final {
   -webkit-print-color-adjust: exact;

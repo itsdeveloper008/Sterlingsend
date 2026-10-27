@@ -27,7 +27,7 @@ export function TemplatePickerDialog({
         <DialogHeader>
           <DialogTitle>Choose a template</DialogTitle>
           <DialogDescription>
-            {INVOICE_TEMPLATE_COUNT} templates from eight layouts. Pick a colour,
+            {INVOICE_TEMPLATE_COUNT} layouts. Pick a colour,
             then a layout. Applies to the PDF you download and print.
           </DialogDescription>
         </DialogHeader>

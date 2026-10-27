@@ -108,6 +108,13 @@ export function InvoiceBuilderPage({
     async (reason: "manual" | "auto" | "download" | "print") => {
       if (!user) return false;
       const payload = builderToSavePayload(invoiceRef.current);
+      // A blank invoice can still be downloaded or printed; it just isn't
+      // saved to History until it has a client, so don't surface an error.
+      if (!payload.clientName.trim()) {
+        setSaveStatus("needs-client");
+        if (reason === "manual") toast.info("Add a client name to save this invoice");
+        return false;
+      }
       setSaveStatus("saving");
       const result = await saveBuilderInvoiceAction(savedId, payload);
       if (!result.success) {

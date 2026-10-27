@@ -12,12 +12,15 @@ export function Logo({
   showMark = true,
   showWordmark = true,
   size = 56,
+  tone = "default",
 }: {
   href?: string;
   className?: string;
   showMark?: boolean;
   showWordmark?: boolean;
   size?: number;
+  /** "onDark" lightens the wordmark for dark surfaces such as the footer. */
+  tone?: "default" | "onDark";
 }) {
   return (
     <Link
@@ -39,8 +42,16 @@ export function Logo({
         />
       ) : null}
       {showWordmark ? (
-        <span className="text-[21px] font-extrabold leading-none tracking-tight text-[#0F172A]">
-          Sterling<span className="text-[#0D9488]">Send</span>
+        <span
+          className={cn(
+            "text-[21px] font-extrabold leading-none tracking-tight",
+            tone === "onDark" ? "text-white" : "text-[#0F172A]",
+          )}
+        >
+          Sterling
+          <span className={tone === "onDark" ? "text-teal-300" : "text-[#0D9488]"}>
+            Send
+          </span>
         </span>
       ) : null}
     </Link>

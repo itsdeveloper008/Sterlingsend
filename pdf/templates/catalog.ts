@@ -1,6 +1,6 @@
 /**
  * Invoice templates = layout + user accent colour.
- * Gallery shows the 18 layouts; colour is chosen separately.
+ * Gallery shows the 9 layouts; colour is chosen separately.
  */
 
 export const INVOICE_LAYOUTS = [
@@ -23,34 +23,22 @@ export const INVOICE_LAYOUTS = [
     group: "structured",
   },
   {
-    id: "receipt",
-    name: "Receipt",
-    description: "Narrow centred column, dotted separators, large total",
+    id: "mono",
+    name: "Mono",
+    description: "Bold black type with a dark table header",
     group: "structured",
   },
   {
-    id: "statement",
-    name: "Statement",
-    description: "Large accent Amount due block at the top",
+    id: "edge",
+    name: "Edge",
+    description: "Soft tinted header panel with a thick accent edge",
     group: "structured",
   },
   {
-    id: "split",
-    name: "Split Page",
-    description: "Two-column page with accent left rail",
-    group: "structured",
-  },
-  {
-    id: "corporate",
-    name: "Corporate",
-    description: "Bordered cells in a formal grid",
-    group: "structured",
-  },
-  {
-    id: "compact",
-    name: "Compact",
-    description: "Dense one-line header for long item lists",
-    group: "structured",
+    id: "banner",
+    name: "Banner",
+    description: "Full-width accent header with white type",
+    group: "depth",
   },
   {
     id: "ribbon",
@@ -59,51 +47,9 @@ export const INVOICE_LAYOUTS = [
     group: "depth",
   },
   {
-    id: "fold",
-    name: "Fold",
-    description: "Dog-ear corner and layered paper edge",
-    group: "depth",
-  },
-  {
-    id: "stack",
-    name: "Stack",
-    description: "Header on two offset paper layers",
-    group: "depth",
-  },
-  {
     id: "pillar",
     name: "Pillar",
     description: "Raised accent column with embossed edge",
-    group: "depth",
-  },
-  {
-    id: "clay",
-    name: "Clay",
-    description: "Soft inflated clay panels and total pillow",
-    group: "depth",
-  },
-  {
-    id: "cube",
-    name: "Cube",
-    description: "Isometric cube cluster with reserved space",
-    group: "depth",
-  },
-  {
-    id: "tab",
-    name: "Tab",
-    description: "File-folder tabs for section labels",
-    group: "depth",
-  },
-  {
-    id: "emboss",
-    name: "Emboss",
-    description: "Raised total plate and letterpress headings",
-    group: "depth",
-  },
-  {
-    id: "seal",
-    name: "Seal",
-    description: "Round medallion for the invoice number",
     group: "depth",
   },
   {
@@ -135,16 +81,29 @@ export const LEGACY_PALETTE_HEX: Record<string, string> = {
 const LEGACY_LAYOUT_MAP: Record<string, InvoiceLayoutId> = {
   bold: "ribbon",
   band: "ribbon",
-  framed: "clay",
-  minimal: "fold",
-  modern: "statement",
-  aurora: "statement",
+  framed: "edge",
+  minimal: "classic",
+  modern: "banner",
+  aurora: "banner",
   sidebar: "pillar",
-  studio: "cube",
+  studio: "classic",
   elegant: "editorial",
-  soft: "tab",
-  /** Pre-18-catalog "split" was a stacked header; real Split Page is now `split`. */
-  "split-stack": "stack",
+  soft: "edge",
+  /** Pre-18-catalog stacked header. */
+  "split-stack": "classic",
+  // Layouts retired in the 9-template catalog
+  receipt: "classic",
+  statement: "banner",
+  corporate: "ledger",
+  compact: "classic",
+  fold: "classic",
+  stack: "classic",
+  clay: "edge",
+  cube: "classic",
+  tab: "edge",
+  emboss: "mono",
+  seal: "classic",
+  split: "pillar",
 };
 
 export type InvoiceTemplateDefinition = {
@@ -176,8 +135,8 @@ export const INVOICE_TEMPLATE_COUNT = INVOICE_TEMPLATES.length;
 
 export const HOME_TEMPLATE_STRIP: InvoiceLayoutId[] = [
   "classic",
+  "banner",
   "ribbon",
-  "split",
   "noir",
 ];
 
