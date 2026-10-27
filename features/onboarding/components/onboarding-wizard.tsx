@@ -14,7 +14,7 @@ import {
   skipOnboardingAction,
 } from "@/actions/onboarding.actions";
 import { updateBusinessLogoAction } from "@/actions/business.actions";
-import { uploadBusinessLogo } from "@/firebase/storage";
+import { logoFileToDataUrl } from "@/lib/logo-data-url";
 import { routes } from "@/config/routes";
 
 const SKIP_KEY = "ss_onboarding_skipped";
@@ -91,11 +91,8 @@ export function OnboardingWizard({ userEmail }: { userEmail?: string }) {
 
     if (logoFile) {
       try {
-        const downloadUrl = await uploadBusinessLogo(
-          result.businessId,
-          logoFile,
-        );
-        const logoResult = await updateBusinessLogoAction(downloadUrl);
+        const logoDataUrl = await logoFileToDataUrl(logoFile);
+        const logoResult = await updateBusinessLogoAction(logoDataUrl);
         if (!logoResult.success) {
           toast.error(logoResult.error || "Profile saved, but logo upload failed");
         }

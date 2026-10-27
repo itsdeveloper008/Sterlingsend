@@ -51,8 +51,12 @@ export async function updateBusinessLogoAction(
   try {
     const { business } = await requireOnboarding();
 
-    if (!logoUrl.trim() || !/^https?:\/\//i.test(logoUrl)) {
-      return { success: false, error: "Invalid logo URL" };
+    const isRemote = /^https?:\/\//i.test(logoUrl);
+    const isInlineImage =
+      /^data:image\/(png|jpeg|webp);base64,[a-z0-9+/=]+$/i.test(logoUrl) &&
+      logoUrl.length <= 400_000;
+    if (!logoUrl.trim() || (!isRemote && !isInlineImage)) {
+      return { success: false, error: "Invalid logo" };
     }
 
     await businessService.update(business.id, { logoUrl: logoUrl.trim() });

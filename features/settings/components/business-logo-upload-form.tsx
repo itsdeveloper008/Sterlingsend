@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { uploadBusinessLogo } from "@/firebase/storage";
+import { logoFileToDataUrl } from "@/lib/logo-data-url";
 import {
   removeBusinessLogoAction,
   updateBusinessLogoAction,
@@ -82,16 +82,16 @@ export function BusinessLogoUploadForm({
     setProgressLabel("Uploading…");
 
     try {
-      const downloadUrl = await uploadBusinessLogo(businessId, file);
+      const logoDataUrl = await logoFileToDataUrl(file);
       setProgressLabel("Saving…");
 
-      const result = await updateBusinessLogoAction(downloadUrl);
+      const result = await updateBusinessLogoAction(logoDataUrl);
       if (!result.success) {
         throw new Error(result.error);
       }
 
       clearLocalPreview();
-      setPreviewUrl(downloadUrl);
+      setPreviewUrl(logoDataUrl);
       toast.success("Logo updated");
     } catch (error) {
       console.error("[logo-upload]", error);
