@@ -61,7 +61,9 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: "/:path*",
+        // Skip the proxied /__/auth helpers: COOP there severs the Google popup
+        // from the opener, so Firebase reports the sign-in as cancelled.
+        source: "/((?!__/auth/).*)",
         headers: [
           {
             key: "Cross-Origin-Opener-Policy",
