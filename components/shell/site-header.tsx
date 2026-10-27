@@ -29,6 +29,7 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -343,16 +344,18 @@ export function SiteHeader({
                   align="end"
                   className="glass-strong w-56 border-[var(--glass-border)]"
                 >
-                  <DropdownMenuLabel className="font-normal">
-                    <p className="text-sm font-semibold text-[#0F172A]">
-                      {user.displayName || "Account"}
-                    </p>
-                    {user.email ? (
-                      <p className="truncate text-xs text-[#64748B]">
-                        {user.email}
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel className="font-normal">
+                      <p className="text-sm font-semibold text-[#0F172A]">
+                        {user.displayName || "Account"}
                       </p>
-                    ) : null}
-                  </DropdownMenuLabel>
+                      {user.email ? (
+                        <p className="truncate text-xs text-[#64748B]">
+                          {user.email}
+                        </p>
+                      ) : null}
+                    </DropdownMenuLabel>
+                  </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="cursor-pointer"
