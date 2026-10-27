@@ -166,6 +166,32 @@ export function InvoiceBuilderPage({
           patch: { invoiceNumber: result.invoiceNumber },
         });
       }
+      // Prefill the "from" block from Account, only where the sheet is still empty.
+      const defaults = result.businessDefaults;
+      if (!defaults) return;
+      const current = invoiceRef.current;
+      const pick = (typed: string, saved: string) => typed.trim() || saved;
+      const paymentEmpty = !Object.values(current.payment).some((v) => v.trim());
+      const savedPayment = Object.values(defaults.payment).some((v) => v.trim());
+      dispatch({
+        type: "patch",
+        patch: {
+          business: {
+            ...current.business,
+            name: pick(current.business.name, defaults.name),
+            address: pick(current.business.address, defaults.address),
+            email: pick(current.business.email, defaults.email),
+            phone: pick(current.business.phone, defaults.phone),
+            vatNumber: pick(current.business.vatNumber, defaults.vatNumber),
+          },
+          ...(!current.logoDataUrl && defaults.logoUrl
+            ? { logoDataUrl: defaults.logoUrl }
+            : {}),
+          ...(paymentEmpty && savedPayment
+            ? { payment: defaults.payment, showPayment: true }
+            : {}),
+        },
+      });
     })();
     return () => {
       cancelled = true;

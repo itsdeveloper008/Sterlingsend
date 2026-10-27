@@ -168,8 +168,28 @@ export async function saveBuilderInvoiceAction(
   }
 }
 
+/** Saved Account details used to prefill a new invoice's "from" block. */
+export type BuilderBusinessDefaults = {
+  name: string;
+  address: string;
+  email: string;
+  phone: string;
+  vatNumber: string;
+  logoUrl: string;
+  payment: {
+    accountHolder: string;
+    bankName: string;
+    accountIban: string;
+    sortSwift: string;
+  };
+};
+
 export async function suggestNextInvoiceNumberAction(): Promise<
-  | { success: true; invoiceNumber: string }
+  | {
+      success: true;
+      invoiceNumber: string;
+      businessDefaults?: BuilderBusinessDefaults;
+    }
   | { success: false; error: string }
 > {
   try {
@@ -192,9 +212,32 @@ export async function suggestNextInvoiceNumberAction(): Promise<
 
     const next =
       business.invoiceNextNumber ?? business.invoiceStartingNumber;
+    const address = [
+      business.addressLine1,
+      business.addressLine2,
+      business.city,
+      business.postcode,
+    ]
+      .map((part) => part?.trim())
+      .filter(Boolean)
+      .join(", ");
     return {
       success: true,
       invoiceNumber: generateInvoiceNumber(business.invoicePrefix, next),
+      businessDefaults: {
+        name: business.businessName ?? "",
+        address,
+        email: business.email ?? "",
+        phone: business.phone ?? "",
+        vatNumber: business.vatNumber ?? "",
+        logoUrl: business.logoUrl ?? "",
+        payment: {
+          accountHolder: business.bankDetails?.accountName ?? "",
+          bankName: business.bankDetails?.bankName ?? "",
+          accountIban: business.bankDetails?.accountNumber ?? "",
+          sortSwift: business.bankDetails?.sortCode ?? "",
+        },
+      },
     };
   } catch (error) {
     console.error("[suggestNextInvoiceNumberAction]", error);
