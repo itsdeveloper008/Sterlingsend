@@ -32,7 +32,30 @@ function fileLimitSentence(minFiles: number, maxFiles: number) {
   if (minFiles === maxFiles) {
     return `Uses ${minFiles} file${minFiles === 1 ? "" : "s"}.`;
   }
+  if (minFiles === 0) {
+    return `Uses up to ${maxFiles} file${maxFiles === 1 ? "" : "s"}.`;
+  }
   return `Accepts ${minFiles} to ${maxFiles} files.`;
+}
+
+/** Search snippets show roughly 140-160 characters. */
+const META_MIN = 140;
+const META_MAX = 160;
+
+/**
+ * Join sentences, adding extras until the text reaches META_MIN without
+ * passing META_MAX; if still too long, cut at a word boundary.
+ */
+function fitMetaDescription(parts: string[], extras: string[]) {
+  let text = parts.filter(Boolean).join(" ");
+  for (const extra of extras) {
+    if (text.length >= META_MIN) break;
+    const next = `${text} ${extra}`;
+    if (next.length <= META_MAX) text = next;
+  }
+  if (text.length <= META_MAX) return text;
+  const cut = text.slice(0, META_MAX - 1);
+  return `${cut.slice(0, cut.lastIndexOf(" "))}…`;
 }
 
 export function buildToolContent(input: {
@@ -61,11 +84,14 @@ export function buildToolContent(input: {
         : privacyTag === "Downloads language data on first use"
           ? "Runs in your browser; language data may download on first use."
           : "Runs in your browser.";
-    const base = `${input.description} ${limits} ${privacyNote}`;
-    if (base.length < 140) {
-      return `${base} Download the result when finished.`.slice(0, 160);
-    }
-    return base.slice(0, 160);
+    return fitMetaDescription(
+      [input.description, limits, privacyNote],
+      [
+        "Free, no sign-up needed.",
+        "Download the result when finished.",
+        "Works on any device.",
+      ],
+    );
   })();
 
   const steps: [string, string, string] = [

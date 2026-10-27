@@ -1,6 +1,6 @@
 "use client";
 
-import { History, LogOut, User } from "lucide-react";
+import { FolderOpen, History, LogOut, User } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -48,6 +48,15 @@ export function UserMenu() {
         >
           <History className="mr-2 h-4 w-4" />
           History
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => {
+            window.location.href = routes.files;
+          }}
+        >
+          <FolderOpen className="mr-2 h-4 w-4" />
+          Saved files
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer"

@@ -15,6 +15,7 @@ export default async function AccountRoutePage() {
       email={business.email}
       logoUrl={business.logoUrl}
       templateId={template.id}
+      accentColor={settings.branding.accentColor ?? template.accent}
     />
   );
 }

@@ -25,7 +25,7 @@ const productColumns = [
       {
         href: routes.templates,
         label: "Templates",
-        desc: "88 layouts for UK invoices",
+        desc: "Modern layouts in any colour",
       },
       {
         href: routes.signup,
@@ -66,6 +66,11 @@ const productColumns = [
         href: routes.invoices,
         label: "Invoice history",
         desc: "Saved invoices when you log in",
+      },
+      {
+        href: routes.files,
+        label: "Saved files",
+        desc: "PDF tool results you chose to keep",
       },
       {
         href: routes.account,

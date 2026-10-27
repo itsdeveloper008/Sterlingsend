@@ -24,6 +24,8 @@ export const routes = {
   invoice: (id: string) => `/invoices/${id}`,
   invoiceEdit: (id: string) => `/invoices/${id}/edit`,
   invoicePdf: (id: string) => `/invoices/${id}/pdf`,
+  /** PDF tool results the user chose to keep (UI label: Saved files) */
+  files: "/files",
   publicInvoice: (token: string) => `/i/${token}`,
   /** @deprecated Permanent redirect to /invoices */
   services: "/services",
@@ -71,8 +73,12 @@ export const authRoutes = [
 export const protectedRoutes = [
   routes.onboarding,
   routes.invoices,
+  routes.files,
   routes.account,
   routes.settings,
 ] as const;
 
 export const SESSION_COOKIE_NAME = "__session";
+
+/** Set by middleware on protected routes so an expired session can return here after login. */
+export const PATHNAME_HEADER = "x-ss-pathname";

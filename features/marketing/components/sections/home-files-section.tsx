@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { routes } from "@/config/routes";
-import { MotionReveal } from "@/features/marketing/lib/motion-reveal";
+import { AtmosphereImage } from "@/components/media/atmosphere-image";
 
 const POINTS = [
   {
@@ -19,37 +19,49 @@ const POINTS = [
 
 export function HomeFilesSection() {
   return (
-    <section className="bg-[#07111F] px-4 py-24 text-[#CBD5E1] sm:px-6">
+    <section className="ss-section bg-[var(--dark-band)] px-4 text-[#CBD5E1] sm:px-6">
       <div className="bonsai-container">
-        <MotionReveal>
-          <h2 className="font-[family-name:var(--font-display)] text-[40px] font-bold leading-tight text-white">
-            How your files are handled
-          </h2>
-          <p className="mt-3 max-w-2xl text-[17px] leading-relaxed text-[#CBD5E1]">
-            What happens when you use a PDF tool on this site. Full detail is in
-            the{" "}
-            <Link
-              href={routes.privacy}
-              className="font-semibold text-[#5EEAD4] underline-offset-2 hover:underline"
-            >
-              privacy policy
-            </Link>
-            .
-          </p>
-        </MotionReveal>
-        <div className="mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
-          {POINTS.map((point, index) => (
-            <MotionReveal key={point.title} delayMs={index * 60}>
-              <div>
+        <p className="ss-eyebrow" style={{ color: "#5EEAD4" }}>
+          Privacy
+        </p>
+        <h2 className="type-h2 mt-6 text-white">How your files are handled</h2>
+        <p className="ss-measure mt-6 text-[17px] leading-[1.7] text-[#CBD5E1]">
+          What happens when you use a PDF tool on this site. Full detail is in
+          the{" "}
+          <Link
+            href={routes.privacy}
+            className="font-semibold text-[#5EEAD4] underline-offset-2 hover:underline"
+          >
+            privacy policy
+          </Link>
+          .
+        </p>
+        <div
+          className="mt-12 grid items-start gap-10 md:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]"
+          style={{ gap: "28px" }}
+        >
+          <ul className="grid gap-8 sm:grid-cols-3 md:grid-cols-1">
+            {POINTS.map((point) => (
+              <li
+                key={point.title}
+                className="pt-6"
+                style={{ borderTop: "1px solid var(--band-divider)" }}
+              >
                 <h3 className="text-lg font-semibold text-white">
                   {point.title}
                 </h3>
-                <p className="mt-3 text-base leading-relaxed text-[#CBD5E1]">
+                <p className="mt-4 text-[15px] leading-[1.7] text-[#94A3B8]">
                   {point.body}
                 </p>
-              </div>
-            </MotionReveal>
-          ))}
+              </li>
+            ))}
+          </ul>
+          <AtmosphereImage
+            file="how-it-works-hands.webp"
+            alt="Hands reviewing documents on a desk"
+            aspect="3 / 2"
+            className="md:mt-6"
+          />
         </div>
       </div>
     </section>

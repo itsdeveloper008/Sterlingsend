@@ -1,10 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { usePointerEffects } from "@/features/marketing/lib/use-pointer-effects";
 import {
   Dialog,
   DialogContent,
@@ -13,27 +11,48 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  DEPTH_LAYOUT_IDS,
   INVOICE_LAYOUTS,
-  INVOICE_PALETTES,
   INVOICE_TEMPLATE_COUNT,
-  INVOICE_TEMPLATES,
   type InvoiceLayoutId,
-  type InvoicePaletteId,
 } from "@/pdf/templates/catalog";
 import { writeSessionTemplateId } from "@/lib/template-preference";
-import { updateInvoiceTemplateAction } from "@/actions/settings.actions";
+import {
+  ACCENT_PRESETS,
+  DEFAULT_ACCENT_HEX,
+  writeSessionAccent,
+} from "@/lib/invoice-accent";
+import {
+  updateAccentColorAction,
+  updateInvoiceTemplateAction,
+} from "@/actions/settings.actions";
 import { useAuth } from "@/hooks/use-auth";
 import { routes } from "@/config/routes";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { TemplateMiniPreview } from "@/features/templates/components/template-mini-preview";
+import "@/features/invoice-builder/styles/invoice-builder.css";
+import "@/features/templates/styles/template-preview.css";
 
-function templateIdFor(layout: InvoiceLayoutId, palette: InvoicePaletteId) {
-  return `${layout}-${palette}`;
+function onDepthPointerMove(e: React.PointerEvent<HTMLElement>) {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+  const node = e.currentTarget;
+  const rect = node.getBoundingClientRect();
+  const x = ((e.clientX - rect.left) / rect.width - 0.5) * 10;
+  const y = ((e.clientY - rect.top) / rect.height - 0.5) * 10;
+  node.style.setProperty("--par-x", `${x.toFixed(1)}px`);
+  node.style.setProperty("--par-y", `${y.toFixed(1)}px`);
+}
+
+function onDepthPointerLeave(e: React.PointerEvent<HTMLElement>) {
+  e.currentTarget.style.setProperty("--par-x", "0px");
+  e.currentTarget.style.setProperty("--par-y", "0px");
 }
 
 export function TemplatesGallery({
-  mode = "page",
+  mode: _mode = "page",
   selectedId,
   onSelect,
 }: {
@@ -41,50 +60,38 @@ export function TemplatesGallery({
   selectedId?: string;
   onSelect?: (templateId: string) => void;
 }) {
-  usePointerEffects(mode === "page");
+  void _mode;
   const router = useRouter();
   const { user } = useAuth();
-  const initialPalette =
-    (INVOICE_TEMPLATES.find((t) => t.id === selectedId)?.palette as
-      | InvoicePaletteId
-      | undefined) ?? "teal";
-  const [palette, setPalette] = useState<InvoicePaletteId>(initialPalette);
+  const [accent, setAccent] = useState(DEFAULT_ACCENT_HEX);
   const [previewLayout, setPreviewLayout] = useState<InvoiceLayoutId | null>(
     null,
   );
 
-  const cards = useMemo(
-    () =>
-      INVOICE_LAYOUTS.map((layout) => {
-        const id = templateIdFor(layout.id, palette);
-        const template = INVOICE_TEMPLATES.find((t) => t.id === id);
-        return { layout, id, template };
-      }),
-    [palette],
-  );
+  const cards = useMemo(() => INVOICE_LAYOUTS.map((layout) => layout), []);
 
   const previewIndex = previewLayout
     ? INVOICE_LAYOUTS.findIndex((l) => l.id === previewLayout)
     : -1;
-  const previewId =
-    previewLayout != null ? templateIdFor(previewLayout, palette) : null;
-  const previewTemplate = previewId
-    ? INVOICE_TEMPLATES.find((t) => t.id === previewId)
+  const previewMeta = previewLayout
+    ? INVOICE_LAYOUTS.find((l) => l.id === previewLayout)
     : null;
 
-  function applyTemplate(templateId: string) {
-    writeSessionTemplateId(templateId);
+  function applyTemplate(layoutId: string) {
+    writeSessionTemplateId(layoutId);
+    writeSessionAccent(accent);
     if (onSelect) {
-      onSelect(templateId);
+      onSelect(layoutId);
       return;
     }
     router.push(routes.createInvoice);
   }
 
-  async function setDefault(templateId: string) {
+  async function setDefault(layoutId: string) {
     if (!user) return;
     try {
-      await updateInvoiceTemplateAction(templateId);
+      await updateInvoiceTemplateAction(layoutId);
+      await updateAccentColorAction(accent);
       toast.success("Default template saved");
     } catch {
       toast.error("Could not save default template");
@@ -98,66 +105,63 @@ export function TemplatesGallery({
         <div
           className="flex flex-wrap gap-2"
           role="radiogroup"
-          aria-label="Template colour"
+          aria-label="Preview colour"
         >
-          {INVOICE_PALETTES.map((item) => (
+          {ACCENT_PRESETS.map((item) => (
             <button
               key={item.id}
               type="button"
               role="radio"
-              aria-checked={palette === item.id}
+              aria-checked={accent.toUpperCase() === item.hex.toUpperCase()}
               aria-label={item.name}
               title={item.name}
               className={cn(
-                "inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-semibold",
-                palette === item.id
-                  ? "border-[var(--brand-700)] bg-[var(--brand-tint)] text-[var(--ink)]"
-                  : "border-[var(--border-ui)] text-[var(--secondary-text)]",
+                "size-6 rounded-full clay",
+                accent.toUpperCase() === item.hex.toUpperCase() &&
+                  "ring-2 ring-offset-2 ring-[var(--brand-600)]",
               )}
-              onClick={() => setPalette(item.id)}
-            >
-              <span
-                className="size-3.5 rounded-full"
-                style={{ background: item.primary }}
-                aria-hidden
-              />
-              {item.name}
-            </button>
+              style={{ background: item.hex }}
+              onClick={() => setAccent(item.hex)}
+            />
           ))}
         </div>
-        <p className="text-sm text-[var(--secondary-text)]">
-          {INVOICE_TEMPLATE_COUNT} templates · showing 8 layouts in{" "}
-          {INVOICE_PALETTES.find((p) => p.id === palette)?.name}
-        </p>
       </div>
 
-      <ul className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
-        {cards.map(({ layout, id, template }, index) => (
+      <ul
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+        style={{ gap: "28px" }}
+      >
+        {cards.map((layout, index) => {
+          const isDepth = DEPTH_LAYOUT_IDS.includes(layout.id);
+          return (
           <li key={layout.id}>
             <article
-              data-ss-tilt={mode === "page" ? "card" : undefined}
               className={cn(
-                "group flex h-full flex-col overflow-hidden rounded-2xl border bg-card shadow-[var(--shadow-1)]",
-                selectedId === id
-                  ? "border-[var(--brand-700)] ring-2 ring-[var(--brand-500)]"
-                  : "border-border-subtle",
+                "ss-card-lift group relative flex h-full flex-col overflow-hidden rounded-2xl bg-card glass",
+                selectedId === layout.id &&
+                  "ring-2 ring-[var(--brand-600)] ring-offset-2",
               )}
             >
+              {selectedId === layout.id ? (
+                <span
+                  className="absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center clay-teal text-sm text-white"
+                  aria-hidden
+                >
+                  ✓
+                </span>
+              ) : null}
               <button
                 type="button"
-                className="relative aspect-[1/1.414] w-full bg-[var(--surface-muted)] text-left"
+                className="tpl-card-stage relative aspect-[1/1.35] w-full overflow-hidden bg-white text-left"
                 onClick={() => setPreviewLayout(layout.id)}
+                onPointerMove={isDepth ? onDepthPointerMove : undefined}
+                onPointerLeave={isDepth ? onDepthPointerLeave : undefined}
                 aria-label={`Preview ${layout.name}`}
               >
-                <Image
-                  src={`/templates/${id}.webp`}
-                  alt={`${layout.name} template in ${palette}`}
-                  width={720}
-                  height={1018}
-                  sizes="(max-width: 768px) 50vw, 25vw"
-                  priority={index < 4}
-                  loading={index < 4 ? "eager" : "lazy"}
-                  className="h-full w-full object-cover object-top"
+                <TemplateMiniPreview
+                  layoutId={layout.id}
+                  accent={accent}
+                  className={cn(index > 5 && "tpl-preview--lazy")}
                 />
               </button>
               <div className="flex flex-1 flex-col gap-3 border-t border-border-subtle p-4">
@@ -165,21 +169,23 @@ export function TemplatesGallery({
                   <h2 className="text-lg font-semibold text-[var(--ink)]">
                     {layout.name}
                   </h2>
-                  <p className="mt-1 line-clamp-2 text-[0.9375rem] text-[var(--body-text)]">
-                    {template?.description ?? layout.description}
+                  <p className="mt-1 text-[0.9375rem] leading-snug text-[var(--body-text)]">
+                    {layout.description}
                   </p>
                 </div>
                 <Button
                   type="button"
-                  className="mt-auto w-full bg-[var(--brand-700)] text-white hover:bg-[var(--primary-hover)]"
-                  onClick={() => applyTemplate(id)}
+                  variant="secondary"
+                  className="mt-auto w-full"
+                  onClick={() => applyTemplate(layout.id)}
                 >
                   Use this template
                 </Button>
               </div>
             </article>
           </li>
-        ))}
+          );
+        })}
       </ul>
 
       <Dialog
@@ -188,24 +194,21 @@ export function TemplatesGallery({
           if (!open) setPreviewLayout(null);
         }}
       >
-        <DialogContent className="max-h-[90vh] w-full max-w-3xl overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {previewTemplate?.name ?? "Template preview"}
-            </DialogTitle>
+        <DialogContent className="glass-strong flex max-h-[calc(100vh-64px)] w-full max-w-3xl flex-col overflow-hidden p-0">
+          <DialogHeader className="sticky top-0 z-10 shrink-0 border-b border-[rgba(15,23,42,.08)] bg-[var(--glass-strong-bg)] px-6 py-4">
+            <DialogTitle>{previewMeta?.name ?? "Template preview"}</DialogTitle>
             <DialogDescription>
-              {previewTemplate?.description}
+              {INVOICE_TEMPLATE_COUNT} layouts. Pick a colour, then a layout.
+              Your choice applies to the PDF you download and print.
             </DialogDescription>
           </DialogHeader>
-          {previewId ? (
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
+          {previewLayout ? (
             <div className="space-y-4">
-              <div className="relative mx-auto aspect-[1/1.414] w-full max-w-md overflow-hidden rounded-xl border border-border-subtle bg-[var(--surface-muted)]">
-                <Image
-                  src={`/templates/${previewId}.webp`}
-                  alt={previewTemplate?.name ?? "Template"}
-                  fill
-                  className="object-cover object-top"
-                  sizes="(max-width: 768px) 90vw, 28rem"
+              <div className="mx-auto w-full max-w-md overflow-hidden rounded-xl border border-border-subtle bg-white">
+                <TemplateMiniPreview
+                  layoutId={previewLayout}
+                  accent={accent}
                 />
               </div>
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -240,7 +243,9 @@ export function TemplatesGallery({
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => previewId && void setDefault(previewId)}
+                      onClick={() =>
+                        previewLayout && void setDefault(previewLayout)
+                      }
                     >
                       Set as default
                     </Button>
@@ -249,8 +254,7 @@ export function TemplatesGallery({
                     type="button"
                     className="bg-[var(--brand-700)] text-white hover:bg-[var(--primary-hover)]"
                     onClick={() => {
-                      if (!previewId) return;
-                      applyTemplate(previewId);
+                      applyTemplate(previewLayout);
                       setPreviewLayout(null);
                     }}
                   >
@@ -260,6 +264,7 @@ export function TemplatesGallery({
               </div>
             </div>
           ) : null}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

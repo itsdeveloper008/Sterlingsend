@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
+import { Check, Download, Loader2, Printer } from "lucide-react";
 import { EditableInvoiceCard } from "@/features/invoice-builder/components/editable-invoice-card";
 import { InvoiceSheetScroller } from "@/features/invoice-builder/components/invoice-sheet-scroller";
-import { InvoiceOptionsPanel } from "@/features/invoice-builder/components/invoice-options-panel";
 import { useInvoiceBuilder } from "@/features/invoice-builder/hooks/use-invoice-builder";
 import {
   getCurrenciesForSelect,
@@ -12,20 +13,22 @@ import {
   isCurrencyCode,
 } from "@/config/currencies";
 import { DEFAULT_INVOICE_TEMPLATE_ID } from "@/pdf/templates/catalog";
+import { downloadBuilderInvoicePdf } from "@/pdf/utils/download-builder-with-template";
+import { routes } from "@/config/routes";
 import "@/features/invoice-builder/styles/invoice-builder.css";
 import "@/features/marketing/styles/hero-sheet.css";
 
-/** Landing hero - editable Teal Classic sheet. Never reads ss_template. */
+/** Landing hero — centred Classic sheet, no side panel. */
 export function HeroEditableInvoice() {
   const { invoice, dispatch, setLogoFromFile } = useInvoiceBuilder({
     seed: "empty",
     applySessionTemplate: false,
+    persistGuestDraft: false,
   });
   const [busy, setBusy] = useState(false);
   const [downloadConfirm, setDownloadConfirm] = useState(false);
   const currencies = getCurrenciesForSelect();
 
-  // Lock hero to classic-teal even if state is patched somehow
   const displayInvoice =
     invoice.templateId === DEFAULT_INVOICE_TEMPLATE_ID
       ? { ...invoice, stamp: undefined }
@@ -34,9 +37,6 @@ export function HeroEditableInvoice() {
   async function handleDownloadPdf() {
     try {
       setBusy(true);
-      const { downloadBuilderInvoicePdf } = await import(
-        "@/pdf/utils/download-builder-with-template"
-      );
       await downloadBuilderInvoicePdf(displayInvoice);
       toast.success("PDF downloaded");
       setDownloadConfirm(true);
@@ -51,7 +51,7 @@ export function HeroEditableInvoice() {
 
   const currencySelect = (
     <select
-      className="builder-currency-select no-print"
+      className="builder-currency-select builder-currency-select--compact no-print"
       value={invoice.currency}
       onChange={(event) => {
         const next = event.target.value;
@@ -93,25 +93,41 @@ export function HeroEditableInvoice() {
           </div>
         </div>
 
-        <InvoiceOptionsPanel
-          className="home-hero-export-panel"
-          compact
-          templateId={DEFAULT_INVOICE_TEMPLATE_ID}
-          stamp={undefined}
-          repositioning={false}
-          onStampChange={() => undefined}
-          onRepositionToggle={() => undefined}
-          onOpenTemplate={() => undefined}
-          onPrint={() => window.print()}
-          onDownload={() => void handleDownloadPdf()}
-          busy={busy}
-          downloadConfirm={downloadConfirm}
-          saveStatus="idle"
-          isGuest={false}
-          isLoggedIn={false}
-          onLogin={() => undefined}
-          onSignup={() => undefined}
-        />
+        <div className="home-hero-actions no-print">
+          <button
+            type="button"
+            className="inv-panel-btn-outline"
+            onClick={() => window.print()}
+            disabled={busy}
+          >
+            <Printer className="h-4 w-4" aria-hidden />
+            Print
+          </button>
+          <button
+            type="button"
+            className="inv-panel-btn-primary"
+            onClick={() => void handleDownloadPdf()}
+            disabled={busy}
+          >
+            {busy ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            ) : (
+              <Download className="h-4 w-4" aria-hidden />
+            )}
+            Download PDF
+          </button>
+          {downloadConfirm ? (
+            <p className="inv-panel-confirm w-full justify-center" role="status">
+              <Check className="h-3.5 w-3.5" aria-hidden strokeWidth={2.5} />
+              PDF downloaded
+            </p>
+          ) : null}
+        </div>
+
+        <p className="home-hero-guest no-print">
+          Want to keep a history of invoices you create?{" "}
+          <Link href={routes.login}>Log in</Link>
+        </p>
       </div>
     </div>
   );

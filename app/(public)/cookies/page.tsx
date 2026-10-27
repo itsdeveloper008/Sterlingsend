@@ -5,7 +5,7 @@ import { siteConfig } from "@/config/site";
 export const metadata: Metadata = {
   title: "Cookie Policy",
   description:
-    "How SterlingSend uses the __session cookie, ss_* browser storage, and optional UTM capture after consent.",
+    "How SterlingSend uses cookies and browser storage: the __session login cookie, ss_* settings in your browser, and optional UTM capture only after you consent.",
   alternates: { canonical: "/cookies" },
 };
 

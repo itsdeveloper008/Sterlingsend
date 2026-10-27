@@ -1,9 +1,9 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getServerSession } from "@/firebase/session";
-import { SESSION_COOKIE_NAME } from "@/config/routes";
+import { PATHNAME_HEADER, SESSION_COOKIE_NAME } from "@/config/routes";
 import { userService } from "@/services/user.service";
 import { businessService } from "@/services/business.service";
 import { routes } from "@/config/routes";
@@ -39,9 +39,12 @@ export async function requireAuth() {
   const context = await getCurrentUserContext();
 
   if (!context) {
-    redirect(
-      hasSessionCookie ? `${routes.login}?clearSession=1` : routes.login,
-    );
+    const back = (await headers()).get(PATHNAME_HEADER);
+    const params = new URLSearchParams();
+    if (hasSessionCookie) params.set("clearSession", "1");
+    if (back) params.set("redirect", back);
+    const query = params.toString();
+    redirect(query ? `${routes.login}?${query}` : routes.login);
   }
 
   return context;

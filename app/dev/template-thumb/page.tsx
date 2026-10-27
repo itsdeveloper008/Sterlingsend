@@ -10,11 +10,15 @@ import { EditableInvoiceCard } from "@/features/invoice-builder/components/edita
 import { createDefaultBuilderInvoice } from "@/features/invoice-builder/lib/defaults";
 import type { BuilderInvoiceAction } from "@/features/invoice-builder/types";
 import { Suspense, useCallback } from "react";
+import { resolveTemplateRef } from "@/pdf/templates/catalog";
+import { DEFAULT_ACCENT_HEX } from "@/lib/invoice-accent";
 import "@/features/invoice-builder/styles/invoice-builder.css";
 
 function ThumbSheet() {
   const params = useSearchParams();
-  const templateId = params.get("id") || "classic-teal";
+  const rawId = params.get("id") || "classic";
+  const accentParam = params.get("accent");
+  const resolved = resolveTemplateRef(rawId);
 
   const invoice = useMemo(() => {
     const base = createDefaultBuilderInvoice();
@@ -24,15 +28,21 @@ function ThumbSheet() {
       issueDate: "2026-10-22",
       dueDate: "2026-11-21",
       currency: "GBP" as const,
-      templateId,
+      templateId: resolved.layoutId,
+      accent:
+        accentParam || resolved.legacyAccent || DEFAULT_ACCENT_HEX,
+      showCompanyNumber: true,
+      showTerms: true,
       notes:
         "Payment due within 30 days. Sort code 12-34-56 · Account 12345678.",
+      terms: "Payment due within 30 days of the invoice date.",
       business: {
         name: "Northbridge Studio",
         address: "14 Quay Street\nBristol BS1 4AX",
         email: "hello@northbridge.studio",
         phone: "0117 000 0000",
         vatNumber: "GB123456789",
+        companyNumber: "12345678",
       },
       customer: {
         name: "Harbour & Co",
@@ -75,7 +85,7 @@ function ThumbSheet() {
         },
       ],
     };
-  }, [templateId]);
+  }, [resolved.layoutId, resolved.legacyAccent, accentParam]);
 
   const noop = useCallback((_: BuilderInvoiceAction) => {}, []);
 

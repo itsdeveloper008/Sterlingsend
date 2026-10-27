@@ -23,11 +23,13 @@ export interface Invoice extends BaseDocument, SoftDeletable {
   notes?: string;
   currency: CurrencyCode;
   totals: InvoiceTotals;
-  /** Catalog template used when the invoice was saved from the builder. */
+  /** Catalog template / layout used when the invoice was saved from the builder. */
   templateId?: string;
+  /** Accent hex chosen in the builder; missing means default teal. */
+  accent?: string;
   /** Visual rubber stamp; omit or undefined means none. Not tied to status. */
   stamp?: {
-    type: "draft" | "pending" | "approved" | "declined" | "cancelled";
+    type: "draft" | "paid" | "pending" | "approved" | "declined" | "cancelled";
     x: number;
     y: number;
     size: "S" | "M" | "L";

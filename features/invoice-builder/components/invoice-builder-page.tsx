@@ -15,6 +15,7 @@ import dynamic from "next/dynamic";
 import { UnsavedChangesGuard } from "@/features/invoice-builder/components/unsaved-changes-guard";
 import { useInvoiceBuilder } from "@/features/invoice-builder/hooks/use-invoice-builder";
 import { writeSessionTemplateId } from "@/lib/template-preference";
+import { writeSessionAccent } from "@/lib/invoice-accent";
 import {
   getCurrenciesForSelect,
   getCurrencySymbol,
@@ -39,6 +40,8 @@ import {
 import type { SerializedInvoice } from "@/features/invoices/lib/format";
 import { createDefaultBuilderInvoice } from "@/features/invoice-builder/lib/defaults";
 import type { InvoiceStamp } from "@/features/invoice-builder/lib/stamps";
+import type { BuilderInvoice } from "@/features/invoice-builder/types";
+import { downloadBuilderInvoicePdf } from "@/pdf/utils/download-builder-with-template";
 import "@/features/invoice-builder/styles/invoice-builder.css";
 
 const TemplatePickerDialog = dynamic(
@@ -49,12 +52,7 @@ const TemplatePickerDialog = dynamic(
   { ssr: false },
 );
 
-async function downloadPdf(invoice: Parameters<
-  typeof import("@/pdf/utils/download-builder-with-template").downloadBuilderInvoicePdf
->[0]) {
-  const { downloadBuilderInvoicePdf } = await import(
-    "@/pdf/utils/download-builder-with-template"
-  );
+function downloadPdf(invoice: BuilderInvoice) {
   return downloadBuilderInvoicePdf(invoice);
 }
 
@@ -67,6 +65,7 @@ function serializedToBuilder(doc: SerializedInvoice) {
     customer: patch.customer ?? base.customer,
     items: patch.items ?? base.items,
     templateId: patch.templateId ?? base.templateId,
+    accent: patch.accent ?? base.accent,
     stamp: patch.stamp,
   };
 }
@@ -249,6 +248,11 @@ export function InvoiceBuilderPage({
     dispatch({ type: "patch", patch: { templateId } });
   }
 
+  function handleAccentChange(hex: string | undefined) {
+    writeSessionAccent(hex);
+    dispatch({ type: "patch", patch: { accent: hex } });
+  }
+
   function handleStampChange(next: InvoiceStamp | undefined) {
     const prevType = invoice.stamp?.type;
     dispatch({ type: "patch", patch: { stamp: next } });
@@ -263,7 +267,7 @@ export function InvoiceBuilderPage({
 
   const currencySelect = (
     <select
-      className="builder-currency-select no-print"
+      className="builder-currency-select builder-currency-select--compact no-print"
       value={invoice.currency}
       onChange={(event) => {
         const next = event.target.value;
@@ -283,6 +287,8 @@ export function InvoiceBuilderPage({
 
   const panelProps = {
     templateId: invoice.templateId,
+    accent: invoice.accent,
+    onAccentChange: handleAccentChange,
     stamp: invoice.stamp,
     repositioning: stampRepositioning,
     onStampChange: handleStampChange,

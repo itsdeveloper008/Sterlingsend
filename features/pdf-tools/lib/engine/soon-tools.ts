@@ -2,7 +2,7 @@
 
 import { PDFDocument, StandardFonts, rgb, PDFTextField } from "@cantoo/pdf-lib";
 import { jsPDF } from "jspdf";
-import { stemName } from "@/features/pdf-tools/lib/download";
+import { formatFileSize, stemName } from "@/features/pdf-tools/lib/download";
 import { buildDocx, type DocxBlock } from "@/features/pdf-tools/lib/engine/docx-writer";
 import {
   canvasToJpegBytes,
@@ -1059,34 +1059,204 @@ export async function translatePdf(
 /* Better compress (image recompress)                                          */
 /* -------------------------------------------------------------------------- */
 
-export async function compressPdfStrong(file: File): Promise<ProcessResult> {
-  const bytes = await readBytes(file);
-  const pdf = await openPdfDocument(bytes);
-  const out = await PDFDocument.create();
+type RenderedPage = {
+  canvas: HTMLCanvasElement;
+  /** Page size in PDF points (scale 1), so output pages keep their size. */
+  width: number;
+  height: number;
+};
 
+/** A piece of the original text, in output-page points (origin bottom-left). */
+type TextRun = { text: string; x: number; y: number; size: number; width: number };
+
+/** Render scales tried for a target size, sharpest first. */
+const COMPRESS_SCALES = [1.5, 1.25, 1, 0.8, 0.65, 0.5, 0.4];
+const COMPRESS_MIN_QUALITY = 0.3;
+const COMPRESS_MAX_QUALITY = 0.92;
+
+async function renderAllPages(
+  pdf: Awaited<ReturnType<typeof openPdfDocument>>,
+  scale: number,
+): Promise<RenderedPage[]> {
+  const pages: RenderedPage[] = [];
   for (let i = 1; i <= pdf.numPages; i++) {
-    const { canvas } = await renderPageToCanvas(pdf, i, 1.25);
-    const jpg = await canvasToJpegBytes(canvas, 0.72);
-    const image = await out.embedJpg(jpg);
-    const page = out.addPage([image.width, image.height]);
-    page.drawImage(image, {
-      x: 0,
-      y: 0,
-      width: image.width,
-      height: image.height,
-    });
+    const { canvas, page } = await renderPageToCanvas(pdf, i, scale);
+    const base = page.getViewport({ scale: 1 });
+    pages.push({ canvas, width: base.width, height: base.height });
   }
+  return pages;
+}
 
+/**
+ * Read the original text with positions so the image-only output can carry an
+ * invisible copy: compressed PDFs stay selectable, searchable and copyable.
+ */
+async function extractTextRuns(
+  pdf: Awaited<ReturnType<typeof openPdfDocument>>,
+): Promise<TextRun[][]> {
+  const all: TextRun[][] = [];
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const viewport = page.getViewport({ scale: 1 });
+    const content = await page.getTextContent();
+    const runs: TextRun[] = [];
+    for (const item of content.items) {
+      if (!("str" in item) || !item.str.trim()) continue;
+      const [a, b, c, d, e, f] = item.transform as number[];
+      const size = Math.hypot(c, d) || Math.hypot(a, b);
+      if (size < 1) continue;
+      // Viewport handles crop-box offsets and page rotation.
+      const [vx, vy] = viewport.convertToViewportPoint(e, f);
+      runs.push({
+        text: winAnsiSafe(item.str),
+        x: vx,
+        y: viewport.height - vy,
+        size,
+        width: item.width,
+      });
+    }
+    all.push(runs);
+  }
+  return all;
+}
+
+function releasePages(pages: RenderedPage[]) {
+  for (const p of pages) {
+    p.canvas.width = 0;
+    p.canvas.height = 0;
+  }
+}
+
+async function buildJpegPdf(
+  pages: RenderedPage[],
+  quality: number,
+  text: TextRun[][],
+) {
+  const out = await PDFDocument.create();
+  const font = text.some((runs) => runs.length)
+    ? await out.embedFont(StandardFonts.Helvetica)
+    : null;
+  for (const [index, p] of pages.entries()) {
+    const jpg = await canvasToJpegBytes(p.canvas, quality);
+    const image = await out.embedJpg(jpg);
+    const page = out.addPage([p.width, p.height]);
+    page.drawImage(image, { x: 0, y: 0, width: p.width, height: p.height });
+    if (!font) continue;
+    for (const run of text[index] ?? []) {
+      // Match the original run width so selection lines up with the image.
+      const natural = font.widthOfTextAtSize(run.text, run.size);
+      const size =
+        run.width > 0 && natural > 0
+          ? Math.min(run.size * 1.5, Math.max(run.size * 0.5, (run.size * run.width) / natural))
+          : run.size;
+      try {
+        page.drawText(run.text, { x: run.x, y: run.y, size, font, opacity: 0 });
+      } catch {
+        // Skip runs the standard font cannot encode.
+      }
+    }
+  }
   out.setProducer("SterlingSend");
   out.setCreator("SterlingSend");
+  return savePdf(out);
+}
 
-  return {
-    files: [
-      {
-        name: `${stemName(file)}-compressed.pdf`,
-        bytes: await savePdf(out),
-        mime: "application/pdf",
-      },
-    ],
-  };
+/**
+ * Re-render pages as JPEGs with an invisible text layer. With `targetBytes`, search render scale and JPEG
+ * quality for the sharpest result at or under the target; if it cannot be
+ * reached, return the smallest result and say so in `note`.
+ */
+export async function compressPdfStrong(
+  file: File,
+  targetBytes?: number,
+): Promise<ProcessResult> {
+  const bytes = await readBytes(file);
+  const pdf = await openPdfDocument(bytes);
+  const name = `${stemName(file)}-compressed.pdf`;
+  const result = (out: Uint8Array, note?: string): ProcessResult => ({
+    files: [{ name, bytes: out, mime: "application/pdf" }],
+    note,
+  });
+
+  const text = await extractTextRuns(pdf);
+
+  // Lossless pass: re-save with object streams; keeps vectors and fonts.
+  let lossless: Uint8Array | null = null;
+  try {
+    const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
+    doc.setProducer("SterlingSend");
+    doc.setCreator("SterlingSend");
+    const saved = await savePdf(doc);
+    if (saved.byteLength < bytes.byteLength) lossless = saved;
+  } catch {
+    // Damaged or encrypted: rely on the image pass.
+  }
+
+  if (!targetBytes) {
+    const pages = await renderAllPages(pdf, 1.25);
+    const out = await buildJpegPdf(pages, 0.72, text);
+    releasePages(pages);
+    const best = [out, lossless].reduce<Uint8Array | null>(
+      (acc, b) => (b && (!acc || b.byteLength < acc.byteLength) ? b : acc),
+      null,
+    )!;
+    // Never hand back a bigger file than the user uploaded.
+    if (best.byteLength >= bytes.byteLength) {
+      return result(
+        bytes,
+        `This PDF is already well compressed (${formatFileSize(bytes.byteLength)}), so it was not changed.`,
+      );
+    }
+    return result(best);
+  }
+
+  const target = formatFileSize(targetBytes);
+  if (bytes.byteLength <= targetBytes) {
+    return result(
+      bytes,
+      `This PDF is already ${formatFileSize(bytes.byteLength)}, under your ${target} target, so it was not changed.`,
+    );
+  }
+  if (lossless && lossless.byteLength <= targetBytes) {
+    return result(
+      lossless,
+      `Compressed from ${formatFileSize(bytes.byteLength)} to ${formatFileSize(lossless.byteLength)} without losing quality (target ${target}).`,
+    );
+  }
+
+  let smallest: Uint8Array | null = null;
+  for (const scale of COMPRESS_SCALES) {
+    const pages = await renderAllPages(pdf, scale);
+    try {
+      const low = await buildJpegPdf(pages, COMPRESS_MIN_QUALITY, text);
+      if (!smallest || low.byteLength < smallest.byteLength) smallest = low;
+      if (low.byteLength > targetBytes) continue;
+
+      let best = low;
+      let lo = COMPRESS_MIN_QUALITY;
+      let hi = COMPRESS_MAX_QUALITY;
+      for (let i = 0; i < 6; i++) {
+        const mid = (lo + hi) / 2;
+        const out = await buildJpegPdf(pages, mid, text);
+        if (out.byteLength <= targetBytes) {
+          best = out;
+          lo = mid;
+        } else {
+          hi = mid;
+        }
+      }
+      return result(
+        best,
+        `Compressed from ${formatFileSize(bytes.byteLength)} to ${formatFileSize(best.byteLength)} (target ${target}).`,
+      );
+    } finally {
+      releasePages(pages);
+    }
+  }
+
+  const out = smallest!;
+  return result(
+    out,
+    `Could not reach ${target}. The smallest this PDF can go is ${formatFileSize(out.byteLength)}.`,
+  );
 }

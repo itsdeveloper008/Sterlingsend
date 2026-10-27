@@ -5,7 +5,7 @@ import { siteConfig } from "@/config/site";
 export const metadata: Metadata = {
   title: "Terms of Service",
   description:
-    "Terms for using SterlingSend invoice and PDF tools. Guest use, accounts, and acceptable use. Contact support@sterlingsend.com.",
+    "Terms for using SterlingSend's invoice generator and PDF tools, covering guest use, accounts and acceptable use. Questions? Contact support@sterlingsend.com.",
   alternates: { canonical: "/terms" },
 };
 

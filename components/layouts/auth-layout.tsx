@@ -19,9 +19,9 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
           <p className="text-sm font-semibold uppercase tracking-wider text-teal-400">
             SterlingSend
           </p>
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white">
+          <p className="mt-4 text-3xl font-semibold tracking-tight text-white">
             Create invoices. Download PDFs. Move on.
-          </h1>
+          </p>
           <p className="mt-4 text-base leading-relaxed text-slate-400">
             The fastest way for UK businesses to invoice clients - without
             accounting complexity.

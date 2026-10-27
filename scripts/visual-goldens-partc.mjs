@@ -1,10 +1,11 @@
 /**
- * Capture / update golden screenshots for 8 layouts + default sheet.
+ * Capture / update golden screenshots for 12 layouts + default sheet.
  * Usage:
  *   node scripts/visual-goldens-partc.mjs http://127.0.0.1:3103
  *   node scripts/visual-goldens-partc.mjs http://127.0.0.1:3103 --update
  *
  * How to update goldens: re-run with --update after intentional sheet changes.
+ * PDF baselines follow the shorter sheet on purpose — regenerate together.
  */
 import { chromium } from "playwright";
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from "node:fs";
@@ -17,26 +18,44 @@ const UPDATE = process.argv.includes("--update");
 const OUT = path.join(process.cwd(), "tests", "visual", "golden");
 mkdirSync(OUT, { recursive: true });
 
+const LAYOUTS = [
+  "classic",
+  "ledger",
+  "editorial",
+  "receipt",
+  "statement",
+  "split",
+  "corporate",
+  "compact",
+  "ribbon",
+  "fold",
+  "stack",
+  "pillar",
+  "clay",
+  "cube",
+  "tab",
+  "emboss",
+  "seal",
+  "noir",
+];
+
 const CASES = [
   { name: "default-sheet", url: "/create-invoice" },
-  { name: "layout-classic", url: "/dev/template-thumb?id=classic-teal" },
-  { name: "layout-modern", url: "/dev/template-thumb?id=modern-navy" },
-  { name: "layout-bold", url: "/dev/template-thumb?id=bold-emerald" },
-  { name: "layout-minimal", url: "/dev/template-thumb?id=minimal-slate" },
-  { name: "layout-sidebar", url: "/dev/template-thumb?id=sidebar-rose" },
-  { name: "layout-band", url: "/dev/template-thumb?id=band-amber" },
-  { name: "layout-framed", url: "/dev/template-thumb?id=framed-indigo" },
-  { name: "layout-split", url: "/dev/template-thumb?id=split-cyan" },
+  ...LAYOUTS.map((id) => ({
+    name: `layout-${id}`,
+    url: `/dev/template-thumb?id=${id}`,
+  })),
 ];
 
 const TOLERANCE_PCT = 1.5;
 
 const chromePath =
   process.env.CHROME_PATH ||
-  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+  process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ||
+  undefined;
 const browser = await chromium.launch({
   headless: true,
-  executablePath: chromePath,
+  ...(chromePath ? { executablePath: chromePath } : {}),
 });
 const page = await browser.newPage({
   viewport: { width: 1100, height: 1400 },
@@ -49,7 +68,7 @@ for (const c of CASES) {
   await page.waitForSelector("[data-invoice-builder-card]");
   await page.addStyleTag({
     content:
-      ".builder-logo-box,.builder-add-item,.builder-row-remove,.builder-discount-toggle,.builder-action-bar,.builder-login-banner,.builder-mobile-bar{display:none!important}",
+      ".builder-logo-box,.builder-add-item,.builder-row-remove,.builder-discount-toggle,.builder-action-bar,.builder-login-banner,.builder-mobile-bar,.builder-optional-chip{display:none!important}",
   });
   const buf = await page.locator("[data-invoice-builder-card]").screenshot({
     type: "png",

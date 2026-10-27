@@ -8,7 +8,7 @@ import { siteConfig } from "@/config/site";
 export const metadata: Metadata = {
   title: "UK VAT calculator",
   description:
-    "Add or remove UK VAT from a net or gross amount. Default rate 20 percent. Includes reverse VAT for checking.",
+    "Free UK VAT calculator. Add or remove VAT from a net or gross amount at 20%, 5% or 0%, with reverse VAT to check your figures. Simple and works on any device.",
   alternates: { canonical: "/calculators/vat" },
 };
 

@@ -6,12 +6,18 @@ import {
   createEmptyBuilderLineItem,
   createLandingDemoInvoice,
 } from "@/features/invoice-builder/lib/defaults";
-import { clearBuilderInvoice } from "@/features/invoice-builder/lib/storage";
+import {
+  clearBuilderInvoice,
+  loadBuilderInvoice,
+  saveBuilderInvoice,
+} from "@/features/invoice-builder/lib/storage";
 import type {
   BuilderInvoice,
   BuilderInvoiceAction,
 } from "@/features/invoice-builder/types";
 import { readSessionTemplateId } from "@/lib/template-preference";
+import { readSessionAccent } from "@/lib/invoice-accent";
+import { resolveTemplateRef } from "@/pdf/templates/catalog";
 
 function reducer(state: BuilderInvoice, action: BuilderInvoiceAction): BuilderInvoice {
   switch (action.type) {
@@ -60,8 +66,8 @@ function reducer(state: BuilderInvoice, action: BuilderInvoiceAction): BuilderIn
 }
 
 /**
- * Guest/landing invoice state lives in React only.
- * Refresh always starts clean - no localStorage restore.
+ * Guest/landing invoice state. Restores from localStorage when present so
+ * fields persist across reload; logged-in saves go through the service layer.
  */
 export function useInvoiceBuilder(options?: {
   seed?: "empty" | "demo";
@@ -72,10 +78,13 @@ export function useInvoiceBuilder(options?: {
    * classic-teal). Default true for /create-invoice.
    */
   applySessionTemplate?: boolean;
+  /** When false, do not restore or persist guest drafts (home hero). Default true. */
+  persistGuestDraft?: boolean;
 }) {
   const seed = options?.seed ?? "empty";
   const skipClearOnMount = options?.skipClearOnMount ?? false;
   const applySessionTemplate = options?.applySessionTemplate ?? true;
+  const persistGuestDraft = options?.persistGuestDraft ?? true;
   const [invoice, dispatch] = useReducer(
     reducer,
     undefined,
@@ -86,22 +95,58 @@ export function useInvoiceBuilder(options?: {
   const [hydrated] = useState(true);
   const [dirty, setDirty] = useState(false);
   const logoObjectUrl = useRef<string | null>(null);
+  const saveTimer = useRef<number | null>(null);
+  const restoredRef = useRef(false);
 
   useEffect(() => {
     if (skipClearOnMount) return;
-    // Wipe any previously saved drafts so refresh never shows old client data
-    clearBuilderInvoice();
-    if (!applySessionTemplate) return;
-    dispatch({
-      type: "patch",
-      patch: { templateId: readSessionTemplateId() },
-    });
-  }, [skipClearOnMount, applySessionTemplate]);
+    if (!persistGuestDraft) {
+      clearBuilderInvoice();
+      return;
+    }
+    if (restoredRef.current) return;
+    restoredRef.current = true;
+
+    const sessionPatch: Partial<BuilderInvoice> = {};
+    if (applySessionTemplate) {
+      const sessionId = readSessionTemplateId();
+      if (sessionId) {
+        const resolved = resolveTemplateRef(sessionId);
+        const sessionAccent = readSessionAccent();
+        sessionPatch.templateId = resolved.layoutId;
+        sessionPatch.accent = sessionAccent ?? resolved.legacyAccent;
+      }
+    }
+
+    const saved = loadBuilderInvoice();
+    if (saved) {
+      dispatch({
+        type: "hydrate",
+        invoice: { ...saved, ...sessionPatch },
+      });
+      return;
+    }
+
+    if (Object.keys(sessionPatch).length > 0) {
+      dispatch({ type: "patch", patch: sessionPatch });
+    }
+  }, [skipClearOnMount, applySessionTemplate, persistGuestDraft]);
 
   const dispatchTracked = useCallback((action: BuilderInvoiceAction) => {
     if (action.type !== "hydrate") setDirty(true);
     dispatch(action);
   }, []);
+
+  useEffect(() => {
+    if (!persistGuestDraft || skipClearOnMount || !dirty) return;
+    if (saveTimer.current) window.clearTimeout(saveTimer.current);
+    saveTimer.current = window.setTimeout(() => {
+      saveBuilderInvoice(invoice);
+    }, 400);
+    return () => {
+      if (saveTimer.current) window.clearTimeout(saveTimer.current);
+    };
+  }, [invoice, dirty, persistGuestDraft, skipClearOnMount]);
 
   useEffect(() => {
     return () => {

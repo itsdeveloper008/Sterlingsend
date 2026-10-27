@@ -118,7 +118,7 @@ function ToolCard({
       href={routes.tool(slug)}
       data-ss-tilt="card"
       className={cn(
-        "ss-card-tilt ss-card-spotlight group flex h-full flex-col gap-3 rounded-2xl border border-border-subtle bg-card p-6 shadow-[var(--shadow-1)]",
+        "ss-card-lift glass group flex h-full flex-col gap-4 rounded-2xl p-6",
         "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-500)]",
       )}
       onPointerMove={(event) => {
@@ -195,7 +195,7 @@ export function ToolsCatalog() {
           className="h-14 w-full rounded-xl border border-[var(--border-ui)] bg-card px-4 text-base text-[var(--ink)] placeholder:text-[var(--placeholder)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-500)]"
         />
         <div
-          className="flex flex-wrap gap-2"
+          className="glass flex flex-wrap gap-2 rounded-2xl p-3"
           role="tablist"
           aria-label="Tool categories"
         >
@@ -221,7 +221,7 @@ export function ToolsCatalog() {
               No tools match your search.
             </p>
           ) : (
-            <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <ul className="grid gap-7 sm:grid-cols-2 xl:grid-cols-3">
               {filtered.map((tool) => (
                 <li key={tool.slug}>
                   <ToolCard
@@ -242,7 +242,7 @@ export function ToolsCatalog() {
             <p className="marketing-body mt-2">
               Six tools people open most often.
             </p>
-            <ul className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <ul className="mt-6 grid gap-7 sm:grid-cols-2 xl:grid-cols-3">
               {popular.map((tool) =>
                 tool ? (
                   <li key={tool.slug}>
@@ -266,7 +266,7 @@ export function ToolsCatalog() {
                 <p className="marketing-body mt-2">
                   {CATEGORY_META[key].description}
                 </p>
-                <ul className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                <ul className="mt-6 grid gap-7 sm:grid-cols-2 xl:grid-cols-3">
                   {tools.map((tool) => (
                     <li key={tool.slug}>
                       <ToolCard
@@ -315,10 +315,10 @@ function FilterChip({
       aria-selected={active}
       onClick={onClick}
       className={cn(
-        "rounded-xl px-3.5 py-2 text-[0.9375rem] font-semibold transition",
+        "px-3.5 py-2 text-[0.9375rem] font-semibold transition",
         active
-          ? "bg-[var(--brand-700)] text-white"
-          : "border border-[var(--border-ui)] bg-card text-[var(--secondary-text)] hover-fine:hover:text-[var(--ink)]",
+          ? "clay-teal text-white"
+          : "clay text-[var(--brand-700)] ring-0",
       )}
     >
       {children}

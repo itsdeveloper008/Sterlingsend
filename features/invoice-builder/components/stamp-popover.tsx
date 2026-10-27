@@ -181,7 +181,7 @@ export function StampPopover({
               </button>
             ))}
           </div>
-          <label className="mt-3 flex items-center gap-2 text-sm">
+          <label className="mt-3 flex items-center gap-2 text-sm font-medium text-[#0f172a]">
             <input
               type="checkbox"
               checked={repositioning}

@@ -124,6 +124,7 @@ export async function saveBuilderInvoiceAction(
         items: payload.items,
         currency: payload.currency,
         templateId: payload.templateId,
+        accent: payload.accent,
         stamp: payload.stamp,
       });
 
@@ -145,6 +146,7 @@ export async function saveBuilderInvoiceAction(
       notes: payload.notes,
       items: payload.items,
       templateId: payload.templateId,
+      accent: payload.accent,
       stamp: payload.stamp ?? null,
     });
 

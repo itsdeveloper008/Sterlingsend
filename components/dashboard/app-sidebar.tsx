@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FileStack, History, Settings } from "lucide-react";
+import { FileStack, FolderOpen, History, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { routes } from "@/config/routes";
 import { Logo } from "@/components/design-system/logo";
 
 const navItems = [
   { href: routes.invoices, label: "History", icon: History },
+  { href: routes.files, label: "Saved files", icon: FolderOpen },
   { href: routes.tools, label: "PDF Tools", icon: FileStack },
   { href: routes.account, label: "Account", icon: Settings },
 ];

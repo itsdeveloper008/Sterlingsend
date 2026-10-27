@@ -1,124 +1,247 @@
 /**
- * Parametric invoice template catalog.
- * 8 layouts × 11 palettes = 88 distinct designs.
+ * Invoice templates = layout + user accent colour.
+ * Gallery shows the 18 layouts; colour is chosen separately.
  */
 
 export const INVOICE_LAYOUTS = [
   {
     id: "classic",
     name: "Classic",
-    description: "Clean header with top accent bar",
+    description: "Left header, thin accent rule",
+    group: "structured",
   },
   {
-    id: "modern",
-    name: "Modern",
-    description: "Bold title block and soft panels",
+    id: "ledger",
+    name: "Ledger",
+    description: "Table first, striped rows, tabular numbers",
+    group: "structured",
   },
   {
-    id: "bold",
-    name: "Bold",
-    description: "Strong colored header band",
+    id: "editorial",
+    name: "Editorial",
+    description: "Centred Fraunces masthead, double rules, two-column meta",
+    group: "structured",
   },
   {
-    id: "minimal",
-    name: "Minimal",
-    description: "Sparse rules and quiet typography",
+    id: "receipt",
+    name: "Receipt",
+    description: "Narrow centred column, dotted separators, large total",
+    group: "structured",
   },
   {
-    id: "sidebar",
-    name: "Sidebar",
-    description: "Left color rail with airy content",
-  },
-  {
-    id: "band",
-    name: "Band",
-    description: "Wide brand strip across the top",
-  },
-  {
-    id: "framed",
-    name: "Framed",
-    description: "Inset frame with rounded corners",
+    id: "statement",
+    name: "Statement",
+    description: "Large accent Amount due block at the top",
+    group: "structured",
   },
   {
     id: "split",
-    name: "Split",
-    description: "Two-column business and meta layout",
+    name: "Split Page",
+    description: "Two-column page with accent left rail",
+    group: "structured",
+  },
+  {
+    id: "corporate",
+    name: "Corporate",
+    description: "Bordered cells in a formal grid",
+    group: "structured",
+  },
+  {
+    id: "compact",
+    name: "Compact",
+    description: "Dense one-line header for long item lists",
+    group: "structured",
+  },
+  {
+    id: "ribbon",
+    name: "Ribbon",
+    description: "Folded ribbon across the top left holding INVOICE",
+    group: "depth",
+  },
+  {
+    id: "fold",
+    name: "Fold",
+    description: "Dog-ear corner and layered paper edge",
+    group: "depth",
+  },
+  {
+    id: "stack",
+    name: "Stack",
+    description: "Header on two offset paper layers",
+    group: "depth",
+  },
+  {
+    id: "pillar",
+    name: "Pillar",
+    description: "Raised accent column with embossed edge",
+    group: "depth",
+  },
+  {
+    id: "clay",
+    name: "Clay",
+    description: "Soft inflated clay panels and total pillow",
+    group: "depth",
+  },
+  {
+    id: "cube",
+    name: "Cube",
+    description: "Isometric cube cluster with reserved space",
+    group: "depth",
+  },
+  {
+    id: "tab",
+    name: "Tab",
+    description: "File-folder tabs for section labels",
+    group: "depth",
+  },
+  {
+    id: "emboss",
+    name: "Emboss",
+    description: "Raised total plate and letterpress headings",
+    group: "depth",
+  },
+  {
+    id: "seal",
+    name: "Seal",
+    description: "Round medallion for the invoice number",
+    group: "depth",
+  },
+  {
+    id: "noir",
+    name: "Noir",
+    description: "Charcoal header with embossed accent plate",
+    group: "depth",
   },
 ] as const;
 
-export const INVOICE_PALETTES = [
-  { id: "teal", name: "Teal", primary: "#0d9488", accent: "#14b8a6" },
-  { id: "navy", name: "Navy", primary: "#1e3a8a", accent: "#3b82f6" },
-  { id: "slate", name: "Slate", primary: "#334155", accent: "#64748b" },
-  { id: "emerald", name: "Emerald", primary: "#047857", accent: "#10b981" },
-  { id: "indigo", name: "Indigo", primary: "#4338ca", accent: "#818cf8" },
-  { id: "rose", name: "Rose", primary: "#be123c", accent: "#fb7185" },
-  { id: "amber", name: "Amber", primary: "#b45309", accent: "#f59e0b" },
-  { id: "cyan", name: "Cyan", primary: "#0e7490", accent: "#22d3ee" },
-  { id: "violet", name: "Violet", primary: "#6d28d9", accent: "#a78bfa" },
-  { id: "forest", name: "Forest", primary: "#166534", accent: "#4ade80" },
-  { id: "charcoal", name: "Charcoal", primary: "#111827", accent: "#6b7280" },
-] as const;
-
 export type InvoiceLayoutId = (typeof INVOICE_LAYOUTS)[number]["id"];
-export type InvoicePaletteId = (typeof INVOICE_PALETTES)[number]["id"];
+
+/** @deprecated Palette ids kept only for migrating old `layout-palette` template ids. */
+export const LEGACY_PALETTE_HEX: Record<string, string> = {
+  teal: "#0D9488",
+  navy: "#1E3A8A",
+  slate: "#334155",
+  emerald: "#047857",
+  indigo: "#4338CA",
+  rose: "#BE123C",
+  amber: "#B45309",
+  cyan: "#0E7490",
+  violet: "#6D28D9",
+  forest: "#166534",
+  charcoal: "#1F2937",
+};
+
+/** Map previous layout ids (and renames) onto the current set. */
+const LEGACY_LAYOUT_MAP: Record<string, InvoiceLayoutId> = {
+  bold: "ribbon",
+  band: "ribbon",
+  framed: "clay",
+  minimal: "fold",
+  modern: "statement",
+  aurora: "statement",
+  sidebar: "pillar",
+  studio: "cube",
+  elegant: "editorial",
+  soft: "tab",
+  /** Pre-18-catalog "split" was a stacked header; real Split Page is now `split`. */
+  "split-stack": "stack",
+};
 
 export type InvoiceTemplateDefinition = {
-  id: string;
+  id: InvoiceLayoutId;
   name: string;
   layout: InvoiceLayoutId;
-  palette: InvoicePaletteId;
+  /** Default accent when none is stored. */
   primary: string;
   accent: string;
   category: string;
   description: string;
 };
 
-function buildCatalog(): InvoiceTemplateDefinition[] {
-  const templates: InvoiceTemplateDefinition[] = [];
-  for (const layout of INVOICE_LAYOUTS) {
-    for (const palette of INVOICE_PALETTES) {
-      templates.push({
-        id: `${layout.id}-${palette.id}`,
-        name: `${palette.name} ${layout.name}`,
-        layout: layout.id,
-        palette: palette.id,
-        primary: palette.primary,
-        accent: palette.accent,
-        category: layout.name,
-        description: `${layout.description} · ${palette.name} palette`,
-      });
-    }
+export const DEFAULT_ACCENT = "#0D9488";
+export const DEFAULT_INVOICE_TEMPLATE_ID: InvoiceLayoutId = "classic";
+
+export const INVOICE_TEMPLATES: InvoiceTemplateDefinition[] =
+  INVOICE_LAYOUTS.map((layout) => ({
+    id: layout.id,
+    name: layout.name,
+    layout: layout.id,
+    primary: DEFAULT_ACCENT,
+    accent: DEFAULT_ACCENT,
+    category: layout.group === "depth" ? "Depth" : "Structured",
+    description: layout.description,
+  }));
+
+export const INVOICE_TEMPLATE_COUNT = INVOICE_TEMPLATES.length;
+
+export const HOME_TEMPLATE_STRIP: InvoiceLayoutId[] = [
+  "classic",
+  "ribbon",
+  "split",
+  "noir",
+];
+
+export const DEPTH_LAYOUT_IDS: InvoiceLayoutId[] = INVOICE_LAYOUTS.filter(
+  (l) => l.group === "depth",
+).map((l) => l.id);
+
+export type ResolvedTemplate = {
+  layoutId: InvoiceLayoutId;
+  /** Accent hint from a legacy `layout-palette` id, if any. */
+  legacyAccent?: string;
+};
+
+/**
+ * Resolve a stored template id (modern layout id or legacy `classic-teal`).
+ */
+export function resolveTemplateRef(templateId?: string | null): ResolvedTemplate {
+  if (!templateId) {
+    return { layoutId: DEFAULT_INVOICE_TEMPLATE_ID };
   }
-  return templates;
+  const asLayout = INVOICE_LAYOUTS.find((l) => l.id === templateId);
+  if (asLayout) return { layoutId: asLayout.id };
+
+  const mapped = LEGACY_LAYOUT_MAP[templateId];
+  if (mapped) return { layoutId: mapped };
+
+  const dash = templateId.indexOf("-");
+  if (dash > 0) {
+    const layoutPart = templateId.slice(0, dash);
+    const palettePart = templateId.slice(dash + 1);
+    const layoutId =
+      LEGACY_LAYOUT_MAP[layoutPart] ??
+      (INVOICE_LAYOUTS.find((l) => l.id === layoutPart)?.id as
+        | InvoiceLayoutId
+        | undefined) ??
+      DEFAULT_INVOICE_TEMPLATE_ID;
+    const legacyAccent = LEGACY_PALETTE_HEX[palettePart];
+    return { layoutId, legacyAccent };
+  }
+
+  return { layoutId: DEFAULT_INVOICE_TEMPLATE_ID };
 }
-
-export const INVOICE_TEMPLATES = buildCatalog();
-
-export const DEFAULT_INVOICE_TEMPLATE_ID = "classic-teal";
 
 export function getInvoiceTemplate(
   templateId?: string | null,
 ): InvoiceTemplateDefinition {
-  const found = INVOICE_TEMPLATES.find((t) => t.id === templateId);
+  const { layoutId } = resolveTemplateRef(templateId);
   return (
-    found ??
-    INVOICE_TEMPLATES.find((t) => t.id === DEFAULT_INVOICE_TEMPLATE_ID) ??
-    INVOICE_TEMPLATES[0]
+    INVOICE_TEMPLATES.find((t) => t.id === layoutId) ?? INVOICE_TEMPLATES[0]
   );
 }
 
 export function listInvoiceTemplatesByCategory() {
-  const map = new Map<string, InvoiceTemplateDefinition[]>();
-  for (const template of INVOICE_TEMPLATES) {
-    const list = map.get(template.category) ?? [];
-    list.push(template);
-    map.set(template.category, list);
-  }
-  return Array.from(map.entries()).map(([category, templates]) => ({
-    category,
-    templates,
-  }));
+  return [
+    {
+      category: "Structured",
+      templates: INVOICE_TEMPLATES.filter((t) => t.category === "Structured"),
+    },
+    {
+      category: "Depth",
+      templates: INVOICE_TEMPLATES.filter((t) => t.category === "Depth"),
+    },
+  ];
 }
 
-export const INVOICE_TEMPLATE_COUNT = INVOICE_TEMPLATES.length;
+/** @deprecated Use LEGACY_PALETTE_HEX / accent presets. */
+export type InvoicePaletteId = string;

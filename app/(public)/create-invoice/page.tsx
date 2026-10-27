@@ -9,19 +9,19 @@ import type { SerializedInvoice } from "@/features/invoices/lib/format";
 
 const title = "Create an invoice";
 const description =
-  "Build a UK invoice with VAT, pick a template, then download or print a PDF. No account required. Log in later if you want saved history.";
+  "Create a UK invoice with VAT in minutes. Pick from 18 templates, add your logo and items, then download or print a PDF. Free, no account needed to start.";
 
 export const metadata: Metadata = {
   title,
   description,
-  metadataBase: new URL(siteConfig.url),
+  metadataBase: new URL(siteConfig.canonicalUrl),
   alternates: {
     canonical: "/create-invoice",
   },
   openGraph: {
     title,
     description,
-    url: `${siteConfig.url}/create-invoice`,
+    url: `${siteConfig.canonicalUrl}/create-invoice`,
     siteName: siteConfig.name,
     locale: "en_GB",
     type: "website",

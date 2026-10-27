@@ -5,6 +5,7 @@ import {
   UtmCapture,
   CookieBanner,
 } from "@/components/shell";
+import { AmbientShapes } from "@/components/shell/ambient-shapes";
 import { MarketingShellExtras } from "@/features/marketing/components/marketing-shell-extras";
 import "@/features/marketing/styles/marketing.css";
 
@@ -20,10 +21,11 @@ export function MarketingShell({
   showScrollProgress?: boolean;
 }) {
   return (
-    <div className="marketing-page flex min-h-screen flex-col overflow-x-hidden antialiased">
+    <div className="marketing-page relative flex min-h-screen flex-col overflow-x-hidden antialiased">
+      <AmbientShapes />
       <SkipLink />
       <SiteHeader />
-      <main id="main" className="flex-1">
+      <main id="main" className="relative z-[1] flex-1">
         {children}
       </main>
       <SiteFooter />

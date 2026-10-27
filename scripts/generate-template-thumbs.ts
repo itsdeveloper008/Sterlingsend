@@ -1,6 +1,7 @@
 /**
- * Capture all 88 template thumbs from the live sheet at /dev/template-thumb?id=
- * Requires a running production build (default http://127.0.0.1:3103).
+ * OPTIONAL / LEGACY: Capture static webp thumbs for each layout id.
+ * The templates gallery now uses live CSS previews (template-preview.css),
+ * so this script is not required for shipping. Kept for optional assets.
  *
  * Usage: npx tsx scripts/generate-template-thumbs.ts [baseUrl]
  */

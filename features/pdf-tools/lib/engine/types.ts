@@ -5,6 +5,8 @@ export type ToolOptions = {
   watermarkText?: string;
   cropMargin?: number;
   redactBand?: "top" | "middle" | "bottom";
+  /** Compress PDF: aim for at most this many bytes. */
+  targetBytes?: number;
   pageOrder?: number[];
   /** OCR language code for tesseract (e.g. eng, spa) */
   ocrLang?: string;
@@ -33,6 +35,8 @@ export type ToolOptions = {
 
 export type ProcessResult = {
   files: { name: string; bytes: Uint8Array; mime: string }[];
+  /** Shown to the user after processing (e.g. compression outcome). */
+  note?: string;
 };
 
 export type ProcessInput = {

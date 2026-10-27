@@ -1,7 +1,12 @@
 "use client";
 
-import { useRef, type ReactNode } from "react";
-import { Calendar, Plus, Trash2, Upload } from "lucide-react";
+import {
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import { Calendar, Plus, Trash2, Upload, X } from "lucide-react";
 import {
   calculateItemsFromForm,
   calculateInvoiceTotals,
@@ -9,10 +14,15 @@ import {
 } from "@/lib/invoice/calculations";
 import { formatInvoiceCurrency } from "@/features/invoices/lib/format";
 import { getDisplayVatRate } from "@/features/invoices/lib/invoice-document-utils";
-import { hasPaymentDetails } from "@/features/invoice-builder/lib/defaults";
+import {
+  addDaysToIsoDate,
+  hasPaymentDetails,
+  PAYMENT_TERMS_OPTIONS,
+} from "@/features/invoice-builder/lib/defaults";
 import type {
   BuilderInvoice,
   BuilderInvoiceAction,
+  PaymentTermsDays,
 } from "@/features/invoice-builder/types";
 import { getCurrencySymbol } from "@/config/currencies";
 import { getInvoiceTemplate } from "@/pdf/templates/catalog";
@@ -20,7 +30,13 @@ import { cn } from "@/lib/utils";
 import type { CSSProperties } from "react";
 import { InvoiceStampOverlay } from "@/features/invoice-builder/components/invoice-stamp-overlay";
 import type { InvoiceStamp } from "@/features/invoice-builder/lib/stamps";
+import {
+  computeAccentVars,
+  DEFAULT_ACCENT_HEX,
+} from "@/lib/invoice-accent";
 import "@/features/invoice-builder/styles/invoice-builder.css";
+
+const MONEY_MAX = 999_999_999.99;
 
 function autoGrow(event: React.FormEvent<HTMLTextAreaElement>) {
   const el = event.currentTarget;
@@ -28,9 +44,208 @@ function autoGrow(event: React.FormEvent<HTMLTextAreaElement>) {
   el.style.height = `${el.scrollHeight}px`;
 }
 
+function formatMoneyDisplay(n: number): string {
+  if (!Number.isFinite(n)) return "0.00";
+  return n.toLocaleString("en-GB", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+function parseMoneyDraft(raw: string): number {
+  const cleaned = raw.replace(/,/g, "").trim();
+  if (cleaned === "" || cleaned === ".") return 0;
+  const n = Number(cleaned);
+  if (!Number.isFinite(n) || n < 0) return 0;
+  return Math.min(MONEY_MAX, n);
+}
+
+function measureTextWidth(
+  text: string,
+  font: string,
+): number {
+  if (typeof document === "undefined") return 0;
+  const canvas =
+    (measureTextWidth as unknown as { _c?: HTMLCanvasElement })._c ??
+    document.createElement("canvas");
+  (measureTextWidth as unknown as { _c?: HTMLCanvasElement })._c = canvas;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return text.length * 8;
+  ctx.font = font;
+  return ctx.measureText(text).width;
+}
+
+/** Step font 15→13 (then 12/11 if still needed) so values never clip. */
+function fitNumericEl(el: HTMLElement | null) {
+  if (!el) return;
+  const full =
+    el instanceof HTMLInputElement ? el.value : (el.textContent ?? "");
+  if (full) el.setAttribute("title", full);
+  const style = window.getComputedStyle(el);
+  const available = Math.max(0, el.clientWidth);
+  const weight = style.fontWeight || "400";
+  const family = style.fontFamily || "sans-serif";
+  for (const size of [15, 14, 13, 12, 11, 10, 9] as const) {
+    el.style.fontSize = `${size}px`;
+    const width = measureTextWidth(full, `${weight} ${size}px ${family}`);
+    if (width <= available + 1) break;
+  }
+}
+
+/** Price / money cell: commas + 2dp on blur; raw while editing. */
+function LineItemMoneyInput({
+  value,
+  onCommit,
+  ariaLabel,
+  className,
+  max = MONEY_MAX,
+}: {
+  value: number;
+  onCommit: (n: number) => void;
+  ariaLabel: string;
+  className?: string;
+  max?: number;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState("");
+  const ref = useRef<HTMLInputElement>(null);
+
+  useLayoutEffect(() => {
+    fitNumericEl(ref.current);
+  }, [value, editing, draft]);
+
+  return (
+    <input
+      ref={ref}
+      className={cn("builder-field builder-num-field", className)}
+      inputMode="decimal"
+      value={editing ? draft : formatMoneyDisplay(value)}
+      onFocus={() => {
+        setEditing(true);
+        setDraft(Number.isFinite(value) ? String(value) : "0");
+      }}
+      onChange={(event) => setDraft(event.target.value)}
+      onBlur={(event) => {
+        // Prefer the live DOM value so Playwright fill / IME commits match.
+        const next = Math.min(
+          max,
+          parseMoneyDraft(event.currentTarget.value || draft),
+        );
+        onCommit(next);
+        setEditing(false);
+      }}
+      aria-label={ariaLabel}
+    />
+  );
+}
+
+function LineItemPlainNumberInput({
+  value,
+  onCommit,
+  ariaLabel,
+  className,
+  min = 0,
+  max,
+}: {
+  value: number;
+  onCommit: (n: number) => void;
+  ariaLabel: string;
+  className?: string;
+  min?: number;
+  max?: number;
+}) {
+  const ref = useRef<HTMLInputElement>(null);
+
+  useLayoutEffect(() => {
+    fitNumericEl(ref.current);
+  }, [value]);
+
+  return (
+    <input
+      ref={ref}
+      className={cn("builder-field builder-num-field", className)}
+      type="number"
+      min={min}
+      max={max}
+      step="any"
+      value={Number.isFinite(value) ? value : 0}
+      onChange={(event) => {
+        let n = Number(event.target.value);
+        if (!Number.isFinite(n)) n = 0;
+        if (max != null) n = Math.min(max, n);
+        onCommit(Math.max(min, n));
+      }}
+      aria-label={ariaLabel}
+    />
+  );
+}
+
+function LineTotalCell({ text }: { text: string }) {
+  const ref = useRef<HTMLTableCellElement>(null);
+  useLayoutEffect(() => {
+    fitNumericEl(ref.current);
+  }, [text]);
+  return (
+    <td
+      ref={ref}
+      className="num builder-col-total builder-line-total font-semibold tabular-nums text-[#0F172A]"
+      data-label="Total"
+      title={text}
+    >
+      {text}
+    </td>
+  );
+}
+
+/** Amount with symbol glued (or NBSP before code when no symbol). Never wraps. */
+function formatTotalAmountText(amount: number, currency: string): string {
+  const digits = formatMoneyDisplay(amount);
+  const symbol = getCurrencySymbol(currency);
+  const hasGlyph = Boolean(symbol) && symbol !== currency && !/^[A-Z]{3}$/.test(symbol);
+  if (hasGlyph) return `${symbol}${digits}`;
+  return `${currency}\u00A0${digits}`;
+}
+
+function fitAmountEl(
+  el: HTMLElement | null,
+  sizes: readonly number[] = [28, 24, 22, 20, 18, 16],
+) {
+  if (!el) return;
+  const text = el.textContent ?? "";
+  if (text) el.setAttribute("title", text.replace(/\u00A0/g, " "));
+  const style = window.getComputedStyle(el);
+  const available = Math.max(0, el.clientWidth);
+  const weight = style.fontWeight || "800";
+  const family = style.fontFamily || "sans-serif";
+  for (const size of sizes) {
+    el.style.fontSize = `${size}px`;
+    const width = measureTextWidth(text, `${weight} ${size}px ${family}`);
+    if (width <= available + 1) break;
+  }
+}
+
+function FitAmount({
+  text,
+  className,
+  sizes,
+}: {
+  text: string;
+  className?: string;
+  sizes?: readonly number[];
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
+  useLayoutEffect(() => {
+    fitAmountEl(ref.current, sizes);
+  }, [text, sizes]);
+  return (
+    <span ref={ref} className={className} title={text.replace(/\u00A0/g, " ")}>
+      {text}
+    </span>
+  );
+}
+
 /**
- * Clean editable invoice sheet - logo upload, company block, Billed To panel,
- * line items, teal total bar, notes + payment details.
+ * Medium-length editable invoice sheet (home hero + /create-invoice).
  */
 export function EditableInvoiceCard({
   invoice,
@@ -57,27 +272,27 @@ export function EditableInvoiceCard({
   const calculatedItems = calculateItemsFromForm(invoice.items);
   const totals = calculateInvoiceTotals(calculatedItems);
   const vatRate = getDisplayVatRate(calculatedItems);
-  const showPayment = hasPaymentDetails(invoice.payment);
+  const paymentFilled = hasPaymentDetails(invoice.payment);
+  const companyFilled = Boolean(invoice.business.companyNumber.trim());
+  const termsFilled = Boolean(invoice.terms.trim());
   const currencySymbol = getCurrencySymbol(invoice.currency);
   const template = getInvoiceTemplate(invoice.templateId);
+  const accentHex = invoice.accent ?? DEFAULT_ACCENT_HEX;
+  const accentVars = computeAccentVars(accentHex);
+  const notesEmpty = !invoice.notes.trim();
+  const referenceEmpty = !invoice.reference.trim();
+  const footerVisible =
+    Boolean(invoice.business.name.trim()) ||
+    Boolean(invoice.business.email.trim());
 
-  function softMix(hex: string, whitePct: number): string {
-    const raw = hex.replace("#", "");
-    const full =
-      raw.length === 3
-        ? raw
-            .split("")
-            .map((c) => c + c)
-            .join("")
-        : raw;
-    const n = Number.parseInt(full, 16);
-    if (Number.isNaN(n)) return "#ffffff";
-    const r = (n >> 16) & 255;
-    const g = (n >> 8) & 255;
-    const b = n & 255;
-    const t = whitePct / 100;
-    const mix = (c: number) => Math.round(c * (1 - t) + 255 * t);
-    return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
+  function applyPaymentTerms(days: PaymentTermsDays) {
+    dispatch({
+      type: "patch",
+      patch: {
+        paymentTermsDays: days,
+        dueDate: addDaysToIsoDate(invoice.issueDate, days),
+      },
+    });
   }
 
   return (
@@ -88,12 +303,7 @@ export function EditableInvoiceCard({
       data-layout={template.layout}
       style={
         {
-          "--inv-primary": template.primary,
-          "--inv-accent": template.accent,
-          "--inv-teal": template.accent,
-          "--inv-teal-deep": template.primary,
-          "--inv-primary-soft": softMix(template.primary, 92),
-          "--inv-accent-soft": softMix(template.accent, 90),
+          ...accentVars,
         } as CSSProperties
       }
     >
@@ -114,8 +324,8 @@ export function EditableInvoiceCard({
           stampRepositioning && "builder-card-inner--inert",
         )}
       >
-        <header className="builder-header flex flex-wrap items-start justify-between gap-6">
-          <div className="min-w-0">
+        <header className="builder-header builder-header--compact">
+          <div className="builder-header-left min-w-0">
             <input
               ref={fileRef}
               type="file"
@@ -128,7 +338,7 @@ export function EditableInvoiceCard({
               }}
             />
             {invoice.logoDataUrl ? (
-              <div>
+              <div className="builder-logo-wrap">
                 <button
                   type="button"
                   className="block"
@@ -144,10 +354,11 @@ export function EditableInvoiceCard({
                 </button>
                 <button
                   type="button"
-                  className="no-print mt-1 text-[11px] text-[#64748B] underline-offset-2 hover:underline"
+                  className="builder-logo-remove clay no-print"
                   onClick={() => onLogoFile(null)}
+                  aria-label="Remove logo"
                 >
-                  Remove logo
+                  <X className="h-3.5 w-3.5" aria-hidden strokeWidth={2} />
                 </button>
               </div>
             ) : (
@@ -156,15 +367,43 @@ export function EditableInvoiceCard({
                 className="builder-logo-box"
                 onClick={() => fileRef.current?.click()}
               >
-                <Upload className="h-5 w-5" aria-hidden />
-                Click to upload
+                <Upload className="h-4 w-4" aria-hidden />
+                Logo
               </button>
             )}
+            <h2 className="builder-title">INVOICE</h2>
+            <input
+              className="builder-field builder-invoice-no"
+              value={invoice.invoiceNumber}
+              onChange={(event) =>
+                dispatch({
+                  type: "patch",
+                  patch: { invoiceNumber: event.target.value },
+                })
+              }
+              placeholder="INV-001"
+              aria-label="Invoice number"
+            />
+            <input
+              className={cn(
+                "builder-field builder-reference",
+                referenceEmpty && "builder-empty-print",
+              )}
+              value={invoice.reference}
+              onChange={(event) =>
+                dispatch({
+                  type: "patch",
+                  patch: { reference: event.target.value },
+                })
+              }
+              placeholder="Reference (optional)"
+              aria-label="Reference or PO number"
+            />
           </div>
 
-          <div className="builder-company min-w-[200px] flex-1 sm:max-w-xs">
+          <div className="builder-company text-right">
             <input
-              className="builder-field text-base font-bold text-[#0F172A]"
+              className="builder-field text-base font-bold text-[#0F172A] text-right"
               value={invoice.business.name}
               onChange={(event) =>
                 dispatch({
@@ -176,7 +415,7 @@ export function EditableInvoiceCard({
               aria-label="Business name"
             />
             <textarea
-              className="builder-field builder-field--area builder-field--muted mt-1"
+              className="builder-field builder-field--area builder-field--muted mt-1 text-right"
               rows={2}
               value={invoice.business.address}
               onChange={(event) =>
@@ -190,7 +429,7 @@ export function EditableInvoiceCard({
               aria-label="Business address"
             />
             <input
-              className="builder-field builder-field--muted"
+              className="builder-field builder-field--muted text-right"
               type="email"
               value={invoice.business.email}
               onChange={(event) =>
@@ -204,7 +443,7 @@ export function EditableInvoiceCard({
             />
             <input
               className={cn(
-                "builder-field builder-field--muted",
+                "builder-field builder-field--muted text-right",
                 !invoice.business.phone.trim() && "builder-empty-print",
               )}
               type="tel"
@@ -225,7 +464,7 @@ export function EditableInvoiceCard({
               )}
             >
               <span className="builder-vat-label shrink-0 font-medium not-italic">
-                VAT:
+                VAT no.
               </span>
               <input
                 className="builder-field builder-field--muted w-auto min-w-[8rem] text-right"
@@ -236,26 +475,27 @@ export function EditableInvoiceCard({
                     patch: { vatNumber: event.target.value },
                   })
                 }
-                placeholder="Add VAT Number"
+                placeholder="Add VAT number"
                 aria-label="VAT number"
               />
             </div>
+            <input
+              className={cn(
+                "builder-field builder-field--muted text-right mt-0.5",
+                !companyFilled && "builder-empty-print",
+              )}
+              value={invoice.business.companyNumber}
+              onChange={(event) =>
+                dispatch({
+                  type: "patchBusiness",
+                  patch: { companyNumber: event.target.value },
+                })
+              }
+              placeholder="Company no. (optional)"
+              aria-label="Company number"
+            />
           </div>
         </header>
-
-        <h1 className="builder-title">INVOICE</h1>
-        <input
-          className="builder-field builder-invoice-no"
-          value={invoice.invoiceNumber}
-          onChange={(event) =>
-            dispatch({
-              type: "patch",
-              patch: { invoiceNumber: event.target.value },
-            })
-          }
-          placeholder="INV-001"
-          aria-label="Invoice number"
-        />
 
         <div className="builder-billed">
           <div>
@@ -301,67 +541,96 @@ export function EditableInvoiceCard({
             />
           </div>
 
-          <div>
-            <p className="builder-label">Issue date</p>
-            <div className="builder-date-field mt-2">
-              <input
-                className="builder-field builder-date-input font-medium text-[#0F172A]"
-                type="date"
-                value={invoice.issueDate}
-                onChange={(event) =>
-                  dispatch({
-                    type: "patch",
-                    patch: { issueDate: event.target.value },
-                  })
-                }
-                aria-label="Issue date"
-              />
-              <Calendar className="builder-date-icon no-print" aria-hidden />
+          <div className="builder-billed-dates">
+            <div>
+              <p className="builder-label">Issue date</p>
+              <div className="builder-date-field mt-2">
+                <input
+                  className="builder-field builder-date-input font-medium text-[#0F172A]"
+                  type="date"
+                  value={invoice.issueDate}
+                  onChange={(event) =>
+                    dispatch({
+                      type: "patch",
+                      patch: { issueDate: event.target.value },
+                    })
+                  }
+                  aria-label="Issue date"
+                />
+                <Calendar className="builder-date-icon no-print" aria-hidden />
+              </div>
             </div>
-          </div>
-
-          <div>
-            <p className="builder-label">Due date</p>
-            <div className="builder-date-field mt-2">
-              <input
-                className="builder-field builder-date-input font-medium text-[#0F172A]"
-                type="date"
-                value={invoice.dueDate}
+            <div>
+              <p className="builder-label">Due date</p>
+              <div className="builder-date-field mt-2">
+                <input
+                  className="builder-field builder-date-input font-medium text-[#0F172A]"
+                  type="date"
+                  value={invoice.dueDate}
+                  onChange={(event) =>
+                    dispatch({
+                      type: "patch",
+                      patch: { dueDate: event.target.value },
+                    })
+                  }
+                  aria-label="Due date"
+                />
+                <Calendar className="builder-date-icon no-print" aria-hidden />
+              </div>
+            </div>
+            <div>
+              <p className="builder-label">Payment terms</p>
+              <select
+                className="builder-field builder-terms-select mt-2 font-medium text-[#0F172A]"
+                value={invoice.paymentTermsDays}
                 onChange={(event) =>
-                  dispatch({
-                    type: "patch",
-                    patch: { dueDate: event.target.value },
-                  })
+                  applyPaymentTerms(
+                    Number(event.target.value) as PaymentTermsDays,
+                  )
                 }
-                aria-label="Due date"
-              />
-              <Calendar className="builder-date-icon no-print" aria-hidden />
+                aria-label="Payment terms"
+              >
+                {PAYMENT_TERMS_OPTIONS.map((opt) => (
+                  <option key={opt.days} value={opt.days}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         </div>
 
         <table className="builder-table">
+          <colgroup>
+            <col className="builder-col-desc" />
+            <col className="builder-col-qty" />
+            <col className="builder-col-price" />
+            <col className="builder-col-discount" />
+            <col className="builder-col-vat" />
+            <col className="builder-col-total" />
+            <col className="builder-col-remove no-print" />
+          </colgroup>
           <thead>
             <tr>
               <th scope="col" className="builder-col-desc">
                 Description
               </th>
-              <th scope="col" className="num">
+              <th scope="col" className="num builder-col-qty">
                 Qty
               </th>
-              <th scope="col" className="num">
+              <th scope="col" className="num builder-col-price">
                 Price
               </th>
-              <th scope="col" className="num">
+              <th scope="col" className="num builder-col-discount">
                 Discount
               </th>
-              <th scope="col" className="num">
-                VAT (%)
+              <th scope="col" className="num builder-col-vat">
+                VAT %
               </th>
-              <th scope="col" className="num">
+              <th scope="col" className="num builder-col-total">
                 Total
               </th>
-              <th scope="col" className="no-print w-8">
+              <th scope="col" className="no-print builder-col-remove">
                 <span className="sr-only">Remove</span>
               </th>
             </tr>
@@ -369,10 +638,16 @@ export function EditableInvoiceCard({
           <tbody>
             {invoice.items.map((item, index) => {
               const calculated = calculatedItems[index];
+              const discountType = resolveDiscountType(item.discountType);
+              const discountIsPercent = discountType === "percent";
+              const lineTotalText = formatInvoiceCurrency(
+                calculated?.lineTotal ?? 0,
+                invoice.currency,
+              );
 
               return (
-                <tr key={item.id}>
-                  <td className="builder-col-desc">
+                <tr key={item.id} className="builder-item-row">
+                  <td className="builder-col-desc" data-label="Description">
                     <textarea
                       className="builder-field builder-field--area"
                       rows={1}
@@ -389,149 +664,113 @@ export function EditableInvoiceCard({
                       aria-label="Description"
                     />
                   </td>
-                  <td className="num">
-                    <input
-                      className="builder-field text-right text-[#0F172A]"
-                      type="number"
-                      min={0}
-                      step="any"
+                  <td className="num builder-col-qty" data-label="Qty">
+                    <LineItemPlainNumberInput
                       value={item.quantity}
-                      onChange={(event) =>
+                      ariaLabel="Quantity"
+                      className="text-[#0F172A]"
+                      onCommit={(quantity) =>
                         dispatch({
                           type: "patchItem",
                           id: item.id,
-                          patch: { quantity: Number(event.target.value) || 0 },
+                          patch: { quantity },
                         })
                       }
-                      aria-label="Quantity"
                     />
                   </td>
-                  <td className="num">
-                    <input
-                      className="builder-field text-right text-[#0F172A]"
-                      type="number"
-                      min={0}
-                      step="any"
+                  <td className="num builder-col-price" data-label="Price">
+                    <LineItemMoneyInput
                       value={item.unitPrice}
-                      onChange={(event) =>
+                      ariaLabel="Price"
+                      className="text-[#0F172A]"
+                      onCommit={(unitPrice) =>
                         dispatch({
                           type: "patchItem",
                           id: item.id,
-                          patch: { unitPrice: Number(event.target.value) || 0 },
+                          patch: { unitPrice },
                         })
                       }
-                      aria-label="Price"
                     />
                   </td>
-                  <td className="num">
-                    {(() => {
-                      const discountType = resolveDiscountType(
-                        item.discountType,
-                      );
-                      return (
-                        <div className="builder-discount-cell">
-                          <input
-                            className="builder-field text-right text-[#0F172A]"
-                            type="number"
-                            min={0}
-                            max={discountType === "percent" ? 100 : undefined}
-                            step="any"
-                            value={item.discountRate}
-                            onChange={(event) =>
-                              dispatch({
-                                type: "patchItem",
-                                id: item.id,
-                                patch: {
-                                  discountRate:
-                                    Number(event.target.value) || 0,
-                                },
-                              })
-                            }
-                            aria-label={
-                              discountType === "percent"
-                                ? "Discount percent"
-                                : "Discount amount"
-                            }
-                          />
-                          <div
-                            className="builder-discount-toggle no-print"
-                            role="group"
-                            aria-label="Discount type"
-                          >
-                            <button
-                              type="button"
-                              className={
-                                discountType === "percent"
-                                  ? "is-active"
-                                  : undefined
-                              }
-                              onClick={() =>
-                                dispatch({
-                                  type: "patchItem",
-                                  id: item.id,
-                                  patch: { discountType: "percent" },
-                                })
-                              }
-                              aria-pressed={discountType === "percent"}
-                            >
-                              %
-                            </button>
-                            <button
-                              type="button"
-                              className={
-                                discountType === "fixed"
-                                  ? "is-active"
-                                  : undefined
-                              }
-                              onClick={() =>
-                                dispatch({
-                                  type: "patchItem",
-                                  id: item.id,
-                                  patch: { discountType: "fixed" },
-                                })
-                              }
-                              aria-pressed={discountType === "fixed"}
-                            >
-                              {currencySymbol}
-                            </button>
-                          </div>
-                          <span className="builder-discount-print-suffix print:inline hidden">
-                            {discountType === "percent" ? "%" : currencySymbol}
-                          </span>
-                        </div>
-                      );
-                    })()}
+                  <td
+                    className="num builder-col-discount"
+                    data-label="Discount"
+                  >
+                    <div className="builder-discount-compound">
+                      {discountIsPercent ? (
+                        <LineItemPlainNumberInput
+                          value={item.discountRate}
+                          max={100}
+                          ariaLabel="Discount percent"
+                          className="builder-discount-value text-[#0F172A]"
+                          onCommit={(discountRate) =>
+                            dispatch({
+                              type: "patchItem",
+                              id: item.id,
+                              patch: { discountRate },
+                            })
+                          }
+                        />
+                      ) : (
+                        <LineItemMoneyInput
+                          value={item.discountRate}
+                          ariaLabel="Discount amount"
+                          className="builder-discount-value text-[#0F172A]"
+                          onCommit={(discountRate) =>
+                            dispatch({
+                              type: "patchItem",
+                              id: item.id,
+                              patch: { discountRate },
+                            })
+                          }
+                        />
+                      )}
+                      <button
+                        type="button"
+                        className="builder-discount-suffix"
+                        aria-pressed={discountIsPercent}
+                        aria-label={
+                          discountIsPercent
+                            ? "Discount type: percent, press to switch to pounds"
+                            : "Discount type: pounds, press to switch to percent"
+                        }
+                        onClick={() =>
+                          dispatch({
+                            type: "patchItem",
+                            id: item.id,
+                            patch: {
+                              discountType: discountIsPercent
+                                ? "fixed"
+                                : "percent",
+                              discountRate: discountIsPercent
+                                ? item.discountRate
+                                : Math.min(100, item.discountRate),
+                            },
+                          })
+                        }
+                      >
+                        {discountIsPercent ? "%" : currencySymbol}
+                      </button>
+                    </div>
                   </td>
-                  <td className="num">
-                    <input
-                      className="builder-field text-right text-[#0F172A]"
-                      type="number"
+                  <td className="num builder-col-vat" data-label="VAT %">
+                    <LineItemPlainNumberInput
+                      value={item.vatRate}
                       min={0}
                       max={100}
-                      step="any"
-                      value={item.vatRate}
-                      onChange={(event) =>
+                      ariaLabel="VAT percent"
+                      className="text-[#0F172A]"
+                      onCommit={(vatRate) =>
                         dispatch({
                           type: "patchItem",
                           id: item.id,
-                          patch: {
-                            vatRate: Math.min(
-                              100,
-                              Math.max(0, Number(event.target.value) || 0),
-                            ),
-                          },
+                          patch: { vatRate },
                         })
                       }
-                      aria-label="VAT percent"
                     />
                   </td>
-                  <td className="num font-semibold tabular-nums text-[#0F172A]">
-                    {formatInvoiceCurrency(
-                      calculated?.lineTotal ?? 0,
-                      invoice.currency,
-                    )}
-                  </td>
-                  <td className="no-print">
+                  <LineTotalCell text={lineTotalText} />
+                  <td className="no-print builder-col-remove">
                     <button
                       type="button"
                       className="builder-row-remove inline-flex h-7 w-7 items-center justify-center rounded text-[#94A3B8] hover:bg-red-50 hover:text-red-600"
@@ -550,10 +789,10 @@ export function EditableInvoiceCard({
           </tbody>
         </table>
 
-        <div className="no-print mt-3">
+        <div className="no-print mt-3 flex flex-wrap items-center gap-2">
           <button
             type="button"
-            className="builder-add-item"
+            className="builder-add-item clay"
             onClick={() => dispatch({ type: "addItem" })}
           >
             <Plus className="builder-add-item-icon" aria-hidden />
@@ -563,49 +802,73 @@ export function EditableInvoiceCard({
 
         <dl className="builder-totals">
           <div className="builder-total-row">
-            <dt className="text-[#64748B]">Subtotal</dt>
-            <dd className="tabular-nums text-[#0F172A]">
-              {formatInvoiceCurrency(totals.subtotal, invoice.currency)}
+            <dt className="builder-total-row-label">Subtotal</dt>
+            <dd className="builder-total-row-value">
+              <FitAmount
+                className="builder-total-value tabular-nums text-[#0F172A]"
+                text={formatInvoiceCurrency(totals.subtotal, invoice.currency)}
+                sizes={[15, 14, 13, 12]}
+              />
             </dd>
           </div>
+          {totals.discountTotal > 0 ? (
+            <div className="builder-total-row">
+              <dt className="builder-total-row-label">Discount</dt>
+              <dd className="builder-total-row-value">
+                <FitAmount
+                  className="builder-total-value builder-total-discount tabular-nums"
+                  text={`-${formatInvoiceCurrency(totals.discountTotal, invoice.currency)}`}
+                  sizes={[15, 14, 13, 12]}
+                />
+              </dd>
+            </div>
+          ) : null}
           <div className="builder-total-row">
-            <dt className="text-[#64748B]">Discount</dt>
-            <dd className="builder-total-discount tabular-nums">
-              - {formatInvoiceCurrency(totals.discountTotal, invoice.currency)}
-            </dd>
-          </div>
-          <div className="builder-total-row">
-            <dt className="text-[#64748B]">VAT ({vatRate}%)</dt>
-            <dd className="builder-total-vat tabular-nums">
-              + {formatInvoiceCurrency(totals.vatTotal, invoice.currency)}
+            <dt className="builder-total-row-label">VAT ({vatRate}%)</dt>
+            <dd className="builder-total-row-value">
+              <FitAmount
+                className="builder-total-value builder-total-vat tabular-nums"
+                text={`+${formatInvoiceCurrency(totals.vatTotal, invoice.currency)}`}
+                sizes={[15, 14, 13, 12]}
+              />
             </dd>
           </div>
           <div className="builder-total-final">
-            <dt className="builder-total-final-currency">
-              {currencySelect ?? (
-                <span className="text-sm font-semibold text-[#0F172A]">
-                  Total
+            <div className="builder-total-final-row1">
+              <span className="builder-total-due-label">Total due</span>
+              <div className="builder-currency-compact">
+                <span className="builder-currency-compact-code" aria-hidden>
+                  {invoice.currency}
                 </span>
-              )}
-            </dt>
-            <dd className="builder-total-final-amount tabular-nums">
-              {currencySymbol}{" "}
-              {totals.total.toLocaleString("en-GB", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-            </dd>
+                {currencySelect}
+                <span className="builder-currency-print">{invoice.currency}</span>
+              </div>
+            </div>
+            <div className="builder-total-final-row2">
+              <FitAmount
+                className="builder-total-final-amount tabular-nums"
+                text={formatTotalAmountText(totals.total, invoice.currency)}
+              />
+            </div>
           </div>
         </dl>
 
-        <section className="builder-section">
+        <section
+          className={cn(
+            "builder-section builder-notes",
+            notesEmpty && "builder-empty-print",
+          )}
+        >
           <h2 className="builder-section-title">Notes</h2>
           <textarea
-            className="builder-field builder-field--area builder-field--muted mt-2"
-            rows={2}
+            className="builder-field builder-field--area builder-field--muted mt-1.5"
+            rows={1}
             value={invoice.notes}
             onChange={(event) =>
-              dispatch({ type: "patch", patch: { notes: event.target.value } })
+              dispatch({
+                type: "patch",
+                patch: { notes: event.target.value },
+              })
             }
             onInput={autoGrow}
             placeholder="Thank you for your business!"
@@ -615,83 +878,111 @@ export function EditableInvoiceCard({
 
         <section
           className={cn(
-            "builder-section",
-            !showPayment && "builder-empty-print",
+            "builder-section builder-payment",
+            !paymentFilled && "builder-empty-print",
           )}
         >
-          <h2 className="builder-section-title">Payment Details</h2>
+          <h2 className="builder-section-title">Payment details</h2>
           <div className="builder-payment-grid">
-            <span className="builder-payment-label">Account Holder</span>
-            <input
-              className="builder-field builder-field--muted"
-              value={invoice.payment.accountHolder}
-              onChange={(event) =>
-                dispatch({
-                  type: "patchPayment",
-                  patch: { accountHolder: event.target.value },
-                })
-              }
-              placeholder="e.g. John Doe"
-              aria-label="Account Holder"
-            />
-            <span className="builder-payment-label">Bank Name</span>
-            <input
-              className="builder-field builder-field--muted"
-              value={invoice.payment.bankName}
-              onChange={(event) =>
-                dispatch({
-                  type: "patchPayment",
-                  patch: { bankName: event.target.value },
-                })
-              }
-              placeholder="e.g. Global Bank"
-              aria-label="Bank Name"
-            />
-            <span className="builder-payment-label">Account/IBAN</span>
-            <input
-              className="builder-field builder-field--muted"
-              value={invoice.payment.accountIban}
-              onChange={(event) =>
-                dispatch({
-                  type: "patchPayment",
-                  patch: { accountIban: event.target.value },
-                })
-              }
-              placeholder="e.g. 12345678"
-              aria-label="Account/IBAN"
-            />
-            <span className="builder-payment-label">Sort Code/SWIFT</span>
-            <input
-              className="builder-field builder-field--muted"
-              value={invoice.payment.sortSwift}
-              onChange={(event) =>
-                dispatch({
-                  type: "patchPayment",
-                  patch: { sortSwift: event.target.value },
-                })
-              }
-              placeholder="e.g. 12-34-56"
-              aria-label="Sort Code/SWIFT"
-            />
+            <label className="builder-payment-cell">
+              <span className="builder-payment-label">Account Holder</span>
+              <input
+                className="builder-field builder-field--muted"
+                value={invoice.payment.accountHolder}
+                onChange={(event) =>
+                  dispatch({
+                    type: "patchPayment",
+                    patch: { accountHolder: event.target.value },
+                  })
+                }
+                placeholder="e.g. John Doe"
+                aria-label="Account Holder"
+              />
+            </label>
+            <label className="builder-payment-cell">
+              <span className="builder-payment-label">Bank Name</span>
+              <input
+                className="builder-field builder-field--muted"
+                value={invoice.payment.bankName}
+                onChange={(event) =>
+                  dispatch({
+                    type: "patchPayment",
+                    patch: { bankName: event.target.value },
+                  })
+                }
+                placeholder="e.g. Global Bank"
+                aria-label="Bank Name"
+              />
+            </label>
+            <label className="builder-payment-cell">
+              <span className="builder-payment-label">Account/IBAN</span>
+              <input
+                className="builder-field builder-field--muted"
+                value={invoice.payment.accountIban}
+                onChange={(event) =>
+                  dispatch({
+                    type: "patchPayment",
+                    patch: { accountIban: event.target.value },
+                  })
+                }
+                placeholder="e.g. 12345678"
+                aria-label="Account/IBAN"
+              />
+            </label>
+            <label className="builder-payment-cell">
+              <span className="builder-payment-label">Sort Code/SWIFT</span>
+              <input
+                className="builder-field builder-field--muted"
+                value={invoice.payment.sortSwift}
+                onChange={(event) =>
+                  dispatch({
+                    type: "patchPayment",
+                    patch: { sortSwift: event.target.value },
+                  })
+                }
+                placeholder="e.g. 12-34-56"
+                aria-label="Sort Code/SWIFT"
+              />
+            </label>
           </div>
         </section>
 
-        <footer className="builder-footer">
-          <div className="min-w-0">
-            <p className="font-semibold text-[#0F172A]">
-              {invoice.business.name.trim() || "Your Company"}
+        <section
+          className={cn(
+            "builder-section builder-terms",
+            !termsFilled && "builder-empty-print",
+          )}
+        >
+          <h2 className="builder-section-title">Terms</h2>
+          <textarea
+            className="builder-field builder-field--area builder-field--muted mt-1.5"
+            rows={2}
+            value={invoice.terms}
+            onChange={(event) =>
+              dispatch({
+                type: "patch",
+                patch: { terms: event.target.value },
+              })
+            }
+            onInput={autoGrow}
+            placeholder="e.g. Payment due within 30 days of the invoice date"
+            aria-label="Terms"
+          />
+        </section>
+
+        {footerVisible ? (
+          <footer className="builder-sheet-footer">
+            <p>
+              {[
+                invoice.business.name.trim(),
+                invoice.business.email.trim(),
+                invoice.invoiceNumber.trim(),
+              ]
+                .filter(Boolean)
+                .join(" · ")}
             </p>
-            <p className="text-sm text-[#64748B]">
-              {invoice.business.email.trim() || "your@email.com"}
-            </p>
-          </div>
-          <div className="builder-footer-meta">
-            <span className="builder-label">Invoice no.</span>
-            <p className="builder-footer-no">
-              {invoice.invoiceNumber.trim() || "INV-001"}
-            </p>
-          </div>
-        </footer>
+          </footer>
+        ) : null}
       </div>
     </article>
   );

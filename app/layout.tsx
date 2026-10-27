@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
-  metadataBase: new URL(siteConfig.url),
+  metadataBase: new URL(siteConfig.canonicalUrl),
   applicationName: siteConfig.name,
   icons: {
     icon: [
@@ -55,19 +55,13 @@ export default function RootLayout({
     <html
       lang={siteConfig.locale}
       className={`${plusJakarta.variable} ${fraunces.variable} h-full antialiased`}
-      suppressHydrationWarning
+      style={{ colorScheme: "light" }}
     >
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('ss_theme');var d=window.matchMedia('(prefers-color-scheme: dark)').matches;var r=t==='dark'||(t!=='light'&&d);if(r)document.documentElement.classList.add('dark');}catch(e){}})();`,
-          }}
-        />
-      </head>
       <body
         className="min-h-full font-sans"
         style={
           {
+            colorScheme: "light",
             ["--font-sans" as string]: "var(--font-plus-jakarta)",
             ["--font-display" as string]: "var(--font-fraunces)",
           } as React.CSSProperties

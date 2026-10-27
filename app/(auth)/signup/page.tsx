@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { SignupForm } from "@/features/auth";
+
+export const metadata: Metadata = {
+  title: "Create your account",
+  description:
+    "Create a free SterlingSend account to save invoices, keep PDF tool files in your history and store your business details. Sign up with email or Google.",
+  alternates: { canonical: "/signup" },
+};
 
 export default function SignupPage() {
   return (

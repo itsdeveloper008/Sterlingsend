@@ -13,6 +13,7 @@ import { GoogleGlyph } from "@/features/auth/components/google-glyph";
 import type { MascotState } from "@/features/auth/components/mascot-character";
 import { cn } from "@/lib/utils";
 import { AUTH_POST_LOGIN_KEY } from "@/firebase/auth";
+import { safeRedirectPath } from "@/lib/auth-hint";
 
 const MascotCharacter = dynamic(
   () =>
@@ -99,11 +100,10 @@ export function LoginForm() {
       const redirectTo = await signIn(email, password);
       setSuccess(true);
       toast.success("Welcome back");
-      const requested = searchParams.get("redirect");
       const destination =
-        requested && requested.startsWith("/")
-          ? requested
-          : (redirectTo ?? routes.home);
+        safeRedirectPath(searchParams.get("redirect")) ??
+        redirectTo ??
+        routes.home;
       window.setTimeout(() => {
         window.location.assign(destination);
       }, 480);
@@ -132,8 +132,8 @@ export function LoginForm() {
     clearError();
 
     try {
-      const requested = searchParams.get("redirect");
-      if (requested && requested.startsWith("/")) {
+      const requested = safeRedirectPath(searchParams.get("redirect"));
+      if (requested) {
         sessionStorage.setItem(AUTH_POST_LOGIN_KEY, requested);
       } else {
         sessionStorage.removeItem(AUTH_POST_LOGIN_KEY);
@@ -145,8 +145,9 @@ export function LoginForm() {
 
       setSuccess(true);
       toast.success("Welcome back");
+      // Popup sign-in: honour ?redirect like email login does.
       window.setTimeout(() => {
-        window.location.assign(result ?? routes.home);
+        window.location.assign(requested ?? result ?? routes.home);
       }, 480);
     } catch (error) {
       setSuccess(false);

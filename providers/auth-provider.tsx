@@ -15,6 +15,7 @@ import {
   clearAuthHint,
   isAuthRoute,
   readAuthHint,
+  safeRedirectPath,
   setAuthHint,
 } from "@/lib/auth-hint";
 
@@ -118,7 +119,8 @@ function readPostLoginDestination(
   try {
     const stored = sessionStorage.getItem(authApi.AUTH_POST_LOGIN_KEY);
     sessionStorage.removeItem(authApi.AUTH_POST_LOGIN_KEY);
-    if (stored && stored.startsWith("/")) return stored;
+    const safe = safeRedirectPath(stored);
+    if (safe) return safe;
   } catch {
     // ignore
   }

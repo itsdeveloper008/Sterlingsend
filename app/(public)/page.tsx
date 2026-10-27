@@ -4,19 +4,19 @@ import { siteConfig } from "@/config/site";
 
 const title = "Free invoice maker and PDF tools";
 const description =
-  "Create UK invoices with VAT, download PDFs and use browser PDF tools free. No signup needed. Log in only if you want saved invoice history.";
+  "Free UK invoice generator and 29 PDF tools. Create VAT invoices, download PDFs, and merge, compress or convert files. No login needed; sign up to save history.";
 
 export const metadata: Metadata = {
   title,
   description,
-  metadataBase: new URL(siteConfig.url),
+  metadataBase: new URL(siteConfig.canonicalUrl),
   alternates: {
     canonical: "/",
   },
   openGraph: {
     title,
     description,
-    url: siteConfig.url,
+    url: siteConfig.canonicalUrl,
     siteName: siteConfig.name,
     locale: "en_GB",
     type: "website",
@@ -29,7 +29,7 @@ export default function Page() {
     "@context": "https://schema.org",
     "@type": "WebApplication",
     name: siteConfig.name,
-    url: siteConfig.url,
+    url: siteConfig.canonicalUrl,
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     description,

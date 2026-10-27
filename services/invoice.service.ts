@@ -178,6 +178,7 @@ export class InvoiceService {
       reserveNumber?: boolean;
       invoiceNumber?: string;
       templateId?: string;
+      accent?: string;
       stamp?: Invoice["stamp"] | null;
     },
   ): Promise<Invoice> {
@@ -215,6 +216,7 @@ export class InvoiceService {
       currency: input.currency,
       totals,
       ...(input.templateId ? { templateId: input.templateId } : {}),
+      ...(input.accent ? { accent: input.accent } : {}),
       ...(input.stamp ? { stamp: input.stamp } : {}),
       paymentEnabled: false,
       paymentStatus: INVOICE_PAYMENT_STATUSES.UNPAID,
@@ -238,6 +240,7 @@ export class InvoiceService {
       notes?: string;
       items?: InvoiceFormLineItem[];
       templateId?: string;
+      accent?: string;
       /** Pass null to clear. */
       stamp?: Invoice["stamp"] | null;
     },
@@ -296,6 +299,10 @@ export class InvoiceService {
 
     if (input.templateId !== undefined) {
       updates.templateId = input.templateId;
+    }
+
+    if (input.accent !== undefined) {
+      updates.accent = input.accent || null;
     }
 
     if (input.stamp !== undefined) {

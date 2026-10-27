@@ -7,22 +7,19 @@ import { siteConfig } from "@/config/site";
 
 const toolCount = PDF_TOOLS.length;
 const title = "PDF tools";
-const description = `${toolCount} PDF tools for merge, split, compress, convert and more. Most run in your browser. No account required.`.slice(
-  0,
-  160,
-);
+const description = `${toolCount} free PDF tools: merge, split, compress, convert, sign, edit and more. Most run right in your browser, so files stay on your device. No account required.`;
 
 export const metadata: Metadata = {
   title,
   description,
-  metadataBase: new URL(siteConfig.url),
+  metadataBase: new URL(siteConfig.canonicalUrl),
   alternates: {
     canonical: "/tools",
   },
   openGraph: {
     title,
     description,
-    url: `${siteConfig.url}/tools`,
+    url: `${siteConfig.canonicalUrl}/tools`,
     siteName: siteConfig.name,
     locale: "en_GB",
     type: "website",

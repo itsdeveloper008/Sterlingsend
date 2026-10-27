@@ -301,10 +301,13 @@ async function unlockPdf(file: File, options: ToolOptions): Promise<ProcessResul
   };
 }
 
-async function compressPdf(file: File): Promise<ProcessResult> {
+async function compressPdf(
+  file: File,
+  options: ToolOptions,
+): Promise<ProcessResult> {
   // Re-render pages as optimized JPEGs for a meaningful size reduction.
   try {
-    return await compressPdfStrong(file);
+    return await compressPdfStrong(file, options.targetBytes);
   } catch {
     const doc = await loadPdf(file);
     doc.setTitle("");
@@ -455,7 +458,7 @@ export async function processTool(input: ProcessInput): Promise<ProcessResult> {
     case "unlock-pdf":
       return unlockPdf(files[0], options);
     case "compress-pdf":
-      return compressPdf(files[0]);
+      return compressPdf(files[0], options);
     case "redact-pdf":
       return redactPdf(files[0], options);
     case "jpg-to-pdf":

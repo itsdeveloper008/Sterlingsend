@@ -16,12 +16,16 @@ export const COLLECTIONS = {
   PAYMENTS: "payments",
   SAVED_SERVICES: "savedServices",
   SETTINGS: "settings",
+  /** Files a signed-in user chose to keep from the PDF tools. */
+  PDF_HISTORY: "pdfHistory",
 } as const;
 
 export const STORAGE_PATHS = {
   businessLogo: (businessId: string) => `businesses/${businessId}/logo`,
   invoicePdf: (businessId: string, invoiceId: string) =>
     `businesses/${businessId}/invoices/${invoiceId}.pdf`,
+  pdfHistory: (userId: string, fileId: string, fileName: string) =>
+    `users/${userId}/pdf-history/${fileId}/${fileName}`,
 } as const;
 
 /**
@@ -36,6 +40,7 @@ export const STORAGE_PATHS = {
  * payments:    businessId ASC, createdAt DESC
  * payments:    invoiceId ASC, status ASC
  * savedServices: businessId ASC, name ASC
+ * pdfHistory:  userId ASC, createdAt DESC
  * businesses:  ownerId ASC
  */
 export const FIRESTORE_INDEXES = [

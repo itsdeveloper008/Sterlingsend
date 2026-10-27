@@ -11,31 +11,32 @@ export function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-auto border-t border-[#E2E8F0] bg-[#F8FAFC] dark:border-[#1E293B] dark:bg-[#0F1A28]">
-      <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-4">
+    <footer
+      className="mt-auto bg-[var(--surface-muted)]"
+      style={{ borderTop: "1px solid var(--border-decorative)" }}
+    >
+      <div className="mx-auto grid w-full max-w-[1200px] gap-12 px-4 pb-12 pt-24 sm:px-6 md:grid-cols-4">
         <div className="md:col-span-1">
-          <Logo href={routes.home} size={48} showMark={false} />
-          <p className="mt-3 max-w-xs text-[15px] text-[#475569] dark:text-[#CBD5E1]">
+          <Logo href={routes.home} size={40} showMark={false} />
+          <p className="ss-measure mt-4 text-[15px] leading-[1.7] text-[var(--secondary-text)]">
             Free invoice maker and PDF tools. Log in only if you want saved
             history.
           </p>
           <a
             href={`mailto:${siteConfig.supportEmail}`}
-            className="mt-3 inline-block break-all text-[15px] font-semibold text-[#0F766E] hover:underline"
+            className="mt-4 inline-block break-all text-[15px] font-semibold text-[var(--brand-700)] hover:underline"
           >
             {siteConfig.supportEmail}
           </a>
         </div>
 
-        <div>
-          <h2 className="text-sm font-semibold text-[#0F172A] dark:text-white">
-            Product
-          </h2>
-          <ul className="mt-3 space-y-2">
+        <div className="glass rounded-2xl p-5">
+          <h2 className="text-sm font-semibold text-[var(--ink)]">Product</h2>
+          <ul className="mt-4 space-y-2.5">
             <li>
               <Link
                 href={routes.createInvoice}
-                className="text-[15px] text-[#475569] hover:text-[#0F172A] dark:text-[#CBD5E1]"
+                className="text-[15px] text-[var(--secondary-text)] hover:text-[var(--ink)]"
               >
                 Create invoice
               </Link>
@@ -43,7 +44,7 @@ export function SiteFooter() {
             <li>
               <Link
                 href={routes.templates}
-                className="text-[15px] text-[#475569] hover:text-[#0F172A] dark:text-[#CBD5E1]"
+                className="text-[15px] text-[var(--secondary-text)] hover:text-[var(--ink)]"
               >
                 Templates
               </Link>
@@ -51,7 +52,7 @@ export function SiteFooter() {
             <li>
               <Link
                 href={routes.tools}
-                className="text-[15px] text-[#475569] hover:text-[#0F172A] dark:text-[#CBD5E1]"
+                className="text-[15px] text-[var(--secondary-text)] hover:text-[var(--ink)]"
               >
                 PDF tools
               </Link>
@@ -59,16 +60,16 @@ export function SiteFooter() {
           </ul>
         </div>
 
-        <div>
-          <h2 className="text-sm font-semibold text-[#0F172A] dark:text-white">
+        <div className="glass rounded-2xl p-5">
+          <h2 className="text-sm font-semibold text-[var(--ink)]">
             Popular tools
           </h2>
-          <ul className="mt-3 space-y-2">
+          <ul className="mt-4 space-y-2.5">
             {popularTools.map((tool) => (
               <li key={tool.slug}>
                 <Link
                   href={routes.tool(tool.slug)}
-                  className="text-[15px] text-[#475569] hover:text-[#0F172A] dark:text-[#CBD5E1]"
+                  className="text-[15px] text-[var(--secondary-text)] hover:text-[var(--ink)]"
                 >
                   {tool.title}
                 </Link>
@@ -77,15 +78,13 @@ export function SiteFooter() {
           </ul>
         </div>
 
-        <div>
-          <h2 className="text-sm font-semibold text-[#0F172A] dark:text-white">
-            Legal
-          </h2>
-          <ul className="mt-3 space-y-2">
+        <div className="glass rounded-2xl p-5">
+          <h2 className="text-sm font-semibold text-[var(--ink)]">Legal</h2>
+          <ul className="mt-4 space-y-2.5">
             <li>
               <Link
                 href={routes.privacy}
-                className="text-[15px] text-[#475569] hover:text-[#0F172A] dark:text-[#CBD5E1]"
+                className="text-[15px] text-[var(--secondary-text)] hover:text-[var(--ink)]"
               >
                 Privacy
               </Link>
@@ -93,7 +92,7 @@ export function SiteFooter() {
             <li>
               <Link
                 href={routes.terms}
-                className="text-[15px] text-[#475569] hover:text-[#0F172A] dark:text-[#CBD5E1]"
+                className="text-[15px] text-[var(--secondary-text)] hover:text-[var(--ink)]"
               >
                 Terms
               </Link>
@@ -101,7 +100,7 @@ export function SiteFooter() {
             <li>
               <Link
                 href={routes.cookies}
-                className="text-[15px] text-[#475569] hover:text-[#0F172A] dark:text-[#CBD5E1]"
+                className="text-[15px] text-[var(--secondary-text)] hover:text-[var(--ink)]"
               >
                 Cookies
               </Link>
@@ -113,8 +112,8 @@ export function SiteFooter() {
         </div>
       </div>
 
-      <div className="border-t border-[#E2E8F0] dark:border-[#1E293B]">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 py-4 text-xs text-[#475569] sm:flex-row sm:items-center sm:justify-between sm:px-6 dark:text-[#94A3B8]">
+      <div style={{ borderTop: "1px solid var(--border-decorative)" }}>
+        <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-2 px-4 py-5 text-[13px] text-[var(--secondary-text)] sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <p>
             © {year} {siteConfig.name}
           </p>

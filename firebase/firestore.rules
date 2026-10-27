@@ -83,5 +83,15 @@ service cloud.firestore {
     match /settings/{businessId} {
       allow read, write: if businessOwned(businessId);
     }
+
+    match /pdfHistory/{fileId} {
+      allow read, delete: if isSignedIn() &&
+        resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() &&
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.storagePath is string &&
+        request.resource.data.storagePath.matches('users/' + request.auth.uid + '/pdf-history/.*');
+      allow update: if false;
+    }
   }
 }

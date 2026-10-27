@@ -16,8 +16,16 @@ import dynamic from "next/dynamic";
 import { routes } from "@/config/routes";
 import type { PdfTool } from "@/features/pdf-tools/catalog";
 import type { EditPdfHandle } from "@/features/pdf-tools/components/edit-pdf-editor";
-import { downloadBytes } from "@/features/pdf-tools/lib/download";
-import type { ToolOptions } from "@/features/pdf-tools/lib/engine/types";
+import {
+  downloadBytes,
+  formatFileSize,
+} from "@/features/pdf-tools/lib/download";
+import type {
+  ProcessResult,
+  ToolOptions,
+} from "@/features/pdf-tools/lib/engine/types";
+import { useAuth } from "@/hooks/use-auth";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -110,8 +118,27 @@ const OCR_LANGS = [
   { code: "ara", label: "Arabic" },
 ];
 
+type OutputFile = ProcessResult["files"][number];
+
+/** Parse the compress target ("200" + "KB") into bytes; null when blank. */
+function parseTargetBytes(value: string, unit: "KB" | "MB") {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  const n = Number(trimmed);
+  if (!Number.isFinite(n) || n <= 0) return Number.NaN;
+  return Math.floor(n * (unit === "MB" ? 1024 * 1024 : 1024));
+}
+
 export function ToolWorkspace({ tool }: { tool: PdfTool }) {
+  const { user } = useAuth();
   const [files, setFiles] = useState<File[]>([]);
+  const [targetSize, setTargetSize] = useState("");
+  const [targetUnit, setTargetUnit] = useState<"KB" | "MB">("KB");
+  /** Outputs waiting on the "save to history?" answer. */
+  const [pendingOutputs, setPendingOutputs] = useState<OutputFile[] | null>(
+    null,
+  );
+  const [saving, setSaving] = useState(false);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState("");
   const [doneName, setDoneName] = useState("");
@@ -146,12 +173,17 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const editRef = useRef<EditPdfHandle>(null);
 
+  const targetBytes =
+    tool.slug === "compress-pdf" ? parseTargetBytes(targetSize, targetUnit) : null;
+  const targetInvalid = targetBytes !== null && Number.isNaN(targetBytes);
+
   const htmlReady = tool.slug === "html-to-pdf" && htmlContent.trim().length > 0;
   const translateBlocked =
     tool.slug === "translate-pdf" && !translateConfirmed;
   const canRun =
     !busy &&
     !translateBlocked &&
+    !targetInvalid &&
     (tool.slug === "edit-pdf"
       ? files.length >= 1 && editReady
       : files.length >= tool.minFiles ||
@@ -180,6 +212,7 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
       signatureDataUrl,
       signerName,
       signPage,
+      targetBytes: targetBytes ?? undefined,
     }),
     [
       password,
@@ -203,6 +236,7 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
       signatureDataUrl,
       signerName,
       signPage,
+      targetBytes,
     ],
   );
 
@@ -250,6 +284,62 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
     setPageOrder(doc.getPageIndices());
   }
 
+  function downloadOutputs(outputs: OutputFile[]) {
+    for (const out of outputs) {
+      downloadBytes(out.bytes, out.name, out.mime);
+    }
+    setDoneName(outputs[0]?.name || "download");
+    toast.success(
+      outputs.length === 1 ? `Downloaded ${outputs[0].name}` : "Download ready",
+    );
+  }
+
+  /** Signed-in users are asked whether to keep the result in History. */
+  function deliverOutputs(outputs: OutputFile[]) {
+    if (user && outputs.length) {
+      setPendingOutputs(outputs);
+      return;
+    }
+    downloadOutputs(outputs);
+  }
+
+  async function onSaveToHistory() {
+    if (!pendingOutputs || !user) return;
+    const outputs = pendingOutputs;
+    setSaving(true);
+    downloadOutputs(outputs);
+    try {
+      const { savePdfToHistory } = await import("@/firebase/pdf-history");
+      for (const out of outputs) {
+        await savePdfToHistory(user.uid, out, {
+          slug: tool.slug,
+          title: tool.title,
+        });
+      }
+      toast.success(
+        outputs.length === 1
+          ? "Saved to your history"
+          : `${outputs.length} files saved to your history`,
+        {
+          action: {
+            label: "View",
+            onClick: () => window.location.assign(routes.files),
+          },
+        },
+      );
+    } catch (error) {
+      console.error("[pdf-history] save failed", error);
+      toast.error(
+        error instanceof Error && error.message.includes("25 MB")
+          ? error.message
+          : "Downloaded, but could not save to history. Please try again.",
+      );
+    } finally {
+      setSaving(false);
+      setPendingOutputs(null);
+    }
+  }
+
   async function onProcess() {
     if (!canRun) return;
     setBusy(true);
@@ -277,9 +367,7 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
       if (tool.slug === "edit-pdf") {
         const exported = await editRef.current?.exportEdited();
         if (!exported) throw new Error("Edit preview is still loading.");
-        downloadBytes(exported.bytes, exported.name, exported.mime);
-        setDoneName(exported.name);
-        toast.success(`Downloaded ${exported.name}`);
+        deliverOutputs([exported]);
         return;
       }
 
@@ -292,15 +380,8 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
         options: { ...options, pageOrder: order.length ? order : undefined },
       });
 
-      for (const out of result.files) {
-        downloadBytes(out.bytes, out.name, out.mime);
-      }
-      setDoneName(result.files[0]?.name || "download");
-      toast.success(
-        result.files.length === 1
-          ? `Downloaded ${result.files[0].name}`
-          : "Download ready",
-      );
+      if (result.note) toast.message(result.note);
+      deliverOutputs(result.files);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Could not process file",
@@ -495,11 +576,17 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
         setSignerName={setSignerName}
         signPage={signPage}
         setSignPage={setSignPage}
+        targetSize={targetSize}
+        setTargetSize={setTargetSize}
+        targetUnit={targetUnit}
+        setTargetUnit={setTargetUnit}
+        targetInvalid={targetInvalid}
+        sourceSize={files[0]?.size ?? null}
       />
 
       {tool.slug === "translate-pdf" ? (
         <div
-          className="rounded-[var(--radius-md)] border border-amber-500/40 bg-amber-50 px-4 py-3 text-sm text-foreground dark:bg-amber-950/30"
+          className="rounded-[var(--radius-md)] border border-amber-500/40 bg-amber-50 px-4 py-3 text-sm text-foreground"
           role="status"
         >
           <p>
@@ -578,13 +665,36 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
         </CardContent>
       </Card>
 
-      <p className="text-center text-sm text-muted-foreground">
-        Want to save invoices to your history later?{" "}
-        <Link href={routes.login} className="ss-link-underline font-semibold text-foreground">
-          Log in
-        </Link>
-        .
-      </p>
+      {user ? null : (
+        <p className="text-center text-sm text-muted-foreground">
+          Want to keep your files in your history?{" "}
+          <Link href={routes.login} className="ss-link-underline font-semibold text-foreground">
+            Log in
+          </Link>
+          .
+        </p>
+      )}
+
+      <ConfirmDialog
+        open={pendingOutputs !== null}
+        onOpenChange={(open) => {
+          // Closing without choosing still downloads: they asked for the file.
+          if (!open && pendingOutputs && !saving) {
+            downloadOutputs(pendingOutputs);
+            setPendingOutputs(null);
+          }
+        }}
+        title="Save to your history?"
+        description={
+          pendingOutputs && pendingOutputs.length > 1
+            ? `Keep these ${pendingOutputs.length} files in your history so you can download them again later.`
+            : "Keep this file in your history so you can download it again later."
+        }
+        cancelLabel="Download only"
+        confirmLabel="Download & save"
+        loading={saving}
+        onConfirm={() => void onSaveToHistory()}
+      />
     </div>
   );
 }
@@ -634,6 +744,12 @@ function ToolOptionsPanel(props: {
   setSignerName: (v: string) => void;
   signPage: number;
   setSignPage: (v: number) => void;
+  targetSize: string;
+  setTargetSize: (v: string) => void;
+  targetUnit: "KB" | "MB";
+  setTargetUnit: (v: "KB" | "MB") => void;
+  targetInvalid: boolean;
+  sourceSize: number | null;
 }) {
   const { tool } = props;
   const showPassword =
@@ -651,6 +767,7 @@ function ToolOptionsPanel(props: {
   const showEdit = tool.slug === "edit-pdf";
   const showForms = tool.slug === "pdf-forms";
   const showSign = tool.slug === "sign-pdf";
+  const showCompress = tool.slug === "compress-pdf";
 
   const visible =
     showPassword ||
@@ -665,7 +782,8 @@ function ToolOptionsPanel(props: {
     showHtml ||
     showEdit ||
     showForms ||
-    showSign;
+    showSign ||
+    showCompress;
 
   if (!visible) return null;
 
@@ -745,6 +863,54 @@ function ToolOptionsPanel(props: {
               value={props.cropMargin}
               onChange={(e) => props.setCropMargin(Number(e.target.value) || 0)}
             />
+          </div>
+        ) : null}
+
+        {showCompress ? (
+          <div className="space-y-2 sm:col-span-2">
+            <Label htmlFor="compress-target">Target file size (optional)</Label>
+            <div className="flex gap-2">
+              <Input
+                id="compress-target"
+                type="number"
+                inputMode="decimal"
+                min={0}
+                step="any"
+                value={props.targetSize}
+                onChange={(e) => props.setTargetSize(e.target.value)}
+                placeholder="e.g. 200"
+                aria-invalid={props.targetInvalid || undefined}
+                aria-describedby="compress-target-hint"
+                className="max-w-40"
+              />
+              <select
+                aria-label="Target size unit"
+                className="flex h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+                value={props.targetUnit}
+                onChange={(e) =>
+                  props.setTargetUnit(e.target.value as "KB" | "MB")
+                }
+              >
+                <option value="KB">KB</option>
+                <option value="MB">MB</option>
+              </select>
+            </div>
+            <p
+              id="compress-target-hint"
+              className={
+                props.targetInvalid
+                  ? "text-xs text-destructive"
+                  : "text-xs text-muted-foreground"
+              }
+            >
+              {props.targetInvalid
+                ? "Enter a size greater than 0."
+                : `Leave blank for standard compression.${
+                    props.sourceSize
+                      ? ` Your file is ${formatFileSize(props.sourceSize)}.`
+                      : ""
+                  }`}
+            </p>
           </div>
         ) : null}
 

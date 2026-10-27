@@ -3,8 +3,12 @@ import { siteConfig } from "@/config/site";
 import { routes } from "@/config/routes";
 import { PDF_TOOLS } from "@/features/pdf-tools/catalog";
 
+/**
+ * Public marketing sitemap only.
+ * Excludes: account, history, login, signup, onboarding, /i/*, /dev/*, /api/*.
+ */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = siteConfig.url.replace(/\/$/, "");
+  const base = siteConfig.canonicalUrl.replace(/\/$/, "");
   const now = new Date();
 
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -18,8 +22,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     routes.guideUkInvoice,
     routes.calcVat,
     routes.calcLateInterest,
-    routes.login,
-    routes.signup,
   ].map((path) => ({
     url: `${base}${path || "/"}`,
     lastModified: now,
@@ -34,6 +36,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  // Template gallery is one page; do not list account/history/public invoice tokens
   return [...staticRoutes, ...tools];
 }

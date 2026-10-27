@@ -1,6 +1,5 @@
 "use client";
 
-import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,7 +15,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
@@ -74,8 +72,6 @@ function contrastRatio(fg: string, bg: string) {
 }
 
 export function StyleguideClient() {
-  const { theme, setTheme } = useTheme();
-
   return (
     <div className="mx-auto max-w-5xl space-y-16 px-4 py-12 sm:px-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
@@ -83,16 +79,8 @@ export function StyleguideClient() {
           <p className="type-caption text-muted-foreground">Development only</p>
           <h1 className="type-display">Styleguide</h1>
           <p className="type-body-lg mt-2 text-muted-foreground">
-            Tokens and components for Phase 1 review.
+            Tokens and components for Phase 1 review. Light colour scheme only.
           </p>
-        </div>
-        <div className="neu flex items-center gap-3 rounded-[var(--radius-md)] px-3 py-2">
-          <Label htmlFor="theme-toggle">Theme</Label>
-          <Switch
-            id="theme-toggle"
-            checked={theme === "dark"}
-            onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
-          />
         </div>
       </header>
 

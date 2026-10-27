@@ -20,6 +20,11 @@ export function downloadBytes(
   downloadBlob(new Blob([copy], { type: mime }), filename);
 }
 
+export function formatFileSize(bytes: number) {
+  if (bytes >= 1024 * 1024) return `${Number((bytes / (1024 * 1024)).toFixed(2))} MB`;
+  return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+}
+
 export function stemName(file: File) {
   return file.name.replace(/\.[^.]+$/, "") || "document";
 }

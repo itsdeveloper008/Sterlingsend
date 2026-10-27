@@ -5,19 +5,19 @@ import { INVOICE_TEMPLATE_COUNT } from "@/pdf/templates/catalog";
 import { siteConfig } from "@/config/site";
 
 const title = "Invoice templates";
-const description = `Browse ${INVOICE_TEMPLATE_COUNT} invoice templates by layout and colour. Pick one, then create and download a PDF. No account required.`;
+const description = `Browse ${INVOICE_TEMPLATE_COUNT} free UK invoice templates by layout and colour. Pick one, fill in your details and download a professional PDF invoice. No account required.`;
 
 export const metadata: Metadata = {
   title,
   description,
-  metadataBase: new URL(siteConfig.url),
+  metadataBase: new URL(siteConfig.canonicalUrl),
   alternates: {
     canonical: "/templates",
   },
   openGraph: {
     title,
     description,
-    url: `${siteConfig.url}/templates`,
+    url: `${siteConfig.canonicalUrl}/templates`,
     siteName: siteConfig.name,
     locale: "en_GB",
     type: "website",
@@ -28,13 +28,16 @@ export const metadata: Metadata = {
 export default function TemplatesPage() {
   return (
     <MarketingShell>
-      <div className="ss-section border-b border-border-subtle bg-background">
+      <div
+        className="ss-section bg-background"
+        style={{ borderBottom: "1px solid var(--border-decorative)" }}
+      >
         <div className="bonsai-container">
-          <h1 className="bonsai-h1">Invoice templates</h1>
-          <p className="bonsai-lead mt-4 max-w-2xl">
-            {INVOICE_TEMPLATE_COUNT} designs from eight layouts and eleven
-            colours. Choosing one sets the look of the PDF you download from
-            Create invoice.
+          <p className="ss-eyebrow">Gallery</p>
+          <h1 className="bonsai-h1 mt-6">Invoice templates</h1>
+          <p className="bonsai-lead ss-measure mt-6">
+            {INVOICE_TEMPLATE_COUNT} layouts. Pick a colour, then a layout. Your
+            choice applies to the PDF you download and print.
           </p>
         </div>
       </div>

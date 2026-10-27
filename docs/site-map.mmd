@@ -1,0 +1,69 @@
+flowchart TB
+  subgraph Marketing
+    Home["/"]
+    ToolsHub["/tools"]
+    Templates["/templates"]
+    Guides["/guides/what-must-be-on-a-uk-invoice"]
+    Vat["/calculators/vat"]
+    Late["/calculators/late-payment-interest"]
+    Privacy["/privacy"]
+    Terms["/terms"]
+    Cookies["/cookies"]
+  end
+
+  subgraph Invoice
+    Create["/create-invoice"]
+    Preview["/invoice-preview"]
+    PublicInv["/i/token"]
+  end
+
+  subgraph PdfTools
+    ToolPage["/tools/slug ×29"]
+  end
+
+  subgraph AccountArea
+    Login["/login"]
+    Signup["/signup"]
+    Forgot["/forgot-password"]
+    Onboard["/onboarding"]
+    Account["/account"]
+    History["/invoices"]
+    InvDetail["/invoices/id"]
+    InvPdf["/invoices/id/pdf"]
+  end
+
+  subgraph Redirects
+    Pricing["/pricing → /"]
+    Features["/features → /"]
+    Dashboard["/dashboard → /invoices"]
+    Customers["/customers → /invoices"]
+    Services["/services → /invoices"]
+    Settings["/settings* → /account"]
+    InvNew["/invoices/new → /create-invoice"]
+    InvEdit["/invoices/id/edit → /create-invoice?edit=id"]
+  end
+
+  Home -->|Start invoicing| Create
+  Home -->|Explore PDF tools| ToolsHub
+  Home -->|Templates strip| Templates
+  Home -->|CTA| Create
+  Home -->|CTA| ToolsHub
+  Templates -->|Use template| Create
+  ToolsHub --> ToolPage
+  Create -->|Log in / Sign up| Login
+  Create -->|Log in / Sign up| Signup
+  Login --> Onboard
+  Signup --> Onboard
+  Onboard --> Create
+  Login --> History
+  History --> InvDetail
+  History --> InvPdf
+  History -->|Open in builder| Create
+  Create -->|Public share| PublicInv
+  Account --> Create
+  Pricing --> Home
+  Features --> Home
+  Dashboard --> History
+  Settings --> Account
+  InvNew --> Create
+  InvEdit --> Create

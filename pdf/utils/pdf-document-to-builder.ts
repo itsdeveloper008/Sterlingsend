@@ -26,6 +26,7 @@ export function pdfDocumentToBuilder(
       email: doc.business.email,
       phone: doc.business.phone ?? "",
       vatNumber: doc.business.vatNumber ?? "",
+      companyNumber: "",
     },
     customer: {
       name: doc.customer.name,

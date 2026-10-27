@@ -90,12 +90,16 @@ async function seedViaUi(page, { items = 1, notes, templateId } = {}) {
   await fillPh("123 Main St, City, State 12345", "1 High Street, London");
   await fillPh("your@email.com", "hello@acme.test");
   await fillPh("Phone Number", "020 0000 0000");
+  await fillPh("Add VAT number", "GB123456789");
   await fillPh("Add VAT Number", "GB123456789");
   await fillPh("Client Company", "Jane Client");
   await fillPh("Client Address", "2 Client Road");
   await fillPh("client@email.com", "jane@client.test");
   await fillPh("Service or Product", "Line item 1 professional services");
+  await fillPh("Add a note", notes || "Thank you for your business!");
   await fillPh("Thank you for your business!", notes || "Thank you for your business!");
+  const addPayment = page.getByRole("button", { name: /\+ Add payment details/i });
+  if ((await addPayment.count()) > 0) await addPayment.click();
   await fillPh("e.g. John Doe", "Acme Consulting Ltd");
   await fillPh("e.g. Global Bank", "HSBC");
   await fillPh("e.g. 12345678", "GB29NWBK60161331926819");

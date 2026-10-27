@@ -31,32 +31,34 @@ const FAQS = [
 /** Server section; MotionReveal is the only client island. */
 export function HomeFaqSection() {
   return (
-    <section className="bg-white px-4 py-24 dark:bg-[#0B1220] sm:px-6">
+    <section className="ss-section bg-white px-4 sm:px-6">
       <div className="mx-auto w-full max-w-[760px]">
         <MotionReveal>
-          <h2 className="font-[family-name:var(--font-display)] text-[40px] font-bold leading-tight text-[#0F172A] dark:text-white">
-            Questions
-          </h2>
-          <p className="mt-3 text-base text-[#475569] dark:text-[#CBD5E1]">
+          <p className="ss-eyebrow">Help</p>
+          <h2 className="type-h2 mt-6">Questions</h2>
+          <p className="ss-measure mt-6 text-[17px] leading-[1.7] text-[var(--secondary-text)]">
             Short answers about how the product works today.
           </p>
         </MotionReveal>
-        <MotionReveal delayMs={60}>
-          <div className="mt-8 divide-y divide-[#CBD5E1] border-y border-[#CBD5E1] dark:divide-[#334155] dark:border-[#334155]">
-            {FAQS.map((item) => (
-              <details key={item.q} className="group py-5">
-                <summary className="cursor-pointer list-none text-[19px] font-bold text-[#0F172A] marker:content-none dark:text-white">
+        <MotionReveal delayMs={80}>
+          <div className="mt-10">
+            {FAQS.map((item, i) => (
+              <details
+                key={item.q}
+                className="glass group mb-3 rounded-2xl px-5 py-5"
+              >
+                <summary className="cursor-pointer list-none text-[19px] font-semibold text-[var(--ink)] marker:content-none">
                   <span className="flex items-center justify-between gap-4">
                     {item.q}
                     <span
                       aria-hidden
-                      className="text-[#475569] transition-transform duration-150 group-open:rotate-45"
+                      className="text-[var(--secondary-text)] transition-transform duration-[var(--duration-300)] group-open:rotate-45"
                     >
                       +
                     </span>
                   </span>
                 </summary>
-                <p className="mt-3 text-base leading-relaxed text-[#475569] dark:text-[#CBD5E1]">
+                <p className="ss-measure mt-4 text-[17px] leading-[1.7] text-[var(--secondary-text)]">
                   {item.a}
                 </p>
               </details>

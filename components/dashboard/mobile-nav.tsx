@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FileStack, History, Settings } from "lucide-react";
+import { FileStack, FolderOpen, History, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { routes } from "@/config/routes";
 
 const items = [
   { href: routes.invoices, label: "History", icon: History },
+  { href: routes.files, label: "Files", icon: FolderOpen },
   { href: routes.tools, label: "Tools", icon: FileStack },
   { href: routes.account, label: "Account", icon: Settings },
 ];
@@ -20,7 +21,7 @@ export function MobileNav() {
       className="fixed inset-x-0 bottom-0 z-40 border-t border-border-subtle bg-background/95 backdrop-blur-md md:hidden"
       aria-label="Account"
     >
-      <div className="grid grid-cols-3">
+      <div className="grid grid-cols-4">
         {items.map((item) => {
           const Icon = item.icon;
           const active =

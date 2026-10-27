@@ -54,7 +54,12 @@ function prepareElementForCanvas(source: HTMLElement): {
   for (let i = 0; i < sourceNodes.length; i++) {
     const srcEl = sourceNodes[i] as HTMLElement;
     const dstEl = cloneNodes[i] as HTMLElement | undefined;
-    if (!dstEl || !(srcEl instanceof HTMLElement) || !(dstEl instanceof HTMLElement)) {
+    if (
+      !dstEl ||
+      !(srcEl instanceof HTMLElement) ||
+      !(dstEl instanceof HTMLElement) ||
+      !dstEl.isConnected
+    ) {
       continue;
     }
 
@@ -131,6 +136,69 @@ function prepareElementForCanvas(source: HTMLElement): {
       dstEl.style.display = "none";
     }
 
+    // Compact currency control → plain currency code in row 1.
+    if (dstEl.classList.contains("builder-currency-compact")) {
+      const code =
+        (
+          dstEl.querySelector(
+            ".builder-currency-print, .builder-currency-compact-code",
+          ) as HTMLElement | null
+        )?.textContent?.trim() ||
+        (dstEl.querySelector("select") as HTMLSelectElement | null)?.value ||
+        "";
+      const text = document.createElement("span");
+      text.className = "builder-currency-print";
+      text.textContent = code;
+      text.style.cssText = [
+        "display:inline-block",
+        "font-size:13px",
+        "font-weight:700",
+        "color:#0f172a",
+        "white-space:nowrap",
+        "border:0",
+        "background:transparent",
+        "padding:0",
+      ].join(";");
+      dstEl.replaceWith(text);
+      continue;
+    }
+
+    // Discount compound → single text with value + %/£ (same width, no clip).
+    if (dstEl.classList.contains("builder-discount-compound")) {
+      const input = dstEl.querySelector(
+        "input, .builder-discount-value, .builder-num-field",
+      ) as HTMLInputElement | null;
+      const suffix =
+        dstEl.querySelector(".builder-discount-suffix")?.textContent?.trim() ||
+        "";
+      const value = input?.value?.trim() || "";
+      const text = document.createElement("div");
+      text.className = "builder-discount-print-text";
+      text.textContent = `${value}${suffix}`;
+      text.setAttribute("title", text.textContent);
+      text.style.cssText = [
+        "display:block",
+        "box-sizing:border-box",
+        "width:112px",
+        "max-width:100%",
+        "margin-left:auto",
+        "padding:0 10px",
+        "border:0",
+        "background:transparent",
+        "overflow:visible",
+        "white-space:nowrap",
+        "font-variant-numeric:tabular-nums",
+        "text-align:right",
+        "color:#0f172a",
+        `font-family:${computed.fontFamily}`,
+        `font-size:${computed.fontSize || "15px"}`,
+        "font-weight:600",
+        "line-height:1.3",
+      ].join(";");
+      dstEl.replaceWith(text);
+      continue;
+    }
+
     if (
       dstEl instanceof HTMLInputElement ||
       dstEl instanceof HTMLTextAreaElement ||
@@ -151,17 +219,22 @@ function prepareElementForCanvas(source: HTMLElement): {
           ? dstEl.options[dstEl.selectedIndex]?.text || dstEl.value
           : dstEl.value;
       text.textContent = value || "";
+      if (value) text.setAttribute("title", value);
 
       const color =
         typeof computed.color === "string" && computed.color
           ? computed.color
           : "#0f172a";
+      const isNum =
+        dstEl.classList.contains("builder-num-field") ||
+        dstEl.closest("td.num") != null;
       text.style.cssText = [
         "display:block",
         "width:100%",
         "box-sizing:border-box",
-        "white-space:pre-wrap",
-        "word-break:break-word",
+        isNum ? "white-space:nowrap" : "white-space:pre-wrap",
+        isNum ? "overflow:visible" : "word-break:break-word",
+        isNum ? "font-variant-numeric:tabular-nums" : "",
         `color:${color}`,
         `font-family:${computed.fontFamily}`,
         `font-size:${computed.fontSize}`,
@@ -176,10 +249,14 @@ function prepareElementForCanvas(source: HTMLElement): {
         "box-shadow:none",
         "background:transparent",
         "text-decoration:none",
-      ].join(";");
+      ]
+        .filter(Boolean)
+        .join(";");
 
       if (dstEl instanceof HTMLTextAreaElement || dstEl.tagName === "TEXTAREA") {
         text.style.minHeight = "1.5em";
+        text.style.whiteSpace = "pre-wrap";
+        text.style.overflow = "visible";
       }
 
       dstEl.replaceWith(text);
@@ -198,6 +275,13 @@ function prepareElementForCanvas(source: HTMLElement): {
     "--inv-teal-deep",
     "--inv-primary-soft",
     "--inv-accent-soft",
+    "--inv-accent-softer",
+    "--inv-accent-dark",
+    "--inv-accent-mid",
+    "--inv-accent-light",
+    "--inv-accent-pale",
+    "--inv-accent-text",
+    "--inv-on-accent",
   ]) {
     const value = sourceStyle.getPropertyValue(key).trim();
     if (value) clone.style.setProperty(key, value);

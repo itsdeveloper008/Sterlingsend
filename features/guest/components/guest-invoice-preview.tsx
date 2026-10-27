@@ -146,9 +146,10 @@ export function GuestInvoicePreview() {
               <ArrowLeft className="mr-2 h-4 w-4" />
               Edit invoice
             </Link>
-            <p className="mt-1 truncate text-sm font-semibold text-[#0F172A]">
+            {/* Page heading; utilities undo the global display h1 style. */}
+            <h1 className="mt-1 truncate font-sans text-sm leading-5 font-semibold tracking-normal text-[#0F172A]">
               {invoice.invoiceNumber}
-            </p>
+            </h1>
           </div>
           <div className="guest-preview-toolbar flex shrink-0 flex-wrap gap-2">
             <Button

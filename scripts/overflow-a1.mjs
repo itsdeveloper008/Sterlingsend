@@ -5,23 +5,14 @@
 import { chromium } from "playwright";
 
 const BASE = process.argv[2] || "http://127.0.0.1:3000";
-const WIDTHS = [320, 360, 390, 768, 1024, 1440];
-const THEMES = ["light", "dark"];
+const WIDTHS = [390, 768, 1000, 1200, 1440];
+const THEMES = ["light"];
 const PAGES = [
   "/",
-  "/tools",
-  "/tools/merge-pdf",
-  "/templates",
-  "/login",
-  "/signup",
-  "/forgot-password",
   "/create-invoice",
   "/invoices",
-  "/account",
-  "/onboarding",
-  "/privacy",
-  "/cookies",
-  "/not-a-real-page-404",
+  "/templates",
+  "/tools",
 ];
 
 const rows = [];

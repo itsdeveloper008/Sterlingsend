@@ -15,6 +15,7 @@ import { getAuthErrorMessage } from "@/features/auth/lib/auth-errors";
 import { GoogleGlyph } from "@/features/auth/components/google-glyph";
 import { PageDescription, PageTitle } from "@/components/design-system/typography";
 import { AUTH_POST_LOGIN_KEY } from "@/firebase/auth";
+import { safeRedirectPath } from "@/lib/auth-hint";
 
 export function SignupForm() {
   const searchParams = useSearchParams();
@@ -46,11 +47,10 @@ export function SignupForm() {
       const redirectTo = await signUp(email, password, displayName);
       setSuccess(true);
       toast.success("Account created");
-      const requested = searchParams.get("redirect");
       const destination =
-        requested && requested.startsWith("/")
-          ? requested
-          : (redirectTo ?? routes.home);
+        safeRedirectPath(searchParams.get("redirect")) ??
+        redirectTo ??
+        routes.home;
       window.setTimeout(() => {
         window.location.assign(destination);
       }, 400);
@@ -71,8 +71,8 @@ export function SignupForm() {
     setFormError(null);
 
     try {
-      const requested = searchParams.get("redirect");
-      if (requested && requested.startsWith("/")) {
+      const requested = safeRedirectPath(searchParams.get("redirect"));
+      if (requested) {
         sessionStorage.setItem(AUTH_POST_LOGIN_KEY, requested);
       } else {
         sessionStorage.removeItem(AUTH_POST_LOGIN_KEY);
@@ -83,9 +83,7 @@ export function SignupForm() {
       setSuccess(true);
       toast.success("Welcome to SterlingSend");
       window.location.assign(
-        (requested && requested.startsWith("/") ? requested : null) ??
-          result ??
-          routes.home,
+        requested ?? result ?? routes.home,
       );
     } catch (error) {
       setFormError(getAuthErrorMessage(error, "Could not continue with Google"));

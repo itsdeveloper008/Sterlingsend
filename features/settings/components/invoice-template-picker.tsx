@@ -38,7 +38,7 @@ export function InvoiceTemplatePicker({
           (t) =>
             t.name.toLowerCase().includes(q) ||
             t.category.toLowerCase().includes(q) ||
-            t.palette.toLowerCase().includes(q),
+            t.description.toLowerCase().includes(q),
         ),
       }))
       .filter((group) => group.templates.length > 0);
@@ -127,7 +127,7 @@ export function InvoiceTemplatePicker({
                         {template.name}
                       </span>
                       <span className="block text-xs text-muted-foreground">
-                        {template.palette}
+                        {template.description}
                       </span>
                     </span>
                     {selected ? (

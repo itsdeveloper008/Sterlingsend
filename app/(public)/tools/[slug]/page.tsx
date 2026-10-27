@@ -22,14 +22,14 @@ export async function generateMetadata({
   return {
     title: tool.seoTitle,
     description: tool.seoDescription,
-    metadataBase: new URL(siteConfig.url),
+    metadataBase: new URL(siteConfig.canonicalUrl),
     alternates: {
       canonical: `/tools/${slug}`,
     },
     openGraph: {
       title: tool.seoTitle,
       description: tool.seoDescription,
-      url: `${siteConfig.url}/tools/${slug}`,
+      url: `${siteConfig.canonicalUrl}/tools/${slug}`,
       siteName: siteConfig.name,
       locale: "en_GB",
       type: "website",

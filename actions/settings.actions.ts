@@ -19,6 +19,19 @@ export async function updateInvoiceTemplateAction(templateId: string) {
   return { success: true as const, templateId: template.id };
 }
 
+export async function updateAccentColorAction(accentColor: string) {
+  const { business } = await requireOnboarding();
+  const current = await settingsService.getByBusinessId(business.id);
+  await settingsService.update(business.id, {
+    branding: {
+      ...current.branding,
+      accentColor,
+      primaryColor: accentColor,
+    },
+  });
+  return { success: true as const, accentColor };
+}
+
 export async function getInvoiceBrandingAction() {
   const { business } = await requireOnboarding();
   const settings = await settingsService.getByBusinessId(business.id);

@@ -6,7 +6,7 @@ import { routes } from "@/config/routes";
 export const metadata: Metadata = {
   title: "What must be on a UK invoice",
   description:
-    "Checklist of details that commonly belong on a UK business invoice, with links to GOV.UK. Not tax advice.",
+    "Checklist of what commonly belongs on a UK business invoice, from VAT numbers to payment terms, with links to official GOV.UK guidance. Not tax advice.",
   alternates: { canonical: "/guides/what-must-be-on-a-uk-invoice" },
 };
 

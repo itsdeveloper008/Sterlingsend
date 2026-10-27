@@ -52,7 +52,7 @@ export function CookieBanner({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "glass fixed inset-x-0 bottom-0 z-50 border-t border-border-subtle px-3 py-2.5 shadow-[var(--shadow-2)] print:hidden",
+        "glass-strong fixed inset-x-0 bottom-0 z-50 px-3 py-2.5 print:hidden",
         className,
       )}
       role="dialog"

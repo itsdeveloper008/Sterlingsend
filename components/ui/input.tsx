@@ -15,7 +15,7 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
         "focus-visible:border-[var(--brand-500)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-500)]",
         "disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-muted/50 disabled:opacity-50",
         "aria-invalid:border-destructive aria-invalid:outline-destructive/30",
-        "md:text-sm dark:bg-card",
+        "md:text-sm ",
         className,
       )}
       {...props}

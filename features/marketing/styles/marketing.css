@@ -68,17 +68,25 @@
 
 .bonsai-eyebrow {
   display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  border-radius: 9999px;
-  border: 1px solid rgba(13, 148, 136, 0.2);
-  background: rgba(204, 251, 241, 0.55);
-  padding: 0.35rem 0.85rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--m-teal-hover);
+  color: var(--brand-700);
+}
+
+.bonsai-eyebrow::before {
+  content: "";
+  display: block;
+  width: 32px;
+  height: 1px;
+  background: var(--brand-700);
 }
 
 .bonsai-brand-mark {
@@ -97,7 +105,7 @@
 .bonsai-h1 {
   font-family: var(--m-display);
   font-size: var(--text-h1);
-  font-weight: 700;
+  font-weight: 600;
   font-style: normal;
   letter-spacing: -0.02em;
   line-height: var(--lh-h1);
@@ -107,7 +115,7 @@
 .bonsai-h2 {
   font-family: var(--m-display);
   font-size: var(--text-h2);
-  font-weight: 700;
+  font-weight: 600;
   font-style: normal;
   letter-spacing: -0.02em;
   line-height: var(--lh-h2);
@@ -159,25 +167,23 @@
   border: 1px solid transparent;
   background: var(--brand-700);
   padding: 0 1.5rem;
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   color: #fff;
-  box-shadow: var(--shadow-2);
+  box-shadow: var(--btn-inner-hi);
   transition:
-    transform var(--duration-150) var(--ease),
-    box-shadow var(--duration-150) var(--ease),
-    background-color var(--duration-150) var(--ease);
+    transform var(--duration-300) var(--ease),
+    background-color var(--duration-300) var(--ease);
 }
 
 .bonsai-btn-primary:hover {
   transform: translateY(-1px);
   background: var(--primary-hover);
-  box-shadow: var(--shadow-3);
 }
 
 .bonsai-btn-primary:active {
   transform: translateY(0);
-  box-shadow: var(--shadow-1);
 }
 
 .bonsai-btn-primary--sm {
@@ -193,11 +199,12 @@
   gap: 0.45rem;
   height: var(--btn-h-lg);
   border-radius: var(--radius-btn);
-  border: 1px solid var(--border-ui);
+  border: 1.5px solid #94a3b8;
   background: var(--background);
   padding: 0 1.5rem;
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: 600;
+  letter-spacing: 0.01em;
   color: var(--m-text);
   box-shadow: none;
   transition:
@@ -207,8 +214,8 @@
 }
 
 .bonsai-btn-secondary:hover {
-  background: var(--m-surface);
-  border-color: color-mix(in srgb, var(--brand-700) 35%, var(--border-ui));
+  background: #fff;
+  border-color: var(--ink);
   transform: translateY(-1px);
 }
 

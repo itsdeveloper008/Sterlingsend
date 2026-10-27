@@ -1,5 +1,6 @@
 export type InvoiceStampType =
   | "draft"
+  | "paid"
   | "pending"
   | "approved"
   | "declined"
@@ -16,7 +17,7 @@ export type InvoiceStamp = {
   size: InvoiceStampSize;
 };
 
-/** Add a stamp type here (e.g. Paid) as a one-line addition. */
+/** Add a stamp type here as a one-line addition. */
 export const INVOICE_STAMPS = [
   {
     type: "draft" as const,
@@ -24,6 +25,13 @@ export const INVOICE_STAMPS = [
     color: "#475569",
     rotation: -10,
     src: "/stamps/draft.svg",
+  },
+  {
+    type: "paid" as const,
+    label: "Paid",
+    color: "#0F766E",
+    rotation: -10,
+    src: "/stamps/paid.svg",
   },
   {
     type: "pending" as const,

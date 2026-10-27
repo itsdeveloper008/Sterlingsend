@@ -1,8 +1,19 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { SESSION_COOKIE_NAME, routes } from "@/config/routes";
+import {
+  PATHNAME_HEADER,
+  SESSION_COOKIE_NAME,
+  routes,
+} from "@/config/routes";
+import { safeRedirectPath } from "@/lib/auth-hint";
 
 /** Account-only: invoice history, settings, onboarding. */
-const protectedPrefixes = ["/onboarding", "/invoices", "/settings", "/account"];
+const protectedPrefixes = [
+  "/onboarding",
+  "/invoices",
+  "/files",
+  "/settings",
+  "/account",
+];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -10,6 +21,8 @@ export async function middleware(request: NextRequest) {
 
   if (request.nextUrl.searchParams.get("clearSession") === "1") {
     const loginUrl = new URL(routes.login, request.url);
+    const back = safeRedirectPath(request.nextUrl.searchParams.get("redirect"));
+    if (back) loginUrl.searchParams.set("redirect", back);
     const response = NextResponse.redirect(loginUrl);
     response.cookies.set({
       name: SESSION_COOKIE_NAME,
@@ -33,6 +46,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  if (isProtected) {
+    const headers = new Headers(request.headers);
+    headers.set(PATHNAME_HEADER, `${pathname}${request.nextUrl.search}`);
+    return NextResponse.next({ request: { headers } });
+  }
+
   return NextResponse.next();
 }
 
@@ -42,6 +61,8 @@ export const config = {
     "/onboarding/:path*",
     "/invoices",
     "/invoices/:path*",
+    "/files",
+    "/files/:path*",
     "/settings",
     "/settings/:path*",
     "/account",
