@@ -8,6 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { clearLocalDrafts } from "@/lib/local-drafts";
 import { toast } from "sonner";
 import { isFirebaseConfigured } from "@/firebase/is-configured";
 import { routes } from "@/config/routes";
@@ -323,6 +324,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const handleSignOut = useCallback(async () => {
+    clearLocalDrafts();
     await clearSession();
     if (isFirebaseConfigured()) {
       const authApi = await loadAuthApi();

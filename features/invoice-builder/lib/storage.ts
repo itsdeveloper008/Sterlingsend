@@ -5,6 +5,8 @@ import {
 import { createDefaultBuilderInvoice } from "@/features/invoice-builder/lib/defaults";
 
 const STORAGE_KEY = "ss_invoice_builder";
+/** uid of the account the draft belongs to; absent for a guest draft. */
+const OWNER_KEY = "ss_invoice_builder_owner";
 const TTL_MS = 1000 * 60 * 60 * 24 * 30;
 
 export function saveBuilderInvoice(invoice: BuilderInvoice) {
@@ -65,4 +67,23 @@ export function loadBuilderInvoice(): BuilderInvoice | null {
 export function clearBuilderInvoice() {
   if (typeof window === "undefined") return;
   localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(OWNER_KEY);
+}
+
+export function readBuilderDraftOwner(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return localStorage.getItem(OWNER_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function writeBuilderDraftOwner(uid: string) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(OWNER_KEY, uid);
+  } catch {
+    // ignore
+  }
 }

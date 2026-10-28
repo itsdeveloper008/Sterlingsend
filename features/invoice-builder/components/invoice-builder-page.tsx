@@ -22,6 +22,10 @@ import {
   isCurrencyCode,
 } from "@/config/currencies";
 import { useAuth } from "@/hooks/use-auth";
+import {
+  readBuilderDraftOwner,
+  writeBuilderDraftOwner,
+} from "@/features/invoice-builder/lib/storage";
 import { routes } from "@/config/routes";
 import {
   builderToSavePayload,
@@ -79,7 +83,7 @@ export function InvoiceBuilderPage({
 }) {
   const { user, loading: authLoading } = useAuth();
   const skipClearOnMount = Boolean(initialInvoice);
-  const { invoice, hydrated, dirty, dispatch, setLogoFromFile } =
+  const { invoice, hydrated, dirty, dispatch, setLogoFromFile, resetInvoice } =
     useInvoiceBuilder({ skipClearOnMount });
   const [busy, setBusy] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -162,6 +166,15 @@ export function InvoiceBuilderPage({
     dispatch({ type: "hydrate", invoice: pending });
     setShowRestoredBanner(true);
   }, [authLoading, user, dispatch]);
+
+  // A draft left by another account on this browser must never show: start
+  // blank, then claim the draft for whoever is signed in now.
+  useEffect(() => {
+    if (authLoading || initialInvoice) return;
+    const owner = readBuilderDraftOwner();
+    if (owner && owner !== user?.uid) resetInvoice();
+    if (user) writeBuilderDraftOwner(user.uid);
+  }, [authLoading, user, initialInvoice, resetInvoice]);
 
   useEffect(() => {
     if (authLoading || !user || editId || savedId || initialInvoice) return;
