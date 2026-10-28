@@ -85,11 +85,17 @@ export async function POST(request: Request) {
     }
 
     // Land on the marketing home after login - never the dashboard - unless
-    // the business details still need filling in. Login/signup can still
-    // honor a `?redirect=` query param client-side.
+    // the business details still need filling in. The admin goes straight to
+    // the admin panel. Login/signup can still honor a `?redirect=` query
+    // param client-side.
+    const isAdmin = isAdminSession(decoded);
     const needsProfile =
-      !isAdminSession(decoded) && !(await hasCompleteBusinessProfile(decoded.uid));
-    const redirectTo = needsProfile ? routes.onboarding : routes.home;
+      !isAdmin && !(await hasCompleteBusinessProfile(decoded.uid));
+    const redirectTo = isAdmin
+      ? routes.admin
+      : needsProfile
+        ? routes.onboarding
+        : routes.home;
 
     const response = NextResponse.json({ success: true, redirectTo });
 
