@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { routes } from "@/config/routes";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,27 @@ export function CookieBanner({ className }: { className?: string }) {
     };
   }, []);
 
+  // Publish the banner height so notifications (Toaster) sit above it.
+  const bannerRef = useRef<HTMLDivElement>(null);
+  const visible = consent === null;
+  useEffect(() => {
+    const root = document.documentElement;
+    const el = bannerRef.current;
+    if (!visible || !el) {
+      root.style.removeProperty("--cookie-banner-h");
+      return;
+    }
+    const update = () =>
+      root.style.setProperty("--cookie-banner-h", `${el.offsetHeight}px`);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty("--cookie-banner-h");
+    };
+  }, [visible]);
+
   useEffect(() => {
     if (consent !== "accepted") return;
     persistUtms(captureUtmsFromUrl(window.location.search));
@@ -51,6 +72,7 @@ export function CookieBanner({ className }: { className?: string }) {
 
   return (
     <div
+      ref={bannerRef}
       className={cn(
         "glass-strong fixed inset-x-0 bottom-0 z-50 px-3 py-2.5 print:hidden",
         className,
