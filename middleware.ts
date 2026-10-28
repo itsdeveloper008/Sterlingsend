@@ -45,7 +45,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.rewrite(new URL("/not-found-page", request.url));
   }
   if (ADMIN_SLUG_PATH.test(pathname)) {
-    const adminPath = getAdminPanelPath();
+    const adminPath = await getAdminPanelPath();
     if (adminPath && pathname.toLowerCase() === adminPath) {
       return NextResponse.rewrite(new URL(routes.admin, request.url));
     }

@@ -94,7 +94,7 @@ export async function POST(request: Request) {
     const needsProfile =
       !isAdmin && !(await hasCompleteBusinessProfile(decoded.uid));
     const redirectTo = isAdmin
-      ? (getAdminPanelPath() ?? routes.home)
+      ? ((await getAdminPanelPath()) ?? routes.home)
       : needsProfile
         ? routes.onboarding
         : routes.home;

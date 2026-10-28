@@ -20,6 +20,7 @@ import { Logo } from "@/components/design-system/logo";
 import { ButtonLink } from "@/components/ui/button-link";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { useAdminLink } from "@/hooks/use-admin-link";
 import { clearAuthHint, readAuthHint } from "@/lib/auth-hint";
 import {
   CATEGORY_META,
@@ -233,6 +234,7 @@ export function SiteHeader({
 } = {}) {
   const pathname = usePathname();
   const { user, loading, signOut } = useAuth();
+  const adminLink = useAdminLink();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileReady, setMobileReady] = useState(false);
   const [pdfOpen, setPdfOpen] = useState(false);
@@ -357,6 +359,16 @@ export function SiteHeader({
                     </DropdownMenuLabel>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
+                  {adminLink ? (
+                    <DropdownMenuItem
+                      className="cursor-pointer font-semibold text-[var(--brand-700)]"
+                      onClick={() => {
+                        window.location.href = adminLink;
+                      }}
+                    >
+                      Admin panel
+                    </DropdownMenuItem>
+                  ) : null}
                   <DropdownMenuItem
                     className="cursor-pointer"
                     onClick={() => {

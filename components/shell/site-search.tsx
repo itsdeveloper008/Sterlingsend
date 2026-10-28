@@ -54,7 +54,13 @@ export function SiteSearch({
   const groups = ["Pages", "PDF tools"] as const;
 
   return (
-    <CommandDialog open={open} onOpenChange={onOpenChange}>
+    <CommandDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Search"
+      description="Search pages and PDF tools"
+      shouldFilter={false}
+    >
       <CommandInput
         placeholder="Search pages and PDF tools..."
         value={query}

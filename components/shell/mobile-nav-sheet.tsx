@@ -20,6 +20,7 @@ import {
 } from "@/features/pdf-tools/catalog";
 import type { AuthUser } from "@/providers/auth-provider";
 import { cn } from "@/lib/utils";
+import { useAdminLink } from "@/hooks/use-admin-link";
 
 const PDF_CATEGORY_ORDER: ToolCategory[] = [
   "optimize",
@@ -54,6 +55,7 @@ export function MobileNavSheet({
   showHistory: boolean;
   onSignOut: () => void;
 }) {
+  const adminLink = useAdminLink();
   const [pdfExpanded, setPdfExpanded] = useState(false);
   const pdfId = useId();
 
@@ -175,6 +177,14 @@ export function MobileNavSheet({
           <div className="mt-auto space-y-2 border-t border-[#E2E8F0] p-4">
             {!loading && user ? (
               <>
+                {adminLink ? (
+                  <a
+                    href={adminLink}
+                    className="flex h-12 w-full items-center justify-center rounded-[var(--radius-md)] bg-[var(--brand-900)] text-sm font-semibold text-white"
+                  >
+                    Admin panel
+                  </a>
+                ) : null}
                 <ButtonLink
                   href={routes.account}
                   variant="outline"

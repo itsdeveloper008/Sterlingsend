@@ -34,11 +34,14 @@ function CommandDialog({
   description = "Search for a command to run...",
   children,
   className,
+  shouldFilter,
   ...props
 }: Omit<React.ComponentProps<typeof Dialog>, "children"> & {
   title?: string;
   description?: string;
   className?: string;
+  /** false when the caller filters results itself. */
+  shouldFilter?: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -54,7 +57,8 @@ function CommandDialog({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        {children}
+        {/* cmdk's Input/List/Item need the Command store; without it they crash. */}
+        <Command shouldFilter={shouldFilter}>{children}</Command>
       </DialogContent>
     </Dialog>
   );

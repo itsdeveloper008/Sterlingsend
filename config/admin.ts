@@ -12,13 +12,31 @@ export function getAdminEmails(): string[] {
 }
 
 /**
- * The admin panel has no public address: it is served only at
- * /<ADMIN_PATH>, a 32-character hex secret kept in the environment.
- * /admin itself always 404s. Without a valid ADMIN_PATH the panel is off.
+ * The admin panel has no public address: it is served only at a secret
+ * /<32 hex chars> path. /admin itself always 404s. The path is ADMIN_PATH
+ * when set, otherwise derived from the Firebase server key, which never
+ * leaves the server. Works in middleware (Web Crypto) and in Node.
  */
 export const ADMIN_PATH_PATTERN = /^[a-f0-9]{32}$/;
 
-export function getAdminPanelPath(): string | null {
+let derivedPath: Promise<string | null> | undefined;
+
+export function getAdminPanelPath(): Promise<string | null> {
   const slug = process.env.ADMIN_PATH?.trim().toLowerCase();
-  return slug && ADMIN_PATH_PATTERN.test(slug) ? `/${slug}` : null;
+  if (slug && ADMIN_PATH_PATTERN.test(slug)) return Promise.resolve(`/${slug}`);
+  derivedPath ??= deriveAdminPath();
+  return derivedPath;
+}
+
+async function deriveAdminPath(): Promise<string | null> {
+  const secret = process.env.FIREBASE_PRIVATE_KEY;
+  if (!secret) return null;
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(`sterlingsend-admin-path:${secret}`),
+  );
+  const hex = Array.from(new Uint8Array(digest), (b) =>
+    b.toString(16).padStart(2, "0"),
+  ).join("");
+  return `/${hex.slice(0, 32)}`;
 }

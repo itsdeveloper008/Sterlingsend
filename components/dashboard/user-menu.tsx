@@ -1,6 +1,6 @@
 "use client";
 
-import { FolderOpen, History, LogOut, User } from "lucide-react";
+import { FolderOpen, History, LogOut, ShieldCheck, User } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -12,10 +12,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/use-auth";
+import { useAdminLink } from "@/hooks/use-admin-link";
 import { routes } from "@/config/routes";
 
 export function UserMenu() {
   const { user, signOut } = useAuth();
+  const adminLink = useAdminLink();
 
   const initials =
     user?.displayName?.slice(0, 2).toUpperCase() ??
@@ -61,6 +63,17 @@ export function UserMenu() {
           <FolderOpen className="mr-2 h-4 w-4" />
           Saved files
         </DropdownMenuItem>
+        {adminLink ? (
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => {
+              window.location.href = adminLink;
+            }}
+          >
+            <ShieldCheck className="mr-2 h-4 w-4" />
+            Admin panel
+          </DropdownMenuItem>
+        ) : null}
         <DropdownMenuItem
           className="cursor-pointer"
           onClick={() => {
