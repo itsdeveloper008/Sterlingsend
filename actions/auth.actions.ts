@@ -7,6 +7,7 @@ import { PATHNAME_HEADER, SESSION_COOKIE_NAME } from "@/config/routes";
 import { userService } from "@/services/user.service";
 import { businessService } from "@/services/business.service";
 import { routes } from "@/config/routes";
+import { isBusinessProfileComplete } from "@/lib/business-profile";
 
 export async function getCurrentUserContext() {
   const session = await getServerSession();
@@ -63,8 +64,13 @@ export async function requireOnboarding() {
     business = await businessService.getByOwnerId(context.session.uid);
   }
 
-  if (!business) {
-    redirect(routes.onboarding);
+  if (!business || !isBusinessProfileComplete(business)) {
+    const back = (await headers()).get(PATHNAME_HEADER);
+    redirect(
+      back
+        ? `${routes.onboarding}?redirect=${encodeURIComponent(back)}`
+        : routes.onboarding,
+    );
   }
 
   return {

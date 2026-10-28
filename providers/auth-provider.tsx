@@ -11,9 +11,13 @@ import {
 import { toast } from "sonner";
 import { isFirebaseConfigured } from "@/firebase/is-configured";
 import { routes } from "@/config/routes";
+import { needsBusinessProfile } from "@/actions/onboarding.actions";
+
+const PROFILE_OK_KEY = "ss_profile_ok";
 import {
   clearAuthHint,
   isAuthRoute,
+  postLoginDestination,
   readAuthHint,
   safeRedirectPath,
   setAuthHint,
@@ -119,12 +123,11 @@ function readPostLoginDestination(
   try {
     const stored = sessionStorage.getItem(authApi.AUTH_POST_LOGIN_KEY);
     sessionStorage.removeItem(authApi.AUTH_POST_LOGIN_KEY);
-    const safe = safeRedirectPath(stored);
-    if (safe) return safe;
+    return postLoginDestination(safeRedirectPath(stored), fallback);
   } catch {
     // ignore
   }
-  return fallback ?? routes.home;
+  return postLoginDestination(null, fallback);
 }
 
 function shouldBootstrapFirebase() {
@@ -226,6 +229,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
   }, []);
+
+  // Signed-in accounts must finish their business details before using the
+  // site; this catches sessions that predate the requirement.
+  useEffect(() => {
+    if (!user) return;
+    const path = window.location.pathname;
+    if (
+      isAuthRoute(path) ||
+      path.startsWith(routes.onboarding) ||
+      path.startsWith(routes.admin)
+    ) {
+      return;
+    }
+    try {
+      if (sessionStorage.getItem(PROFILE_OK_KEY) === user.uid) return;
+    } catch {
+      // ignore
+    }
+    let cancelled = false;
+    void needsBusinessProfile()
+      .then((needed) => {
+        if (cancelled) return;
+        if (needed) {
+          window.location.assign(
+            `${routes.onboarding}?redirect=${encodeURIComponent(path + window.location.search)}`,
+          );
+          return;
+        }
+        try {
+          sessionStorage.setItem(PROFILE_OK_KEY, user.uid);
+        } catch {
+          // ignore
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   const handleSignIn = useCallback(async (email: string, password: string) => {
     if (!isFirebaseConfigured()) {

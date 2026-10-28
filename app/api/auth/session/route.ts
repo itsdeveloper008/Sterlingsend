@@ -7,6 +7,8 @@ import {
 import { getAdminAuth } from "@/firebase/admin";
 import { userService } from "@/services/user.service";
 import { routes } from "@/config/routes";
+import { isAdminSession } from "@/services/admin.service";
+import { hasCompleteBusinessProfile } from "@/services/business-profile.service";
 import type { DecodedIdToken } from "firebase-admin/auth";
 
 function isRetriableNetworkError(error: unknown): boolean {
@@ -82,9 +84,12 @@ export async function POST(request: Request) {
       });
     }
 
-    // Always land on the marketing home after login - never the dashboard.
-    // Login/signup can still honor a `?redirect=` query param client-side.
-    const redirectTo = routes.home;
+    // Land on the marketing home after login - never the dashboard - unless
+    // the business details still need filling in. Login/signup can still
+    // honor a `?redirect=` query param client-side.
+    const needsProfile =
+      !isAdminSession(decoded) && !(await hasCompleteBusinessProfile(decoded.uid));
+    const redirectTo = needsProfile ? routes.onboarding : routes.home;
 
     const response = NextResponse.json({ success: true, redirectTo });
 

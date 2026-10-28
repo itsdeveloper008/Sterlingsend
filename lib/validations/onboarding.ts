@@ -18,6 +18,12 @@ export const onboardingSchema = z.object({
   email: z.string().email("Enter a valid email address"),
   businessType: businessTypeSchema,
   phone: phoneSchema,
+  city: z
+    .string()
+    .trim()
+    .min(2, "Enter your town or city")
+    .max(80, "Town or city is too long"),
+  postcode: z.string().trim().max(12, "Postcode is too long"),
 });
 
 export type OnboardingFormData = z.infer<typeof onboardingSchema>;
@@ -27,6 +33,8 @@ export const defaultOnboardingValues: OnboardingFormData = {
   email: "",
   businessType: "" as OnboardingFormData["businessType"],
   phone: "",
+  city: "",
+  postcode: "",
 };
 
 /** Applied server-side when creating the business  -  not collected in the UI. */

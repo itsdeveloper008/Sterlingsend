@@ -15,7 +15,7 @@ import { getAuthErrorMessage } from "@/features/auth/lib/auth-errors";
 import { GoogleGlyph } from "@/features/auth/components/google-glyph";
 import { PageDescription, PageTitle } from "@/components/design-system/typography";
 import { AUTH_POST_LOGIN_KEY } from "@/firebase/auth";
-import { safeRedirectPath } from "@/lib/auth-hint";
+import { postLoginDestination, safeRedirectPath } from "@/lib/auth-hint";
 
 export function SignupForm() {
   const searchParams = useSearchParams();
@@ -47,10 +47,10 @@ export function SignupForm() {
       const redirectTo = await signUp(email, password, displayName);
       setSuccess(true);
       toast.success("Account created");
-      const destination =
-        safeRedirectPath(searchParams.get("redirect")) ??
-        redirectTo ??
-        routes.home;
+      const destination = postLoginDestination(
+        safeRedirectPath(searchParams.get("redirect")),
+        redirectTo,
+      );
       window.setTimeout(() => {
         window.location.assign(destination);
       }, 400);
@@ -82,9 +82,7 @@ export function SignupForm() {
 
       setSuccess(true);
       toast.success("Welcome to SterlingSend");
-      window.location.assign(
-        requested ?? result ?? routes.home,
-      );
+      window.location.assign(postLoginDestination(requested, result));
     } catch (error) {
       setFormError(getAuthErrorMessage(error, "Could not continue with Google"));
       setGoogleLoading(false);

@@ -13,7 +13,7 @@ import { GoogleGlyph } from "@/features/auth/components/google-glyph";
 import type { MascotState } from "@/features/auth/components/mascot-character";
 import { cn } from "@/lib/utils";
 import { AUTH_POST_LOGIN_KEY } from "@/firebase/auth";
-import { safeRedirectPath } from "@/lib/auth-hint";
+import { postLoginDestination, safeRedirectPath } from "@/lib/auth-hint";
 
 const MascotCharacter = dynamic(
   () =>
@@ -100,10 +100,10 @@ export function LoginForm() {
       const redirectTo = await signIn(email, password);
       setSuccess(true);
       toast.success("Welcome back");
-      const destination =
-        safeRedirectPath(searchParams.get("redirect")) ??
-        redirectTo ??
-        routes.home;
+      const destination = postLoginDestination(
+        safeRedirectPath(searchParams.get("redirect")),
+        redirectTo,
+      );
       window.setTimeout(() => {
         window.location.assign(destination);
       }, 480);
@@ -147,7 +147,7 @@ export function LoginForm() {
       toast.success("Welcome back");
       // Popup sign-in: honour ?redirect like email login does.
       window.setTimeout(() => {
-        window.location.assign(requested ?? result ?? routes.home);
+        window.location.assign(postLoginDestination(requested, result));
       }, 480);
     } catch (error) {
       setSuccess(false);

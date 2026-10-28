@@ -13,6 +13,11 @@ import {
 import { businessService } from "@/services/business.service";
 import { userService } from "@/services/user.service";
 import { settingsService } from "@/services/settings.service";
+import {
+  getBusinessForUser,
+  hasCompleteBusinessProfile,
+} from "@/services/business-profile.service";
+import { isAdminSession } from "@/services/admin.service";
 import { routes } from "@/config/routes";
 
 export type OnboardingActionResult =
@@ -74,31 +79,42 @@ export async function completeOnboarding(
     };
   }
 
-  if (user.businessId) {
-    const existingBusiness = await businessService.getById(user.businessId);
-    if (existingBusiness) {
-      return { success: false, error: "Business profile already exists" };
+  const values = parsed.data;
+  const details = {
+    businessName: values.businessName.trim(),
+    email: values.email.trim(),
+    businessType: values.businessType,
+    phone: values.phone,
+    city: values.city,
+    postcode: values.postcode,
+  };
+
+  // Accounts that skipped setup earlier already have a business: fill it in.
+  const existing = await getBusinessForUser(session.uid);
+  if (existing) {
+    try {
+      await businessService.update(existing.id, details);
+      if (user.businessId !== existing.id) {
+        await userService.update(session.uid, { businessId: existing.id });
+      }
+      return { success: true, businessId: existing.id };
+    } catch (error) {
+      console.error("[completeOnboarding]", error);
+      return {
+        success: false,
+        error: "Could not save your business profile. Please try again.",
+      };
     }
   }
 
-  const existingByOwner = await businessService.getByOwnerId(session.uid);
-  if (existingByOwner) {
-    await userService.update(session.uid, { businessId: existingByOwner.id });
-    return { success: true, businessId: existingByOwner.id };
-  }
-
-  const values = parsed.data;
   const db = getAdminDb();
   const businessRef = db.collection(COLLECTIONS.BUSINESSES).doc();
   const userRef = db.collection(COLLECTIONS.USERS).doc(session.uid);
 
   const businessPayload = withTimestamps({
     ownerId: session.uid,
-    businessName: values.businessName.trim(),
-    email: values.email.trim(),
     ...ONBOARDING_BUSINESS_DEFAULTS,
-    businessType: values.businessType,
-    phone: values.phone,
+    ...details,
   });
 
   try {
@@ -122,90 +138,20 @@ export async function completeOnboarding(
   }
 }
 
-/**
- * Skip creates a minimal business from session name/email so History and
- * Account work without bouncing back to /onboarding. User can refine later.
- */
-export async function skipOnboardingAction(): Promise<OnboardingActionResult> {
-  const session = await getServerSession();
-  if (!session) {
-    return { success: false, error: "Not authenticated" };
-  }
-
-  const ensured = await ensureUserDocument();
-  if (!ensured.success) {
-    return ensured;
-  }
-
-  const user = await userService.getById(session.uid);
-  if (!user) {
-    return {
-      success: false,
-      error: "User profile not found. Please sign in again.",
-    };
-  }
-
-  if (user.businessId) {
-    const existingBusiness = await businessService.getById(user.businessId);
-    if (existingBusiness) {
-      return { success: true, businessId: existingBusiness.id };
-    }
-  }
-
-  const existingByOwner = await businessService.getByOwnerId(session.uid);
-  if (existingByOwner) {
-    await userService.update(session.uid, { businessId: existingByOwner.id });
-    return { success: true, businessId: existingByOwner.id };
-  }
-
-  const email = (session.email ?? user.email ?? "").trim();
-  if (!email) {
-    return {
-      success: false,
-      error: "Add an email to your account before skipping setup",
-    };
-  }
-
-  const displayName = (session.name ?? user.displayName ?? "").trim();
-  const local = email.split("@")[0]?.trim() ?? "";
-  const businessName = displayName || local;
-  if (!businessName || businessName.length < 2) {
-    return {
-      success: false,
-      error: "Add a display name to your account before skipping setup",
-    };
-  }
-
-  try {
-    const business = await businessService.create({
-      ownerId: session.uid,
-      businessName,
-      email,
-      ...ONBOARDING_BUSINESS_DEFAULTS,
-    });
-    await userService.update(session.uid, { businessId: business.id });
-    await settingsService.getByBusinessId(business.id);
-    return { success: true, businessId: business.id };
-  } catch (error) {
-    console.error("[skipOnboardingAction]", error);
-    return {
-      success: false,
-      error: "Could not skip setup. Please try again.",
-    };
-  }
-}
-
 export async function redirectIfOnboardingComplete() {
   const session = await getServerSession();
   if (!session) {
     redirect(routes.login);
   }
 
-  const user = await userService.getById(session.uid);
-  if (user?.businessId) {
-    const business = await businessService.getById(user.businessId);
-    if (business) {
-      redirect(routes.home);
-    }
+  if (await hasCompleteBusinessProfile(session.uid)) {
+    redirect(routes.home);
   }
+}
+
+/** True when the signed-in user still has to fill in their business details. */
+export async function needsBusinessProfile(): Promise<boolean> {
+  const session = await getServerSession();
+  if (!session || isAdminSession(session)) return false;
+  return !(await hasCompleteBusinessProfile(session.uid));
 }

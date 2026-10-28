@@ -12,35 +12,29 @@ import {
 import { BUSINESS_TYPES } from "@/lib/business-types";
 import { BusinessLogoUploadForm } from "@/features/settings/components/business-logo-upload-form";
 import { useOnboardingDraft } from "@/hooks/use-onboarding-draft";
-import { onboardingSchema } from "@/lib/validations/onboarding";
+import {
+  onboardingSchema,
+  type OnboardingFormData,
+} from "@/lib/validations/onboarding";
 import {
   completeOnboarding,
   ensureUserDocument,
-  skipOnboardingAction,
 } from "@/actions/onboarding.actions";
 import { updateBusinessLogoAction } from "@/actions/business.actions";
 import { logoFileToDataUrl } from "@/lib/logo-data-url";
 import { routes } from "@/config/routes";
+import { safeRedirectPath } from "@/lib/auth-hint";
 
-const SKIP_KEY = "ss_onboarding_skipped";
-
-export function wasOnboardingSkipped(): boolean {
-  try {
-    return localStorage.getItem(SKIP_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
-export function markOnboardingSkipped(): void {
-  try {
-    localStorage.setItem(SKIP_KEY, "1");
-  } catch {
-    // ignore
-  }
-}
-
-export function OnboardingWizard({ userEmail }: { userEmail?: string }) {
+export function OnboardingWizard({
+  userEmail,
+  initial,
+  redirectTo,
+}: {
+  userEmail?: string;
+  /** Details already saved on an earlier, unfinished profile. */
+  initial?: Partial<OnboardingFormData>;
+  redirectTo?: string;
+}) {
   const router = useRouter();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -48,7 +42,7 @@ export function OnboardingWizard({ userEmail }: { userEmail?: string }) {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [success, setSuccess] = useState(false);
   const { data, updateField, clearDraft, hydrated } =
-    useOnboardingDraft(userEmail);
+    useOnboardingDraft(userEmail, initial);
 
   useEffect(() => {
     async function bootstrap() {
@@ -108,32 +102,12 @@ export function OnboardingWizard({ userEmail }: { userEmail?: string }) {
     }
 
     clearDraft();
-    try {
-      localStorage.removeItem(SKIP_KEY);
-    } catch {
-      // ignore
-    }
     setSuccess(true);
-    toast.success("Business profile created");
+    toast.success("Business profile saved");
     window.setTimeout(() => {
-      router.push(routes.createInvoice);
+      router.push(safeRedirectPath(redirectTo) ?? routes.createInvoice);
       router.refresh();
     }, 400);
-  }
-
-  async function handleSkip() {
-    setSubmitting(true);
-    const result = await skipOnboardingAction();
-    if (!result.success) {
-      setSubmitting(false);
-      toast.error(result.error);
-      return;
-    }
-    markOnboardingSkipped();
-    clearDraft();
-    toast.message("You can finish setup anytime from Account");
-    router.push(routes.createInvoice);
-    router.refresh();
   }
 
   if (!hydrated || bootstrapping) {
@@ -151,8 +125,8 @@ export function OnboardingWizard({ userEmail }: { userEmail?: string }) {
     <div className="ss-calm-zone mx-auto w-full max-w-lg rounded-[var(--radius-lg)] border border-border-subtle bg-card p-6 sm:p-8">
       <h1 className="type-h2 text-foreground">Set up your business</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        One step: your business details and an optional logo. You can skip
-        and finish later from Account.
+        One quick step before you start: tell us about your business. These
+        details also fill in your invoices. The logo is optional.
       </p>
 
       <form
@@ -202,6 +176,25 @@ export function OnboardingWizard({ userEmail }: { userEmail?: string }) {
           autoComplete="tel"
           required
         />
+        <div className="grid gap-5 sm:grid-cols-[1fr_10rem]">
+          <FloatingLabelField
+            id="city"
+            label="Town / city"
+            value={data.city}
+            onChange={(value) => updateField("city", value)}
+            error={errors.city}
+            autoComplete="address-level2"
+            required
+          />
+          <FloatingLabelField
+            id="postcode"
+            label="Postcode (optional)"
+            value={data.postcode}
+            onChange={(value) => updateField("postcode", value)}
+            error={errors.postcode}
+            autoComplete="postal-code"
+          />
+        </div>
 
         <div className="space-y-2">
           <p className="text-sm font-medium text-foreground">Logo</p>
@@ -221,14 +214,6 @@ export function OnboardingWizard({ userEmail }: { userEmail?: string }) {
         <div className="flex flex-wrap items-center gap-3 pt-2">
           <Button type="submit" disabled={submitting || success}>
             {submitting ? "Saving…" : "Continue"}
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={handleSkip}
-            disabled={submitting || success}
-          >
-            Skip
           </Button>
         </div>
       </form>

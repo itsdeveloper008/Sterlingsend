@@ -9,11 +9,15 @@ import {
 const DRAFT_KEY = "ss_onboarding_draft";
 const LEGACY_DRAFT_KEY = "valix_onboarding_draft";
 
-export function useOnboardingDraft(initialEmail?: string) {
+export function useOnboardingDraft(
+  initialEmail?: string,
+  initial?: Partial<OnboardingFormData>,
+) {
   const [hydrated, setHydrated] = useState(false);
   const [data, setData] = useState<OnboardingFormData>({
     ...defaultOnboardingValues,
-    email: initialEmail ?? "",
+    ...initial,
+    email: initial?.email || initialEmail || "",
   });
 
   useEffect(() => {
@@ -23,15 +27,16 @@ export function useOnboardingDraft(initialEmail?: string) {
         localStorage.getItem(LEGACY_DRAFT_KEY);
       if (raw) {
         const parsed = JSON.parse(raw) as Partial<OnboardingFormData>;
-        setData({
-          businessName: parsed.businessName ?? "",
-          email: parsed.email || initialEmail || "",
-          businessType:
-            parsed.businessType ?? defaultOnboardingValues.businessType,
-          phone: parsed.phone ?? "",
-        });
+        setData((current) => ({
+          businessName: parsed.businessName || current.businessName,
+          email: parsed.email || current.email,
+          businessType: parsed.businessType || current.businessType,
+          phone: parsed.phone || current.phone,
+          city: parsed.city || current.city,
+          postcode: parsed.postcode || current.postcode,
+        }));
       } else if (initialEmail) {
-        setData((current) => ({ ...current, email: initialEmail }));
+        setData((current) => ({ ...current, email: current.email || initialEmail }));
       }
     } catch {
       // ignore corrupt draft

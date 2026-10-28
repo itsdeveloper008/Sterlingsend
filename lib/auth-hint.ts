@@ -34,3 +34,20 @@ export function safeRedirectPath(value: string | null | undefined) {
   if (!value || !/^\/(?![/\\])/.test(value)) return null;
   return value;
 }
+
+/**
+ * Where to send someone after sign-in. An unfinished business profile
+ * (session API answers "/onboarding") wins over any ?redirect, which is
+ * carried through so setup can continue there afterwards.
+ */
+export function postLoginDestination(
+  requested: string | null,
+  sessionRedirect: string | null,
+): string {
+  if (sessionRedirect === "/onboarding") {
+    return requested
+      ? `/onboarding?redirect=${encodeURIComponent(requested)}`
+      : "/onboarding";
+  }
+  return requested ?? sessionRedirect ?? "/";
+}
