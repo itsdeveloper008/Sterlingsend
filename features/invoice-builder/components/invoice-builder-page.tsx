@@ -112,7 +112,11 @@ export function InvoiceBuilderPage({
       // saved to History until it has a client, so don't surface an error.
       if (!payload.clientName.trim()) {
         setSaveStatus("needs-client");
-        if (reason === "manual") toast.info("Add a client name to save this invoice");
+        if (reason === "manual") {
+          toast.info("Add a client name (Bill to) to save this invoice to History");
+        } else if (reason === "download" || reason === "print") {
+          toast.warning("Not saved to History: add a client name (Bill to) first.");
+        }
         return false;
       }
       setSaveStatus("saving");
@@ -125,11 +129,16 @@ export function InvoiceBuilderPage({
         return false;
       }
       setSavedId(result.data.id);
-      dispatch({
-        type: "patch",
-        patch: { invoiceNumber: result.data.invoiceNumber },
-      });
+      // Only patch a changed number: every patch counts as an edit and would
+      // schedule another autosave, looping forever.
+      if (result.data.invoiceNumber !== invoiceRef.current.invoiceNumber) {
+        dispatch({
+          type: "patch",
+          patch: { invoiceNumber: result.data.invoiceNumber },
+        });
+      }
       setSaveStatus("saved");
+      if (reason === "manual") toast.success("Saved to History");
       if (result.suggestedOnboarding) {
         setShowOnboardingPrompt(true);
       }
@@ -337,6 +346,7 @@ export function InvoiceBuilderPage({
     onLogin: goToLoginFromPrompt,
     onSignup: goToSignupFromPrompt,
     onRetrySave: () => void persist("manual"),
+    onSave: () => void persist("manual"),
   };
 
   return (

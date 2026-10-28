@@ -1,15 +1,18 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
+import Link from "next/link";
 import {
   Check,
   Download,
+  History,
   LayoutTemplate,
   Loader2,
   Printer,
   Stamp as StampIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { routes } from "@/config/routes";
 import { getInvoiceTemplate } from "@/pdf/templates/catalog";
 import {
   INVOICE_STAMPS,
@@ -45,6 +48,8 @@ type PanelProps = {
   onLogin: () => void;
   onSignup: () => void;
   onRetrySave?: () => void;
+  /** Save the invoice to History now (logged-in users). */
+  onSave?: () => void;
   compact?: boolean;
   className?: string;
 };
@@ -94,6 +99,8 @@ export function InvoiceOptionsPanel({
   onLogin,
   onSignup,
   onRetrySave,
+  onSave,
+  isLoggedIn,
   compact = false,
   className,
 }: PanelProps) {
@@ -149,7 +156,7 @@ export function InvoiceOptionsPanel({
     if (saveStatus === "saved") return "Saved";
     if (saveStatus === "error") return "Could not save";
     if (saveStatus === "needs-client") return "Add a client name to save";
-    return "Ready";
+    return "Not saved yet";
   })();
 
   if (compact) {
@@ -208,6 +215,29 @@ export function InvoiceOptionsPanel({
             </button>
           ) : null}
         </span>
+        {isLoggedIn && onSave ? (
+          saveStatus === "saved" ? (
+            <Link href={routes.invoices} className="inv-panel-link mt-2 inline-flex items-center gap-1.5">
+              <History className="h-3.5 w-3.5" aria-hidden />
+              View in History
+            </Link>
+          ) : (
+            <button
+              type="button"
+              className="inv-panel-btn-outline clay mt-2 w-full"
+              onClick={onSave}
+              disabled={busy || saveStatus === "saving"}
+            >
+              <History className="h-4 w-4" aria-hidden />
+              Save to History
+            </button>
+          )
+        ) : null}
+        {isLoggedIn ? (
+          <p className="mt-2 text-xs text-[#64748B]">
+            Saved invoices update automatically as you edit, and save when you download.
+          </p>
+        ) : null}
       </div>
 
       <div className="inv-panel-divider" />
