@@ -23,7 +23,6 @@ export function HomeTemplatesSection() {
       style={{ borderTop: "1px solid var(--border-decorative)" }}
     >
       <div className="bonsai-container relative">
-        <p className="ss-eyebrow">Layouts</p>
         <div className="mt-6 flex flex-wrap items-end justify-between gap-6">
           <div>
             <h2 className="type-h2">Invoice templates</h2>

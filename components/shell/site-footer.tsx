@@ -1,13 +1,10 @@
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Mail, ShieldCheck, Zap } from "lucide-react";
+import { ArrowRight, Mail } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { routes } from "@/config/routes";
 import { Logo } from "@/components/design-system/logo";
 import { PDF_TOOLS } from "@/features/pdf-tools/catalog";
 import { CookieSettingsButton } from "@/components/shell/cookie-settings-button";
-import { TemplateMiniPreview } from "@/features/templates/components/template-mini-preview";
-import "@/features/templates/styles/template-preview.css";
 
 const popularTools = PDF_TOOLS.filter((t) => t.status === "ready").slice(0, 6);
 
@@ -19,71 +16,37 @@ export function SiteFooter() {
 
   return (
     <footer className="mt-auto bg-[#06222a] text-slate-300">
-      {/* CTA card: real photo with a live template preview floating over it */}
+      {/* Closing call to action: plain and direct. */}
       <div className="mx-auto w-full max-w-[1200px] px-4 pt-20 sm:px-6">
-        <div className="relative overflow-hidden rounded-2xl bg-[var(--brand-900)] ring-1 ring-white/10">
-          <div className="grid items-center gap-10 p-8 sm:p-12 lg:grid-cols-[1.1fr_1fr]">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-200">
-                Free · No signup needed
-              </p>
-              <h2 className="mt-4 text-3xl font-semibold leading-tight tracking-tight text-white sm:text-[2.6rem]">
-                Get paid faster with invoices that look the part.
-              </h2>
-              <p className="mt-4 max-w-md text-[15px] leading-relaxed text-teal-50/80">
-                Pick a template, add your details and download a polished PDF in
-                under a minute.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link
-                  href={routes.createInvoice}
-                  className="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 text-[15px] font-semibold text-[var(--brand-800)] transition-colors hover:bg-teal-50"
-                >
-                  Create an invoice
-                  <ArrowRight className="h-4 w-4" aria-hidden />
-                </Link>
-                <Link
-                  href={routes.templates}
-                  className="inline-flex items-center rounded-lg border border-white/30 px-6 py-3 text-[15px] font-semibold text-white transition-colors hover:bg-white/10"
-                >
-                  Browse templates
-                </Link>
-              </div>
-              <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-teal-50/80">
-                <li className="inline-flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-teal-200" aria-hidden />
-                  PDF in seconds
-                </li>
-                <li className="inline-flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-teal-200" aria-hidden />
-                  Files stay in your browser
-                </li>
-              </ul>
-            </div>
-
-            <div className="relative hidden min-h-[320px] sm:block">
-              <div className="absolute inset-0 overflow-hidden rounded-xl ring-1 ring-white/15">
-                <Image
-                  src="/marketing/footer-team.jpg"
-                  alt="Two colleagues celebrating at a desk with a laptop and paperwork"
-                  fill
-                  sizes="(min-width: 1024px) 520px, 90vw"
-                  className="object-cover"
-                />
-              </div>
-              {/* Preview renders at a readable width, then scales down into a small card. */}
-              <div className="absolute -bottom-4 -left-4 h-[200px] w-[204px] rotate-[-4deg] overflow-hidden rounded-lg bg-white shadow-xl ring-1 ring-black/5">
-                <div className="w-[340px] origin-top-left scale-[0.6]">
-                  <TemplateMiniPreview layoutId="banner" accent="#0E9BA6" />
-                </div>
-              </div>
-            </div>
+        <div className="flex flex-col gap-8 border-b border-white/10 pb-16 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h2 className="font-display text-3xl font-semibold leading-tight tracking-tight text-white sm:text-[2.5rem]">
+              Your next invoice, done in two minutes.
+            </h2>
+            <p className="mt-3 max-w-lg text-[15px] leading-relaxed text-slate-400">
+              Free to use. No account needed until you want to keep a history.
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-wrap gap-3">
+            <Link
+              href={routes.createInvoice}
+              className="inline-flex items-center gap-2 rounded-lg bg-[#3FC1C9] px-6 py-3 text-[15px] font-semibold text-[#06222a] transition-colors hover:bg-[#6FD9DD]"
+            >
+              Create an invoice
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
+            <Link
+              href={routes.tools}
+              className="inline-flex items-center rounded-lg px-4 py-3 text-[15px] font-semibold text-white underline-offset-4 hover:underline"
+            >
+              PDF tools
+            </Link>
           </div>
         </div>
       </div>
 
       {/* Link columns */}
-      <div className="mx-auto grid w-full max-w-[1200px] gap-10 px-4 pb-14 pt-16 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+      <div className="mx-auto grid w-full max-w-[1200px] gap-10 px-4 pb-14 pt-14 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <Logo href={routes.home} size={40} showMark={false} tone="onDark" />
           <p className="mt-4 max-w-xs text-[15px] leading-[1.7] text-slate-400">

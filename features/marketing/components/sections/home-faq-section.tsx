@@ -34,20 +34,19 @@ export function HomeFaqSection() {
     <section className="ss-section bg-white px-4 sm:px-6">
       <div className="mx-auto w-full max-w-[760px]">
         <MotionReveal>
-          <p className="ss-eyebrow">Help</p>
-          <h2 className="type-h2 mt-6">Questions</h2>
+          <h2 className="type-h2">Questions</h2>
           <p className="ss-measure mt-6 text-[17px] leading-[1.7] text-[var(--secondary-text)]">
             Short answers about how the product works today.
           </p>
         </MotionReveal>
         <MotionReveal delayMs={80}>
-          <div className="mt-10">
-            {FAQS.map((item, i) => (
+          <div className="mt-10 border-t border-[#E2E8F0]">
+            {FAQS.map((item) => (
               <details
                 key={item.q}
-                className="glass group mb-3 rounded-2xl px-5 py-5"
+                className="group border-b border-[#E2E8F0] py-5"
               >
-                <summary className="cursor-pointer list-none text-[19px] font-semibold text-[var(--ink)] marker:content-none">
+                <summary className="cursor-pointer list-none text-[18px] font-semibold text-[var(--ink)] marker:content-none hover:text-[var(--brand-700)]">
                   <span className="flex items-center justify-between gap-4">
                     {item.q}
                     <span

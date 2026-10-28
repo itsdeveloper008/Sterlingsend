@@ -26,7 +26,6 @@ export function HomeAudienceSection() {
   return (
     <section className="ss-section px-4 sm:px-6">
       <div className="bonsai-container">
-        <p className="ss-eyebrow">Who it&apos;s for</p>
         <h2 className="type-h2 mt-6">Made for people who send invoices</h2>
         <p className="ss-measure mt-6 text-[17px] leading-[1.7] text-[var(--secondary-text)]">
           From sole traders to growing UK businesses, SterlingSend keeps

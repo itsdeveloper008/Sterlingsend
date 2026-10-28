@@ -29,6 +29,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import {
   Card,
@@ -788,12 +789,12 @@ function ToolOptionsPanel(props: {
             <Label htmlFor="pdf-password">
               {tool.slug === "unlock-pdf" ? "Current password" : "New password"}
             </Label>
-            <Input
+            <PasswordInput
               id="pdf-password"
-              type="password"
               value={props.password}
               onChange={(e) => props.setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder="Type a password"
+              autoComplete={tool.slug === "unlock-pdf" ? "off" : "new-password"}
             />
           </div>
         ) : null}

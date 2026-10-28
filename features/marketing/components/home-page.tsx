@@ -4,7 +4,6 @@ import { HomeTemplatesSection } from "./sections/home-templates-section";
 import { HomeAudienceSection } from "./sections/home-audience-section";
 import { HomeFilesSection } from "./sections/home-files-section";
 import { HomeFaqSection } from "./sections/home-faq-section";
-import { HomeCtaSection } from "./sections/home-cta-section";
 
 export function HomePage() {
   return (
@@ -15,7 +14,6 @@ export function HomePage() {
       <HomeAudienceSection />
       <HomeFilesSection />
       <HomeFaqSection />
-      <HomeCtaSection />
     </>
   );
 }

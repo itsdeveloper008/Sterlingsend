@@ -53,7 +53,6 @@ export function HomePopularToolsSection() {
     >
       <div className="bonsai-container">
         <MotionReveal>
-          <p className="ss-eyebrow">PDF toolkit</p>
           <div className="mt-6 flex flex-wrap items-end justify-between gap-6">
             <div>
               <h2 className="type-h2">Popular PDF tools</h2>
@@ -67,22 +66,17 @@ export function HomePopularToolsSection() {
             </Link>
           </div>
         </MotionReveal>
-        <ul
-          className="mt-10 grid grid-cols-2 md:grid-cols-4"
-          style={{ gap: "28px" }}
-        >
+        <ul className="mt-10 grid grid-cols-2 overflow-hidden rounded-xl border border-[#E2E8F0] bg-[#E2E8F0] md:grid-cols-4" style={{ gap: "1px" }}>
           {tools.map((tool, index) => {
             if (!tool) return null;
             const Icon = tool.Icon;
             const tile = (
               <Link
                 href={routes.tool(tool.slug)}
-                className="ss-card-lift glass group flex h-full flex-col gap-4 rounded-2xl p-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-700)]"
+                className="group flex h-full flex-col gap-2 bg-white p-6 transition-colors hover:bg-[#F7FAFA] focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--brand-700)]"
               >
-                <span className="clay flex h-[52px] w-[52px] items-center justify-center text-[var(--brand-700)]">
-                  <Icon className="h-5 w-5" aria-hidden strokeWidth={1.5} />
-                </span>
-                <span className="text-lg font-semibold text-[var(--ink)]">
+                <span className="flex items-center gap-2.5 text-[17px] font-semibold text-[var(--ink)]">
+                  <Icon className="h-[18px] w-[18px] text-[var(--brand-700)]" aria-hidden strokeWidth={1.75} />
                   {tool.title}
                 </span>
                 <span className="line-clamp-2 text-[15px] leading-snug text-[var(--secondary-text)]">
@@ -91,7 +85,7 @@ export function HomePopularToolsSection() {
               </Link>
             );
             return (
-              <li key={tool.slug}>
+              <li key={tool.slug} className="bg-white">
                 {index < 6 ? (
                   <MotionReveal delayMs={index * 80}>{tile}</MotionReveal>
                 ) : (
