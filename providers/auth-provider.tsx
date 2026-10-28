@@ -35,11 +35,7 @@ export type AuthUser = {
 interface AuthContextValue {
   user: AuthUser | null;
   loading: boolean;
-  signIn: (
-    email: string,
-    password: string,
-    options?: { admin?: boolean },
-  ) => Promise<string | null>;
+  signIn: (email: string, password: string) => Promise<string | null>;
   signInWithGoogle: () => Promise<string | null | "redirecting">;
   signUp: (
     email: string,
@@ -73,10 +69,7 @@ function asAuthUser(user: {
   };
 }
 
-async function persistSession(
-  user: AuthUser,
-  options?: { admin?: boolean },
-): Promise<string | null> {
+async function persistSession(user: AuthUser): Promise<string | null> {
   const idToken = await user.getIdToken(true);
   let acquisition: Record<string, string> | undefined;
   try {
@@ -93,7 +86,7 @@ async function persistSession(
   const response = await fetch("/api/auth/session", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ idToken, acquisition, admin: options?.admin }),
+    body: JSON.stringify({ idToken, acquisition }),
     credentials: "same-origin",
   });
 
@@ -118,14 +111,13 @@ async function persistSession(
   }
 }
 
-/** A refused session (e.g. admin on the public login) must not leave Firebase signed in. */
+/** A refused session must not leave Firebase signed in. */
 async function persistSessionOrSignOut(
   authApi: Awaited<ReturnType<typeof loadAuthApi>>,
   user: AuthUser,
-  options?: { admin?: boolean },
 ): Promise<string | null> {
   try {
-    return await persistSession(user, options);
+    return await persistSession(user);
   } catch (error) {
     await authApi.logOut().catch(() => {});
     throw error;
@@ -257,11 +249,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!user) return;
     const path = window.location.pathname;
-    if (
-      isAuthRoute(path) ||
-      path.startsWith(routes.onboarding) ||
-      path.startsWith(routes.admin)
-    ) {
+    if (isAuthRoute(path) || path.startsWith(routes.onboarding)) {
       return;
     }
     try {
@@ -292,14 +280,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   const handleSignIn = useCallback(
-    async (email: string, password: string, options?: { admin?: boolean }) => {
+    async (email: string, password: string) => {
       if (!isFirebaseConfigured()) {
         throw new Error("Firebase is not configured. Add keys to .env.local");
       }
       const authApi = await loadAuthApi();
       const nextUser = await authApi.signIn(email, password);
       const mapped = asAuthUser(nextUser);
-      const redirectTo = await persistSessionOrSignOut(authApi, mapped, options);
+      const redirectTo = await persistSessionOrSignOut(authApi, mapped);
       setUser(mapped);
       return redirectTo;
     },

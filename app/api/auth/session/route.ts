@@ -8,6 +8,7 @@ import { getAdminAuth } from "@/firebase/admin";
 import { userService } from "@/services/user.service";
 import { routes } from "@/config/routes";
 import { isAdminSession } from "@/services/admin.service";
+import { getAdminPanelPath } from "@/config/admin";
 import { hasCompleteBusinessProfile } from "@/services/business-profile.service";
 import type { DecodedIdToken } from "firebase-admin/auth";
 
@@ -55,8 +56,6 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as {
       idToken?: string;
-      /** Set only by the /admin/login form. */
-      admin?: boolean;
       acquisition?: {
         utm_source?: string;
         utm_medium?: string;
@@ -72,20 +71,7 @@ export async function POST(request: Request) {
     }
 
     const decoded = await verifyIdTokenWithRetry(idToken);
-
-    // The admin account signs in only on /admin/login, and that page only
-    // lets the admin account in.
     const isAdmin = isAdminSession(decoded);
-    if (isAdmin !== (body.admin === true)) {
-      return NextResponse.json(
-        {
-          error: isAdmin
-            ? "This account can't sign in here."
-            : "This account does not have admin access.",
-        },
-        { status: 403 },
-      );
-    }
 
     const sessionCookie = await createSessionCookie(idToken);
 
@@ -104,9 +90,14 @@ export async function POST(request: Request) {
     // Land on the marketing home after login - never the dashboard - unless
     // the business details still need filling in. Login/signup can still
     // honor a `?redirect=` query param client-side.
+    // The admin is sent to the panel's secret address; nobody else learns it.
     const needsProfile =
       !isAdmin && !(await hasCompleteBusinessProfile(decoded.uid));
-    const redirectTo = needsProfile ? routes.onboarding : routes.home;
+    const redirectTo = isAdmin
+      ? (getAdminPanelPath() ?? routes.home)
+      : needsProfile
+        ? routes.onboarding
+        : routes.home;
 
     const response = NextResponse.json({ success: true, redirectTo });
 

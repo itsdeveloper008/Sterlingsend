@@ -6,6 +6,7 @@ import { getToolBySlug, PDF_TOOLS } from "@/features/pdf-tools";
 import { ToolWorkspaceLazy } from "@/features/pdf-tools/components/tool-workspace-lazy";
 import { routes } from "@/config/routes";
 import { siteConfig } from "@/config/site";
+import { JsonLd } from "@/components/seo/json-ld";
 
 export function generateStaticParams() {
   return PDF_TOOLS.map((tool) => ({ slug: tool.slug }));
@@ -33,7 +34,6 @@ export async function generateMetadata({
       siteName: siteConfig.name,
       locale: "en_GB",
       type: "website",
-      images: [{ url: "/tools/opengraph-image" }],
     },
   };
 }
@@ -51,8 +51,54 @@ export default async function PublicToolPage({
     (t) => t.category === tool.category && t.slug !== tool.slug,
   ).slice(0, 4);
 
+  const url = `${siteConfig.canonicalUrl}/tools/${tool.slug}`;
+
   return (
     <MarketingShell>
+      <JsonLd
+        data={[
+          {
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            name: tool.title,
+            url,
+            description: tool.seoDescription,
+            applicationCategory: "UtilitiesApplication",
+            operatingSystem: "Web",
+            browserRequirements: "Requires JavaScript",
+            offers: { "@type": "Offer", price: "0", priceCurrency: "GBP" },
+            publisher: { "@type": "Organization", name: siteConfig.name },
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "HowTo",
+            name: `How to use ${tool.title}`,
+            step: tool.steps.map((text, i) => ({
+              "@type": "HowToStep",
+              position: i + 1,
+              text,
+            })),
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: tool.faq.map((item) => ({
+              "@type": "Question",
+              name: item.question,
+              acceptedAnswer: { "@type": "Answer", text: item.answer },
+            })),
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: siteConfig.canonicalUrl },
+              { "@type": "ListItem", position: 2, name: "PDF tools", item: `${siteConfig.canonicalUrl}/tools` },
+              { "@type": "ListItem", position: 3, name: tool.title, item: url },
+            ],
+          },
+        ]}
+      />
       <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
         <p className="text-sm text-muted-foreground">
           <Link href={routes.tools} className="ss-link-underline">

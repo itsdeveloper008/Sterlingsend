@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { getServerSession } from "@/firebase/session";
-import { routes } from "@/config/routes";
 import { getAdminOverview, isAdminSession } from "@/services/admin.service";
 import { AdminDashboard } from "@/features/admin/components/admin-dashboard";
 
@@ -14,8 +13,9 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
   const session = await getServerSession();
+  // Same 404 as any unknown page: don't reveal that an admin area exists.
   if (!session || !isAdminSession(session)) {
-    redirect(routes.adminLogin);
+    notFound();
   }
 
   const overview = await getAdminOverview();

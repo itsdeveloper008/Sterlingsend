@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import { AppProviders } from "@/providers/app-providers";
 import { siteConfig } from "@/config/site";
+import { JsonLd } from "@/components/seo/json-ld";
 import "./globals.css";
 
 /**
@@ -36,6 +37,39 @@ export const metadata: Metadata = {
   description: siteConfig.description,
   metadataBase: new URL(siteConfig.canonicalUrl),
   applicationName: siteConfig.name,
+  keywords: [
+    "invoice generator",
+    "free invoice maker UK",
+    "VAT invoice template",
+    "invoice PDF",
+    "PDF tools",
+    "merge PDF",
+    "compress PDF",
+    "PDF converter",
+  ],
+  authors: [{ name: siteConfig.name, url: siteConfig.canonicalUrl }],
+  creator: siteConfig.name,
+  publisher: siteConfig.name,
+  formatDetection: { telephone: false, email: false, address: false },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  openGraph: {
+    siteName: siteConfig.name,
+    locale: "en_GB",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
   icons: {
     icon: [
       { url: "/brand/icon-32.png", sizes: "32x32", type: "image/png" },
@@ -67,6 +101,26 @@ export default function RootLayout({
           } as React.CSSProperties
         }
       >
+        <JsonLd
+          data={[
+            {
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: siteConfig.name,
+              url: siteConfig.canonicalUrl,
+              logo: `${siteConfig.canonicalUrl}/brand/icon-512.png`,
+              email: siteConfig.supportEmail,
+              areaServed: "GB",
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: siteConfig.name,
+              url: siteConfig.canonicalUrl,
+              inLanguage: "en-GB",
+            },
+          ]}
+        />
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

@@ -34,8 +34,8 @@ export const routes = {
   tools: "/tools",
   tool: (slug: string) => `/tools/${slug}`,
   account: "/account",
+  /** Internal only: middleware 404s it and serves the panel at ADMIN_PATH. */
   admin: "/admin",
-  adminLogin: "/admin/login",
   /** @deprecated 308 → /account */
   settings: "/settings",
   /** @deprecated 308 → /account */

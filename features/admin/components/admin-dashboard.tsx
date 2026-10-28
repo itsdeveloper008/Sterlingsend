@@ -117,7 +117,7 @@ export function AdminDashboard({
               onClick={async () => {
                 setSigningOut(true);
                 await signOut();
-                window.location.assign(routes.adminLogin);
+                window.location.assign(routes.login);
               }}
             >
               <LogOut className="h-4 w-4" aria-hidden />

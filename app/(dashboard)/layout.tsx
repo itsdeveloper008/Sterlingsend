@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import { requireOnboarding } from "@/actions/auth.actions";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
+
+/** Signed-in pages: keep out of search results. */
+export const metadata: Metadata = {
+  robots: { index: false, follow: true },
+};
 
 export default async function AppRouteLayout({
   children,

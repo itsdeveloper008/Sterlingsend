@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ForgotPasswordForm } from "@/features/auth";
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: true },
   title: "Reset your password",
   description:
     "Forgot your SterlingSend password? Enter the email you signed up with and we will send you a secure link to reset it and get back to your saved invoices.",

@@ -4,6 +4,7 @@ import { GuestInvoicePreview } from "@/features/guest";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: true },
   title: "Invoice preview",
   description:
     "Preview your SterlingSend invoice exactly as it will look when downloaded or printed. Check the details, then download the PDF or go back and edit it.",
