@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { routes } from "@/config/routes";
 import { getAuthErrorMessage } from "@/features/auth/lib/auth-errors";
 import { PageDescription, PageTitle } from "@/components/design-system/typography";
+import type { PasswordResetCheck } from "@/features/auth/lib/password-reset";
 
 export function ForgotPasswordForm() {
   const { forgotPassword } = useAuth();
@@ -32,6 +33,32 @@ export function ForgotPasswordForm() {
     setLoading(true);
 
     try {
+      const check = await fetch("/api/auth/password-reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const result = (await check.json()) as {
+        status?: PasswordResetCheck;
+        error?: string;
+      };
+      if (!check.ok || !result.status) {
+        setFormError(result.error ?? "Could not send reset email. Try again.");
+        return;
+      }
+      if (result.status === "no-account") {
+        setFormError(
+          "We couldn't find an account with that email. Check the spelling or create a new account.",
+        );
+        return;
+      }
+      if (result.status === "google-only") {
+        setFormError(
+          "This account signs in with Google, so it has no password to reset. Use “Log in with Google” instead.",
+        );
+        return;
+      }
+
       await forgotPassword(email);
       setSent(true);
       toast.success("Password reset email sent");
@@ -49,11 +76,11 @@ export function ForgotPasswordForm() {
       <div className="space-y-4 text-center lg:text-left">
         <PageTitle>Check your email</PageTitle>
         <PageDescription>
-          If an account exists for {email}, you will receive a password reset
-          link.
+          We sent a password reset link to {email}. It can take a few
+          minutes to arrive.
         </PageDescription>
         <FormStatus
-          message="Reset link sent. Check your inbox."
+          message="Not in your inbox? Check your spam or junk folder for an email from SterlingSend."
           tone="success"
         />
         <ButtonLink href={routes.login} variant="outline" className="w-full">
