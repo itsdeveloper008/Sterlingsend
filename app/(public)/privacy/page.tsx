@@ -5,7 +5,7 @@ import { siteConfig } from "@/config/site";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "How SterlingSend uses Firebase Authentication and Firestore, browser storage, and your rights under UK GDPR. Contact support@sterlingsend.com.",
+    "How SterlingSend uses Firebase Authentication and Firestore, browser storage, and your rights under UK GDPR. Contact info@sterlingsend.com.",
   alternates: { canonical: "/privacy" },
 };
 

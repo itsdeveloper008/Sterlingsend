@@ -12,7 +12,7 @@ export const siteConfig = {
   defaultCurrency: "GBP" satisfies CurrencyCode,
   defaultVatRate: 20,
   defaultPaymentTermsDays: 30,
-  supportEmail: "support@sterlingsend.com",
+  supportEmail: "info@sterlingsend.com",
   logo: "/brand/sterlingsend-logo.png",
   logoAlt: "SterlingSend",
 } as const;

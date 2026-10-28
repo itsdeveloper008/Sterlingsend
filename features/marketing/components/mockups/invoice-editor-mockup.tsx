@@ -67,7 +67,7 @@ export function InvoiceEditorMockup({
           </div>
           <div className="max-w-[52%] text-right text-xs leading-relaxed text-slate-500">
             <p className="font-semibold text-slate-800">Sterlingsend</p>
-            <p>Sterlingsend@gmail.com</p>
+            <p>info@sterlingsend.com</p>
             <p>+44 7700 900123</p>
             <p>VAT: GB123456789</p>
           </div>
@@ -234,7 +234,7 @@ export function InvoiceEditorMockup({
                 height={22}
                 className="h-5 w-5 object-contain opacity-80"
               />
-              <p className="text-[11px] text-slate-400">Sterlingsend@gmail.com</p>
+              <p className="text-[11px] text-slate-400">info@sterlingsend.com</p>
             </div>
             <div className="text-right">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
