@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useId,
   useRef,
   useState,
   type ReactNode,
@@ -42,7 +43,12 @@ const C = {
   purple: "#5B34E6",
   black: "#17171B",
   orange: "#FE7A34",
+  orangeRim: "#E8641C",
   yellow: "#FFC933",
+  coinRim: "#E0A800",
+  pdfRed: "#E5484D",
+  /** Panel background, used to "cut" black's folded corner. */
+  panel: "#f1f5f9",
 } as const;
 
 // Body geometry (video-measured, scaled to viewBox)
@@ -364,6 +370,8 @@ export function MascotCharacter({
   const purpleSlideT = useTransform(pSlide, (s) => `translate(${s} 0)`);
   const blackT = useTransform(bRot, (r) => `rotate(${r} ${B.w / 2} 0)`);
   const blackD = useTransform(bDuck, blackPath);
+  const blackTopT = useTransform(bDuck, (d) => `translate(0 ${d})`);
+  const purpleClipId = `purple-${useId().replace(/:/g, "")}`;
   // eyes follow the (shrinking) top of the body plus their own state offset
   const blackEyesT = useTransform([bEyeX, bEyeY, bDuck], (v) => {
     const [x, y, d] = v as [number, number, number];
@@ -478,7 +486,26 @@ export function MascotCharacter({
           {/* PURPLE - bendy slab, face rides the bent top */}
           <motion.g {...entrance(0.05, { y: -240, rotate: -24, scale: 0.7 })}>
             <g transform={`translate(${P.x} ${BASE_Y})`}>
+              <clipPath id={purpleClipId}>
+                <AttrPath d={purpleD} fill="#000" />
+              </clipPath>
               <AttrPath d={purpleD} fill={C.purple} />
+              {/* invoice lines ride the bent top, clipped to the slab */}
+              <g clipPath={`url(#${purpleClipId})`}>
+                <AttrGroup transform={purpleFaceT}>
+                  <g fill="#fff">
+                    <rect x={-44} y={72} width={52} height={6} rx={3} opacity={0.55} />
+                    <rect x={-44} y={90} width={60} height={4} rx={2} opacity={0.3} />
+                    <rect x={26} y={90} width={18} height={4} rx={2} opacity={0.3} />
+                    <rect x={-44} y={102} width={48} height={4} rx={2} opacity={0.3} />
+                    <rect x={26} y={102} width={18} height={4} rx={2} opacity={0.3} />
+                    <rect x={-44} y={114} width={54} height={4} rx={2} opacity={0.3} />
+                    <rect x={26} y={114} width={18} height={4} rx={2} opacity={0.3} />
+                    <rect x={-44} y={128} width={88} height={2} rx={1} opacity={0.25} />
+                    <rect x={8} y={136} width={36} height={10} rx={5} opacity={0.5} />
+                  </g>
+                </AttrGroup>
+              </g>
               <AttrGroup transform={purpleFaceT}>
                 <AttrGroup transform={purpleSlideT}>
                   {/* tiny white eyes + pupils */}
@@ -533,6 +560,30 @@ export function MascotCharacter({
             <g transform={`translate(${B.x} ${BASE_Y})`}>
               <AttrGroup transform={blackT}>
                 <AttrPath d={blackD} fill={C.black} />
+                {/* PDF file: folded corner + label, riding the ducking top */}
+                <AttrGroup transform={blackTopT}>
+                  <path
+                    d={`M ${B.w - 20} ${-B.h - 1} L ${B.w + 1} ${-B.h - 1} L ${B.w + 1} ${-B.h + 20} Z`}
+                    fill={C.panel}
+                  />
+                  <path
+                    d={`M ${B.w - 20} ${-B.h} L ${B.w} ${-B.h + 20} L ${B.w - 20} ${-B.h + 20} Z`}
+                    fill="#3A3A44"
+                  />
+                  <rect x={B.w / 2 - 19} y={-B.h + 40} width={38} height={15} rx={4} fill={C.pdfRed} />
+                  <text
+                    x={B.w / 2}
+                    y={-B.h + 51}
+                    textAnchor="middle"
+                    fontSize={10}
+                    fontWeight={800}
+                    fontFamily="system-ui, sans-serif"
+                    fill="#fff"
+                    letterSpacing={0.5}
+                  >
+                    PDF
+                  </text>
+                </AttrGroup>
                 <AttrGroup transform={blackEyesT}>
                   {blink ? (
                     <g>
@@ -580,6 +631,15 @@ export function MascotCharacter({
               <path
                 d={`M ${-O.rx} 0 A ${O.rx} ${O.ry} 0 0 1 ${O.rx} 0 Z`}
                 fill={C.orange}
+              />
+              {/* coin rim */}
+              <path
+                d={`M ${-O.rx + 13} 0 A ${O.rx - 13} ${O.ry - 13} 0 0 1 ${O.rx - 13} 0`}
+                fill="none"
+                stroke={C.orangeRim}
+                strokeWidth={4}
+                strokeDasharray="2 9"
+                strokeLinecap="round"
               />
               <AttrGroup transform={orangeFaceT}>
                 {orangeHappyEyes ? (
@@ -635,6 +695,15 @@ export function MascotCharacter({
                   d={`M 0 0 L 0 ${-(Y.h - Y.w / 2)} A ${Y.w / 2} ${Y.w / 2} 0 0 1 ${Y.w} ${-(Y.h - Y.w / 2)} L ${Y.w} 0 Z`}
                   fill={C.yellow}
                 />
+                {/* receipt lines */}
+                <g fill="rgba(23,23,27,0.16)">
+                  <rect x={18} y={-74} width={44} height={4} rx={2} />
+                  <rect x={68} y={-74} width={14} height={4} rx={2} />
+                  <rect x={18} y={-61} width={36} height={4} rx={2} />
+                  <rect x={68} y={-61} width={14} height={4} rx={2} />
+                  <rect x={18} y={-46} width={64} height={2} rx={1} />
+                  <rect x={52} y={-38} width={30} height={6} rx={3} fill="rgba(23,23,27,0.26)" />
+                </g>
                 <AttrGroup transform={yellowEyeT}>
                   <circle cx={0} cy={0} r={4.3} fill={C.black} />
                 </AttrGroup>
@@ -658,6 +727,50 @@ export function MascotCharacter({
                   )}
                 </AttrGroup>
               </AttrGroup>
+            </g>
+          </motion.g>
+
+          {/* floating props: a paper plane ("send") and a pound coin */}
+          <motion.g
+            animate={
+              reduceMotion
+                ? undefined
+                : state === "success"
+                  ? { x: 340, y: -260, rotate: -12, transition: { duration: 1.1, ease: "easeIn" } }
+                  : { x: 0, y: [0, -10, 0], rotate: 0, transition: { duration: 3.2, repeat: Infinity, ease: "easeInOut" } }
+            }
+          >
+            <g transform="translate(62 150) rotate(-14)">
+              <path
+                d="M 0 0 L 52 -20 L 34 18 L 24 6 Z"
+                fill="#fff"
+                stroke={C.black}
+                strokeWidth={2.5}
+                strokeLinejoin="round"
+              />
+              <path d="M 52 -20 L 24 6 L 22 20" fill="none" stroke={C.black} strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
+            </g>
+          </motion.g>
+          <motion.g
+            animate={
+              reduceMotion
+                ? undefined
+                : { y: [0, -12, 0], transition: { duration: 2.6, repeat: Infinity, ease: "easeInOut", delay: 0.6 } }
+            }
+          >
+            <g transform="translate(440 120)">
+              <circle r={23} fill={C.yellow} stroke={C.coinRim} strokeWidth={3} />
+              <circle r={16} fill="none" stroke={C.coinRim} strokeWidth={1.5} opacity={0.6} />
+              <text
+                y={8}
+                textAnchor="middle"
+                fontSize={22}
+                fontWeight={800}
+                fontFamily="system-ui, sans-serif"
+                fill="#8A5A00"
+              >
+                £
+              </text>
             </g>
           </motion.g>
         </svg>
