@@ -35,7 +35,11 @@ export type AuthUser = {
 interface AuthContextValue {
   user: AuthUser | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<string | null>;
+  signIn: (
+    email: string,
+    password: string,
+    options?: { admin?: boolean },
+  ) => Promise<string | null>;
   signInWithGoogle: () => Promise<string | null | "redirecting">;
   signUp: (
     email: string,
@@ -69,7 +73,10 @@ function asAuthUser(user: {
   };
 }
 
-async function persistSession(user: AuthUser): Promise<string | null> {
+async function persistSession(
+  user: AuthUser,
+  options?: { admin?: boolean },
+): Promise<string | null> {
   const idToken = await user.getIdToken(true);
   let acquisition: Record<string, string> | undefined;
   try {
@@ -86,7 +93,7 @@ async function persistSession(user: AuthUser): Promise<string | null> {
   const response = await fetch("/api/auth/session", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ idToken, acquisition }),
+    body: JSON.stringify({ idToken, acquisition, admin: options?.admin }),
     credentials: "same-origin",
   });
 
@@ -108,6 +115,20 @@ async function persistSession(user: AuthUser): Promise<string | null> {
     return payload.redirectTo ?? null;
   } catch {
     return null;
+  }
+}
+
+/** A refused session (e.g. admin on the public login) must not leave Firebase signed in. */
+async function persistSessionOrSignOut(
+  authApi: Awaited<ReturnType<typeof loadAuthApi>>,
+  user: AuthUser,
+  options?: { admin?: boolean },
+): Promise<string | null> {
+  try {
+    return await persistSession(user, options);
+  } catch (error) {
+    await authApi.logOut().catch(() => {});
+    throw error;
   }
 }
 
@@ -170,7 +191,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (cancelled) return;
 
           if (redirectedUser) {
-            const sessionRedirect = await persistSession(
+            const sessionRedirect = await persistSessionOrSignOut(
+              authApi,
               asAuthUser(redirectedUser),
             );
             if (cancelled) return;
@@ -269,17 +291,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [user]);
 
-  const handleSignIn = useCallback(async (email: string, password: string) => {
-    if (!isFirebaseConfigured()) {
-      throw new Error("Firebase is not configured. Add keys to .env.local");
-    }
-    const authApi = await loadAuthApi();
-    const nextUser = await authApi.signIn(email, password);
-    const mapped = asAuthUser(nextUser);
-    const redirectTo = await persistSession(mapped);
-    setUser(mapped);
-    return redirectTo;
-  }, []);
+  const handleSignIn = useCallback(
+    async (email: string, password: string, options?: { admin?: boolean }) => {
+      if (!isFirebaseConfigured()) {
+        throw new Error("Firebase is not configured. Add keys to .env.local");
+      }
+      const authApi = await loadAuthApi();
+      const nextUser = await authApi.signIn(email, password);
+      const mapped = asAuthUser(nextUser);
+      const redirectTo = await persistSessionOrSignOut(authApi, mapped, options);
+      setUser(mapped);
+      return redirectTo;
+    },
+    [],
+  );
 
   const handleSignInWithGoogle = useCallback(async () => {
     if (!isFirebaseConfigured()) {
@@ -289,7 +314,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const result = await authApi.signInWithGoogle();
     if (result === "redirecting") return "redirecting";
     const mapped = asAuthUser(result);
-    const redirectTo = await persistSession(mapped);
+    const redirectTo = await persistSessionOrSignOut(authApi, mapped);
     setUser(mapped);
     return redirectTo;
   }, []);

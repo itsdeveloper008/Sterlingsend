@@ -4,14 +4,13 @@ import { useState } from "react";
 import { Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { routes } from "@/config/routes";
-import { checkAdminSession } from "@/actions/admin.actions";
 import { getAuthErrorMessage } from "@/features/auth/lib/auth-errors";
 import { Logo } from "@/components/design-system/logo";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 export function AdminLoginForm() {
-  const { signIn, signOut } = useAuth();
+  const { signIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -24,14 +23,8 @@ export function AdminLoginForm() {
     setError(null);
 
     try {
-      await signIn(email, password);
-      if (!(await checkAdminSession())) {
-        // Signed in fine, but not an admin: don't leave them logged in here.
-        await signOut();
-        setError("This account does not have admin access.");
-        setLoading(false);
-        return;
-      }
+      // The session API refuses non-admin accounts on this form.
+      await signIn(email, password, { admin: true });
       window.location.assign(routes.admin);
     } catch (err) {
       setError(getAuthErrorMessage(err, "Invalid email or password"));

@@ -55,6 +55,8 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as {
       idToken?: string;
+      /** Set only by the /admin/login form. */
+      admin?: boolean;
       acquisition?: {
         utm_source?: string;
         utm_medium?: string;
@@ -70,6 +72,21 @@ export async function POST(request: Request) {
     }
 
     const decoded = await verifyIdTokenWithRetry(idToken);
+
+    // The admin account signs in only on /admin/login, and that page only
+    // lets the admin account in.
+    const isAdmin = isAdminSession(decoded);
+    if (isAdmin !== (body.admin === true)) {
+      return NextResponse.json(
+        {
+          error: isAdmin
+            ? "This account can't sign in here."
+            : "This account does not have admin access.",
+        },
+        { status: 403 },
+      );
+    }
+
     const sessionCookie = await createSessionCookie(idToken);
 
     const user = await userService.getById(decoded.uid);
@@ -85,17 +102,11 @@ export async function POST(request: Request) {
     }
 
     // Land on the marketing home after login - never the dashboard - unless
-    // the business details still need filling in. The admin goes straight to
-    // the admin panel. Login/signup can still honor a `?redirect=` query
-    // param client-side.
-    const isAdmin = isAdminSession(decoded);
+    // the business details still need filling in. Login/signup can still
+    // honor a `?redirect=` query param client-side.
     const needsProfile =
       !isAdmin && !(await hasCompleteBusinessProfile(decoded.uid));
-    const redirectTo = isAdmin
-      ? routes.admin
-      : needsProfile
-        ? routes.onboarding
-        : routes.home;
+    const redirectTo = needsProfile ? routes.onboarding : routes.home;
 
     const response = NextResponse.json({ success: true, redirectTo });
 
