@@ -37,9 +37,15 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  const isProtected = protectedPrefixes.some((prefix) =>
-    pathname.startsWith(prefix),
-  );
+  const isAdminLogin = pathname === routes.adminLogin;
+  const isProtected =
+    !isAdminLogin &&
+    protectedPrefixes.some((prefix) => pathname.startsWith(prefix));
+
+  // The admin area has its own sign-in page, separate from the app login.
+  if (isProtected && !session && pathname.startsWith(routes.admin)) {
+    return NextResponse.redirect(new URL(routes.adminLogin, request.url));
+  }
 
   if (isProtected && !session) {
     const loginUrl = new URL(routes.login, request.url);

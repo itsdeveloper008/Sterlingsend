@@ -34,6 +34,8 @@ export const routes = {
   tools: "/tools",
   tool: (slug: string) => `/tools/${slug}`,
   account: "/account",
+  admin: "/admin",
+  adminLogin: "/admin/login",
   /** @deprecated 308 → /account */
   settings: "/settings",
   /** @deprecated 308 → /account */

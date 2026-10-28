@@ -95,7 +95,12 @@ export async function getAdminOverview(): Promise<AdminOverview> {
     }
   }
 
-  const rows: AdminUserRow[] = authUsers.map((authUser) => {
+  const adminEmails = new Set(getAdminEmails());
+  const customers = authUsers.filter(
+    (authUser) => !adminEmails.has(authUser.email?.toLowerCase() ?? ""),
+  );
+
+  const rows: AdminUserRow[] = customers.map((authUser) => {
     const userDoc = userDocs.get(authUser.uid);
     const business =
       (userDoc?.businessId

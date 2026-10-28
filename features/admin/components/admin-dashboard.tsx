@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Download, Search } from "lucide-react";
+import { Download, LogOut, Search } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { routes } from "@/config/routes";
 import { Logo } from "@/components/design-system/logo";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -64,7 +66,15 @@ function Stat({ label, value }: { label: string; value: number }) {
   );
 }
 
-export function AdminDashboard({ overview }: { overview: AdminOverview }) {
+export function AdminDashboard({
+  overview,
+  adminEmail,
+}: {
+  overview: AdminOverview;
+  adminEmail: string;
+}) {
+  const { signOut } = useAuth();
+  const [signingOut, setSigningOut] = useState(false);
   const [query, setQuery] = useState("");
   const [type, setType] = useState("all");
 
@@ -95,6 +105,24 @@ export function AdminDashboard({ overview }: { overview: AdminOverview }) {
             <span className="rounded-md bg-[var(--brand-tint)] px-2 py-0.5 text-xs font-semibold text-[var(--brand-700)]">
               Admin
             </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="hidden text-sm text-muted-foreground sm:inline">
+              {adminEmail}
+            </span>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={signingOut}
+              onClick={async () => {
+                setSigningOut(true);
+                await signOut();
+                window.location.assign(routes.adminLogin);
+              }}
+            >
+              <LogOut className="h-4 w-4" aria-hidden />
+              Sign out
+            </Button>
           </div>
         </div>
       </header>
