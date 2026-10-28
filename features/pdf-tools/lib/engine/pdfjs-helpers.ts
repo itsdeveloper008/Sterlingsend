@@ -28,6 +28,8 @@ export async function openPdfDocument(data: Uint8Array) {
 export async function extractPageText(
   pdf: PDFDocumentProxy,
   pageNumber: number,
+  /** columns: mark wide gaps (table columns) with a tab instead of a space. */
+  options: { columns?: boolean } = {},
 ) {
   const page = await pdf.getPage(pageNumber);
   const content = await page.getTextContent();
@@ -35,6 +37,7 @@ export async function extractPageText(
   let current = "";
   let lastY: number | null = null;
   let lastXEnd: number | null = null;
+  let pendingColumn = false;
 
   for (const item of content.items) {
     if (!("str" in item) || typeof item.str !== "string") continue;
@@ -58,6 +61,7 @@ export async function extractPageText(
       if (current.trim()) lines.push(current.trimEnd());
       current = "";
       lastXEnd = null;
+      pendingColumn = false;
     }
 
     const gap = lastXEnd === null ? 0 : x - lastXEnd;
@@ -68,7 +72,22 @@ export async function extractPageText(
       !item.str.startsWith(" ") &&
       gap > fontSize * 0.28;
 
-    current += (needsSpace ? " " : "") + item.str;
+    // pdf.js often fills a column gap with one wide whitespace item.
+    if (options.columns && !item.str.trim() && width > fontSize * 1.5) {
+      if (current.length > 0) pendingColumn = true;
+      lastXEnd = x + width;
+      lastY = y;
+      continue;
+    }
+    const columnBreak =
+      options.columns &&
+      current.length > 0 &&
+      (pendingColumn || gap > fontSize * 1.5);
+    pendingColumn = false;
+
+    current +=
+      (columnBreak ? "\t" : needsSpace ? " " : "") +
+      (columnBreak ? item.str.trimStart() : item.str);
     lastXEnd = x + width;
     lastY = y;
 
@@ -82,11 +101,14 @@ export async function extractPageText(
   return lines.join("\n").trim();
 }
 
-export async function extractAllText(data: Uint8Array) {
+export async function extractAllText(
+  data: Uint8Array,
+  options: { columns?: boolean } = {},
+) {
   const pdf = await openPdfDocument(data);
   const pages: string[] = [];
   for (let i = 1; i <= pdf.numPages; i++) {
-    pages.push(await extractPageText(pdf, i));
+    pages.push(await extractPageText(pdf, i, options));
   }
   return { pdf, pages, pageCount: pdf.numPages };
 }

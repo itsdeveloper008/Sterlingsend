@@ -4,7 +4,7 @@ import { siteConfig } from "@/config/site";
 
 const title = "Free invoice maker and PDF tools";
 const description =
-  "Free UK invoice generator and 29 PDF tools. Create VAT invoices, download PDFs, and merge, compress or convert files. No login needed; sign up to save history.";
+  "Free UK invoice generator and 32 PDF tools. Create VAT invoices, download PDFs, and merge, compress or convert files. No login needed; sign up to save history.";
 
 export const metadata: Metadata = {
   title,

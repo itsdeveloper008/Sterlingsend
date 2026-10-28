@@ -387,6 +387,108 @@ async function jpgToPdf(files: File[]): Promise<ProcessResult> {
   };
 }
 
+async function renderPagesToCanvases(
+  file: File,
+  scale: number,
+  onPage: (canvas: HTMLCanvasElement, pageNumber: number) => Promise<void>,
+) {
+  const pdfjs = await import("pdfjs-dist");
+  pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+  const pdf = await pdfjs.getDocument({ data: await readBytes(file) }).promise;
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const viewport = page.getViewport({ scale });
+    const canvas = document.createElement("canvas");
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Could not create canvas for rendering.");
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    await page.render({ canvasContext: ctx, viewport, canvas }).promise;
+    await onPage(canvas, i);
+  }
+}
+
+function canvasBytes(canvas: HTMLCanvasElement, type: string, quality?: number) {
+  return new Promise<Uint8Array>((resolve, reject) =>
+    canvas.toBlob(
+      (blob) =>
+        blob
+          ? blob.arrayBuffer().then((b) => resolve(new Uint8Array(b)), reject)
+          : reject(new Error("Could not encode the page image.")),
+      type,
+      quality,
+    ),
+  );
+}
+
+async function pdfToPng(file: File): Promise<ProcessResult> {
+  const zip = new JSZip();
+  const base = stemName(file);
+  await renderPagesToCanvases(file, 2, async (canvas, i) => {
+    zip.file(`${base}-page-${i}.png`, await canvasBytes(canvas, "image/png"));
+  });
+  return {
+    files: [
+      {
+        name: `${base}-png.zip`,
+        bytes: await zip.generateAsync({ type: "uint8array" }),
+        mime: "application/zip",
+      },
+    ],
+  };
+}
+
+async function flattenPdf(file: File): Promise<ProcessResult> {
+  const doc = await loadPdf(file);
+  const form = doc.getForm();
+  const fieldCount = form.getFields().length;
+  form.flatten();
+  return {
+    files: [
+      {
+        name: `${stemName(file)}-flattened.pdf`,
+        bytes: await savePdf(doc),
+        mime: "application/pdf",
+      },
+    ],
+    note:
+      fieldCount > 0
+        ? `Flattened ${fieldCount} form field${fieldCount === 1 ? "" : "s"}.`
+        : "This PDF had no form fields, so the pages are unchanged.",
+  };
+}
+
+async function grayscalePdf(file: File): Promise<ProcessResult> {
+  const out = await PDFDocument.create();
+  const src = await loadPdf(file);
+  const sizes = src.getPages().map((p) => p.getSize());
+  await renderPagesToCanvases(file, 2, async (canvas, i) => {
+    const ctx = canvas.getContext("2d")!;
+    const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const d = img.data;
+    for (let p = 0; p < d.length; p += 4) {
+      const y = 0.299 * d[p] + 0.587 * d[p + 1] + 0.114 * d[p + 2];
+      d[p] = d[p + 1] = d[p + 2] = y;
+    }
+    ctx.putImageData(img, 0, 0);
+    const jpg = await out.embedJpg(await canvasBytes(canvas, "image/jpeg", 0.9));
+    const { width, height } = sizes[i - 1] ?? { width: canvas.width / 2, height: canvas.height / 2 };
+    out.addPage([width, height]).drawImage(jpg, { x: 0, y: 0, width, height });
+  });
+  return {
+    files: [
+      {
+        name: `${stemName(file)}-grayscale.pdf`,
+        bytes: await savePdf(out),
+        mime: "application/pdf",
+      },
+    ],
+    note: "Pages are now black and white images, so text can't be selected in the new file.",
+  };
+}
+
 async function pdfToJpg(file: File): Promise<ProcessResult> {
   const pdfjs = await import("pdfjs-dist");
   // Use CDN worker that matches the installed major version when possible
@@ -463,6 +565,12 @@ export async function processTool(input: ProcessInput): Promise<ProcessResult> {
       return redactPdf(files[0], options);
     case "jpg-to-pdf":
       return jpgToPdf(files);
+    case "pdf-to-png":
+      return pdfToPng(files[0]);
+    case "flatten-pdf":
+      return flattenPdf(files[0]);
+    case "grayscale-pdf":
+      return grayscalePdf(files[0]);
     case "pdf-to-jpg":
       return pdfToJpg(files[0]);
     case "repair-pdf":

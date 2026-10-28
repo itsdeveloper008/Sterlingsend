@@ -65,7 +65,6 @@ export default async function PublicToolPage({
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           {tool.description}
         </p>
-        <p className="mt-3 text-sm font-medium text-foreground">{tool.privacyTag}</p>
 
         <div className="ss-calm-zone mt-8">
           <ToolWorkspaceLazy tool={tool} />

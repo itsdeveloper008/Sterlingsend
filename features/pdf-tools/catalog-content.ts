@@ -95,7 +95,7 @@ export function buildToolContent(input: {
   })();
 
   const steps: [string, string, string] = [
-    `Choose ${accept.toLowerCase()}. ${limits}`,
+    `Choose your ${accept}. ${limits}`,
     "Set any options the tool shows, then start processing.",
     "Download the finished file from this page.",
   ];

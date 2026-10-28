@@ -20,6 +20,7 @@ import {
   downloadBytes,
   formatFileSize,
 } from "@/features/pdf-tools/lib/download";
+import { acceptAttr, acceptHint } from "@/features/pdf-tools/lib/accept";
 import type {
   ProcessResult,
   ToolOptions,
@@ -71,30 +72,6 @@ function prefetchEngine() {
   return enginePrefetch;
 }
 
-function acceptAttr(tool: PdfTool) {
-  if (tool.accept === "image") {
-    return "image/jpeg,image/png,image/jpg,.jpg,.jpeg,.png";
-  }
-  if (tool.accept === "pdf-or-image") {
-    return "application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png";
-  }
-  if (tool.accept === "word") {
-    return ".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-  }
-  if (tool.accept === "html") {
-    return ".html,.htm,text/html";
-  }
-  return "application/pdf,.pdf";
-}
-
-function acceptHint(tool: PdfTool) {
-  if (tool.accept === "image") return "JPG or PNG";
-  if (tool.accept === "word") return "DOCX";
-  if (tool.accept === "html") return "HTML file or pasted markup";
-  if (tool.accept === "pdf-or-image") return "PDF, JPG, or PNG";
-  return "PDF";
-}
-
 const LANGS = [
   { code: "es", label: "Spanish" },
   { code: "fr", label: "French" },
@@ -129,9 +106,18 @@ function parseTargetBytes(value: string, unit: "KB" | "MB") {
   return Math.floor(n * (unit === "MB" ? 1024 * 1024 : 1024));
 }
 
-export function ToolWorkspace({ tool }: { tool: PdfTool }) {
+export function ToolWorkspace({
+  tool,
+  initialFiles,
+}: {
+  tool: PdfTool;
+  /** Files picked in the page's drop zone before the workspace loaded. */
+  initialFiles?: File[];
+}) {
   const { user } = useAuth();
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<File[]>(() =>
+    (initialFiles ?? []).slice(0, tool.maxFiles > 0 ? tool.maxFiles : undefined),
+  );
   const [targetSize, setTargetSize] = useState("");
   const [targetUnit, setTargetUnit] = useState<"KB" | "MB">("KB");
   /** Outputs waiting on the "save to history?" answer. */
@@ -184,6 +170,7 @@ export function ToolWorkspace({ tool }: { tool: PdfTool }) {
     !busy &&
     !translateBlocked &&
     !targetInvalid &&
+    !(tool.slug === "sign-pdf" && !signatureDataUrl) &&
     (tool.slug === "edit-pdf"
       ? files.length >= 1 && editReady
       : files.length >= tool.minFiles ||

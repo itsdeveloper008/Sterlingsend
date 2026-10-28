@@ -33,6 +33,9 @@ import {
   Square,
   Stamp,
   Wrench,
+  FileImage,
+  Layers,
+  Contrast,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -74,6 +77,9 @@ const ICONS: Record<string, LucideIcon> = {
   Square,
   Columns2,
   Languages,
+  FileImage,
+  Layers,
+  Contrast,
 };
 
 const FILTER_LABELS: Record<ToolCategory | "all", string> = {

@@ -1,5 +1,6 @@
 "use client";
 
+import { applyPdfA2b } from "@/features/pdf-tools/lib/engine/pdfa";
 import { PDFDocument, StandardFonts, rgb, PDFTextField } from "@cantoo/pdf-lib";
 import { jsPDF } from "jspdf";
 import { formatFileSize, stemName } from "@/features/pdf-tools/lib/download";
@@ -280,7 +281,7 @@ export async function pdfToPowerpoint(file: File): Promise<ProcessResult> {
 }
 
 export async function pdfToExcel(file: File): Promise<ProcessResult> {
-  const { pages } = await extractAllText(await readBytes(file));
+  const { pages } = await extractAllText(await readBytes(file), { columns: true });
   const XLSX = await import("xlsx");
   const workbook = XLSX.utils.book_new();
 
@@ -288,7 +289,7 @@ export async function pdfToExcel(file: File): Promise<ProcessResult> {
     const rows = (text || "(No extractable text)")
       .split(/\n/)
       .map((line) => {
-        if (line.includes("\t")) return line.split("\t");
+        if (line.includes("\t")) return line.split("\t").map(toCell);
         if (line.includes("|")) {
           return line.split("|").map((c) => c.trim()).filter(Boolean);
         }
@@ -312,8 +313,47 @@ export async function pdfToExcel(file: File): Promise<ProcessResult> {
   };
 }
 
+/** Excel cell: real numbers for plain numeric text (e.g. "1,200.50"). */
+function toCell(value: string): string | number {
+  const trimmed = value.trim();
+  if (/^-?[\d,]*\.?\d+$/.test(trimmed) && !/^0\d/.test(trimmed)) {
+    const n = Number(trimmed.replace(/,/g, ""));
+    if (Number.isFinite(n)) return n;
+  }
+  return trimmed;
+}
+
+function markdownCell(value: string) {
+  return value.trim().replace(/\|/g, "\\|");
+}
+
+/** Runs of 2+ lines with the same number (2+) of tab-separated cells become a table. */
+function linesToMarkdown(lines: string[]): string[] {
+  const out: string[] = [];
+  let i = 0;
+  while (i < lines.length) {
+    const cells = lines[i].split("\t");
+    if (cells.length >= 2) {
+      let j = i + 1;
+      while (j < lines.length && lines[j].split("\t").length === cells.length) j++;
+      if (j - i >= 2) {
+        const rows = lines.slice(i, j).map((l) => l.split("\t").map(markdownCell));
+        out.push(`| ${rows[0].join(" | ")} |`);
+        out.push(`| ${rows[0].map(() => "---").join(" | ")} |`);
+        rows.slice(1).forEach((r) => out.push(`| ${r.join(" | ")} |`));
+        out.push("");
+        i = j;
+        continue;
+      }
+    }
+    out.push(lines[i].replace(/\t/g, " "));
+    i++;
+  }
+  return out;
+}
+
 export async function pdfToMarkdown(file: File): Promise<ProcessResult> {
-  const { pages } = await extractAllText(await readBytes(file));
+  const { pages } = await extractAllText(await readBytes(file), { columns: true });
   const parts = [`# ${stemName(file)}`, ""];
 
   pages.forEach((text, index) => {
@@ -322,13 +362,13 @@ export async function pdfToMarkdown(file: File): Promise<ProcessResult> {
       parts.push("_No extractable text on this page._", "");
       return;
     }
-    for (const line of text.split(/\n/)) {
+    for (const line of linesToMarkdown(text.split(/\n/))) {
       const trimmed = line.trim();
       if (!trimmed) {
         parts.push("");
         continue;
       }
-      if (/^#{1,6}\s/.test(trimmed)) {
+      if (/^#{1,6}\s/.test(trimmed) || trimmed.startsWith("|")) {
         parts.push(trimmed);
       } else if (/^[-*•]\s+/.test(trimmed)) {
         parts.push(`- ${trimmed.replace(/^[-*•]\s+/, "")}`);
@@ -369,7 +409,7 @@ export async function wordToPdf(files: File[]): Promise<ProcessResult> {
     }
     const arrayBuffer = await file.arrayBuffer();
     const { value: html } = await mammoth.convertToHtml({ arrayBuffer });
-    const bytes = await htmlStringToPdf(html, stemName(file));
+    const bytes = await htmlStringToPdf(html);
     results.push({
       name: `${stemName(file)}.pdf`,
       bytes,
@@ -415,35 +455,46 @@ export async function htmlToPdf(file: File | null, options: ToolOptions): Promis
     );
   }
 
-  const bytes = await htmlStringToPdf(html, name);
+  const bytes = await htmlStringToPdf(html);
   return {
     files: [{ name: `${name}.pdf`, bytes, mime: "application/pdf" }],
   };
 }
 
-async function htmlStringToPdf(html: string, title: string) {
-  const container = document.createElement("div");
-  container.setAttribute("data-html-pdf-root", "true");
-  container.style.cssText = [
-    "position:fixed",
-    "left:-10000px",
-    "top:0",
-    "width:794px",
-    "padding:48px",
-    "background:#ffffff",
-    "color:#0f172a",
-    "font:16px/1.55 Helvetica,Arial,sans-serif",
-    "z-index:-1",
-  ].join(";");
-  container.innerHTML = `
-    <h1 style="font-size:22px;margin:0 0 16px;font-family:Helvetica,Arial,sans-serif;">${escapeHtml(title)}</h1>
-    <div class="html-body">${html}</div>
-  `;
-  document.body.appendChild(container);
+async function htmlStringToPdf(html: string) {
+  // Render in a sandboxed frame: the site's own CSS can't leak in (it made
+  // headings overlap), and scripts in the uploaded HTML never run.
+  const iframe = document.createElement("iframe");
+  iframe.setAttribute("sandbox", "allow-same-origin");
+  iframe.setAttribute("aria-hidden", "true");
+  iframe.style.cssText =
+    "position:fixed;left:-10000px;top:0;width:794px;height:1123px;border:0;background:#fff";
+  const isFullDocument = /<html[\s>]/i.test(html);
+  iframe.srcdoc = isFullDocument
+    ? html
+    : `<!doctype html><html><head><meta charset="utf-8"><style>
+        html,body{margin:0;background:#fff}
+        body{padding:48px;color:#0f172a;font:16px/1.55 Helvetica,Arial,sans-serif}
+        h1,h2,h3{line-height:1.25;margin:0 0 .6em}
+        p,ul,ol,table{margin:0 0 1em}
+        img{max-width:100%;height:auto}
+        table{border-collapse:collapse}
+        th,td{border:1px solid #cbd5e1;padding:4px 8px;text-align:left}
+      </style></head><body>${html}</body></html>`;
+  const loaded = new Promise<void>((resolve) => {
+    iframe.onload = () => resolve();
+  });
+  document.body.appendChild(iframe);
 
   try {
+    await loaded;
+    const body = iframe.contentDocument?.body;
+    if (!body) throw new Error("Could not render this HTML.");
+    if (isFullDocument) body.style.background ||= "#fff";
+    iframe.style.height = `${Math.max(body.scrollHeight, 1123)}px`;
+
     const html2canvas = (await import("html2canvas")).default;
-    const canvas = await html2canvas(container, {
+    const canvas = await html2canvas(body, {
       scale: 2,
       useCORS: true,
       backgroundColor: "#ffffff",
@@ -471,16 +522,8 @@ async function htmlStringToPdf(html: string, title: string) {
 
     return new Uint8Array(pdf.output("arraybuffer"));
   } finally {
-    container.remove();
+    iframe.remove();
   }
-}
-
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -500,23 +543,23 @@ export async function pdfToPdfa(file: File): Promise<ProcessResult> {
   const pages = await out.copyPages(src, src.getPageIndices());
   pages.forEach((p) => out.addPage(p));
 
-  out.setTitle(src.getTitle() || stemName(file));
-  out.setAuthor(src.getAuthor() || "SterlingSend");
-  out.setSubject("PDF/A archival document");
-  out.setKeywords(["PDF/A", "archive", "SterlingSend"]);
-  out.setProducer("SterlingSend PDF/A");
-  out.setCreator("SterlingSend");
-  out.setCreationDate(new Date());
-  out.setModificationDate(new Date());
+  applyPdfA2b(out, {
+    title: src.getTitle() || stemName(file),
+    author: src.getAuthor() || "SterlingSend",
+    producer: "SterlingSend PDF/A",
+    date: new Date(),
+  });
 
   return {
     files: [
       {
         name: `${stemName(file)}-pdfa.pdf`,
-        bytes: await savePdf(out),
+        // PDF/A metadata streams must stay readable, so skip object streams.
+        bytes: await out.save({ useObjectStreams: false }),
         mime: "application/pdf",
       },
     ],
+    note: "Saved as PDF/A-2b. Fonts that weren't embedded in the original stay un-embedded.",
   };
 }
 
@@ -702,6 +745,22 @@ export async function signPdf(file: File, options: ToolOptions): Promise<Process
 /* Compare / Translate                                                         */
 /* -------------------------------------------------------------------------- */
 
+/** Words that appear more often in one text than the other (first 12 each). */
+function wordChanges(a: string, b: string) {
+  const count = (text: string) => {
+    const map = new Map<string, number>();
+    for (const w of text.split(/\s+/).filter(Boolean)) {
+      map.set(w, (map.get(w) ?? 0) + 1);
+    }
+    return map;
+  };
+  const ca = count(a);
+  const cb = count(b);
+  const diff = (x: Map<string, number>, y: Map<string, number>) =>
+    [...x].flatMap(([w, n]) => Array(Math.max(0, n - (y.get(w) ?? 0))).fill(w)).slice(0, 12);
+  return { removed: diff(ca, cb), added: diff(cb, ca) };
+}
+
 export async function comparePdf(files: File[]): Promise<ProcessResult> {
   if (files.length < 2) throw new Error("Add two PDFs to compare.");
   const [aFile, bFile] = files;
@@ -741,6 +800,11 @@ export async function comparePdf(files: File[]): Promise<ProcessResult> {
     summaryLines.push(
       `Page ${i + 1}: ${same ? "identical text" : "text differs"}`,
     );
+    if (!same) {
+      const { removed, added } = wordChanges(left, right);
+      if (removed.length) summaryLines.push(`   Only in A: ${removed.join(" ")}`);
+      if (added.length) summaryLines.push(`   Only in B: ${added.join(" ")}`);
+    }
   }
   summaryLines.splice(3, 0, `Pages with text changes: ${changed} / ${maxPages}`, "");
 
