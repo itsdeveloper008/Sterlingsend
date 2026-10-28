@@ -28,7 +28,7 @@ async function stress(page, layoutId, mode) {
     );
     localStorage.removeItem("ss_guest_invoice");
     localStorage.removeItem("ss_guest_invoice_draft");
-    localStorage.removeItem("valix_guest_invoice");
+    localStorage.removeItem("ss_guest_invoice");
     try {
       sessionStorage.setItem("ss_template", id);
       sessionStorage.removeItem("ss_accent");

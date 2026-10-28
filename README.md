@@ -14,7 +14,7 @@ From parent `Feesz/` folder: `npm run dev` (delegates here).
 
 ## AI / project context
 
-Attach **`../VALIX_PROJECT_CONTEXT.md`** to any AI prompt — full product, stack, routes, and constraints.
+Attach **`../PROJECT_CONTEXT.md`** to any AI prompt — full product, stack, routes, and constraints.
 
 ## Env
 

@@ -42,8 +42,7 @@ export default function PrivacyPage() {
               logged in.
             </li>
             <li>
-              Browser storage keys under <code>ss_*</code> (and legacy{" "}
-              <code>valix_*</code> read once then migrated): invoice drafts, theme,
+              Browser storage keys under <code>ss_*</code>: invoice drafts, theme,
               onboarding skip, guest PDF rate limits, pending invoice after login.
             </li>
             <li>

@@ -5,7 +5,6 @@ import {
 import { createDefaultBuilderInvoice } from "@/features/invoice-builder/lib/defaults";
 
 const STORAGE_KEY = "ss_invoice_builder";
-const LEGACY_STORAGE_KEY = "valix_invoice_builder";
 const TTL_MS = 1000 * 60 * 60 * 24 * 30;
 
 export function saveBuilderInvoice(invoice: BuilderInvoice) {
@@ -19,7 +18,6 @@ export function saveBuilderInvoice(invoice: BuilderInvoice) {
 
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    localStorage.removeItem(LEGACY_STORAGE_KEY);
   } catch (error) {
     console.error("[builder-storage] save failed", error);
   }
@@ -29,8 +27,7 @@ export function loadBuilderInvoice(): BuilderInvoice | null {
   if (typeof window === "undefined") return null;
 
   const raw =
-    localStorage.getItem(STORAGE_KEY) ??
-    localStorage.getItem(LEGACY_STORAGE_KEY);
+    localStorage.getItem(STORAGE_KEY);
   if (!raw) return null;
 
   try {
@@ -68,5 +65,4 @@ export function loadBuilderInvoice(): BuilderInvoice | null {
 export function clearBuilderInvoice() {
   if (typeof window === "undefined") return;
   localStorage.removeItem(STORAGE_KEY);
-  localStorage.removeItem(LEGACY_STORAGE_KEY);
 }

@@ -34,7 +34,7 @@ async function prepare(page, layoutId) {
     );
     localStorage.removeItem("ss_guest_invoice");
     localStorage.removeItem("ss_guest_invoice_draft");
-    localStorage.removeItem("valix_guest_invoice");
+    localStorage.removeItem("ss_guest_invoice");
     try {
       sessionStorage.setItem("ss_template", id);
     } catch {

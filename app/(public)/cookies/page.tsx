@@ -30,8 +30,7 @@ export default function CookiesPage() {
           <h2 className="text-lg font-semibold text-foreground">Browser storage</h2>
           <p>
             Guest drafts, theme, onboarding skip, and similar preferences use{" "}
-            <code>ss_*</code> keys in localStorage or sessionStorage. Legacy{" "}
-            <code>valix_*</code> keys may still be read once and then migrated.
+            <code>ss_*</code> keys in localStorage or sessionStorage.
           </p>
           <h2 className="text-lg font-semibold text-foreground">Analytics choice</h2>
           <p>

@@ -35,7 +35,7 @@
 ## Step 2 — Folder structure
 
 ```
-valix-invoice/
+sterlingsend/
 ├── app/
 │   ├── (public)/                 # Guest + marketing
 │   │   ├── layout.tsx

@@ -5,9 +5,7 @@ import {
 } from "@/features/guest/types";
 
 const GUEST_INVOICE_KEY = "ss_guest_invoice";
-const LEGACY_GUEST_INVOICE_KEY = "valix_guest_invoice";
 const GUEST_ONBOARDING_SEED_KEY = "ss_guest_onboarding_seed";
-const LEGACY_GUEST_ONBOARDING_SEED_KEY = "valix_guest_onboarding_seed";
 const GUEST_INVOICE_TTL_MS = 1000 * 60 * 60 * 24 * 30;
 
 export function saveGuestInvoice(invoice: GuestInvoice) {
@@ -20,15 +18,13 @@ export function saveGuestInvoice(invoice: GuestInvoice) {
   };
 
   localStorage.setItem(GUEST_INVOICE_KEY, JSON.stringify(payload));
-  localStorage.removeItem(LEGACY_GUEST_INVOICE_KEY);
 }
 
 export function loadGuestInvoice(): GuestInvoice | null {
   if (typeof window === "undefined") return null;
 
   const raw =
-    localStorage.getItem(GUEST_INVOICE_KEY) ??
-    localStorage.getItem(LEGACY_GUEST_INVOICE_KEY);
+    localStorage.getItem(GUEST_INVOICE_KEY);
   if (!raw) return null;
 
   try {
@@ -49,7 +45,6 @@ export function loadGuestInvoice(): GuestInvoice | null {
 export function clearGuestInvoice() {
   if (typeof window === "undefined") return;
   localStorage.removeItem(GUEST_INVOICE_KEY);
-  localStorage.removeItem(LEGACY_GUEST_INVOICE_KEY);
 }
 
 export function saveGuestOnboardingSeed(invoice: GuestInvoice) {
@@ -74,15 +69,13 @@ export function saveGuestOnboardingSeed(invoice: GuestInvoice) {
   };
 
   localStorage.setItem(GUEST_ONBOARDING_SEED_KEY, JSON.stringify(seed));
-  localStorage.removeItem(LEGACY_GUEST_ONBOARDING_SEED_KEY);
 }
 
 export function loadGuestOnboardingSeed(): GuestOnboardingSeed | null {
   if (typeof window === "undefined") return null;
 
   const raw =
-    localStorage.getItem(GUEST_ONBOARDING_SEED_KEY) ??
-    localStorage.getItem(LEGACY_GUEST_ONBOARDING_SEED_KEY);
+    localStorage.getItem(GUEST_ONBOARDING_SEED_KEY);
   if (!raw) return null;
 
   try {

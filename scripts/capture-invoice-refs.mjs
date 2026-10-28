@@ -60,7 +60,7 @@ for (const templateId of TEMPLATES) {
 
   await page.evaluate((id) => {
     const keys = Object.keys(localStorage).filter(
-      (k) => k.startsWith("ss_") || k.startsWith("valix_"),
+      (k) => k.startsWith("ss_"),
     );
     for (const key of keys) {
       try {
