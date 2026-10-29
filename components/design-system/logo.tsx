@@ -36,7 +36,10 @@ export function Logo({
           alt={siteConfig.logoAlt}
           width={size}
           height={size}
-          className="shrink-0 rounded-[10px] object-contain"
+          className={cn(
+            "shrink-0 rounded-[10px] object-contain",
+            tone === "onDark" && "bg-white p-1",
+          )}
           style={{ width: size, height: size }}
           priority
         />

@@ -1094,3 +1094,58 @@ body {
     opacity: 1 !important;
   }
 }
+
+/* Header bar: brand teal to match the footer. */
+@layer components {
+  .ss-site-header .ss-site-header-bar {
+    background: #0b5c66 !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 24px rgba(6, 34, 42, 0.18);
+    color: #ffffff;
+  }
+
+  .ss-site-header .ss-nav-pill {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .ss-site-header .ss-nav-link {
+    color: rgba(236, 251, 252, 0.88);
+  }
+
+  .ss-site-header .ss-nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+
+  .ss-site-header .ss-nav-link.is-active {
+    background: #ffffff;
+    color: #0b5c66;
+  }
+
+  .ss-site-header .ss-nav-link.is-active::after {
+    background: #0b5c66;
+  }
+
+  .ss-site-header .ss-nav-icon-btn,
+  .ss-site-header .ss-nav-login {
+    color: #ffffff !important;
+  }
+
+  .ss-site-header .ss-nav-icon-btn:hover,
+  .ss-site-header .ss-nav-login:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .ss-site-header .ss-nav-signup,
+  .ss-site-header .ss-nav-avatar {
+    background: #ffffff !important;
+    color: #0b5c66 !important;
+    box-shadow: none !important;
+  }
+
+  .ss-site-header .ss-nav-signup:hover {
+    background: #ecfbfc !important;
+  }
+}

@@ -286,7 +286,7 @@ export function SiteHeader({
   return (
     <header className="ss-site-header no-print" onKeyDown={onPdfKeyDown}>
       <div className="ss-site-header-bar">
-        <Logo href={routes.home} size={32} className="ss-nav-logo shrink-0" />
+        <Logo href={routes.home} size={32} tone="onDark" className="ss-nav-logo shrink-0" />
 
         <nav className="ss-nav-centre hidden min-[900px]:flex" aria-label="Primary">
           <div className="ss-nav-pill">
