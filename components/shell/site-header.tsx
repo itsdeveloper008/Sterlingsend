@@ -148,8 +148,6 @@ function PdfToolsMegaMenu({
             aria-label="PDF tools"
             className="ss-pdf-mega glass-strong"
             style={{ top: coords.top, left: coords.left }}
-            onMouseEnter={() => onOpenChange(true)}
-            onMouseLeave={() => onOpenChange(false)}
           >
             <div className="ss-pdf-mega-grid">
               {MEGA_COLUMNS.map((keys, colIdx) => (
@@ -200,12 +198,7 @@ function PdfToolsMegaMenu({
       : null;
 
   return (
-    <div
-      ref={wrapRef}
-      className="relative"
-      onMouseEnter={() => onOpenChange(true)}
-      onMouseLeave={() => onOpenChange(false)}
-    >
+    <div ref={wrapRef} className="relative">
       <button
         ref={triggerRef}
         type="button"
@@ -217,7 +210,6 @@ function PdfToolsMegaMenu({
         aria-haspopup="true"
         aria-controls={panelId}
         onClick={() => onOpenChange(!open)}
-        onFocus={() => onOpenChange(true)}
       >
         PDF tools
         <ChevronDown className="h-3.5 w-3.5 opacity-70" aria-hidden />
