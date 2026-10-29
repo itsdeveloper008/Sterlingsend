@@ -514,11 +514,11 @@
 
   .ss-pdf-mega-heading {
     margin: 0 0 8px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #475569;
+    color: #0b5c66;
   }
 
   .ss-pdf-mega-list {
