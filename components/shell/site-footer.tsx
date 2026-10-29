@@ -48,7 +48,7 @@ export function SiteFooter() {
       {/* Link columns */}
       <div className="mx-auto grid w-full max-w-[1200px] gap-10 px-4 pb-14 pt-14 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
-          <Logo href={routes.home} size={40} showMark={false} tone="onDark" />
+          <Logo href={routes.home} size={36} tone="onDark" />
           <p className="mt-4 max-w-xs text-[15px] leading-[1.7] text-teal-100/80">
             Free invoice maker and PDF tools for UK freelancers and small
             businesses. Log in only if you want saved history.
