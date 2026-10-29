@@ -9,28 +9,28 @@ import { CookieSettingsButton } from "@/components/shell/cookie-settings-button"
 const popularTools = PDF_TOOLS.filter((t) => t.status === "ready").slice(0, 6);
 
 const linkClass =
-  "text-[15px] text-slate-300 transition-colors hover:text-white";
+  "text-[15px] text-teal-50/90 transition-colors hover:text-white";
 
 export function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-auto bg-[#06222a] text-slate-300">
+    <footer className="mt-auto bg-[#0b5c66] text-teal-50">
       {/* Closing call to action: plain and direct. */}
       <div className="mx-auto w-full max-w-[1200px] px-4 pt-20 sm:px-6">
-        <div className="flex flex-col gap-8 border-b border-white/10 pb-16 md:flex-row md:items-end md:justify-between">
+        <div className="flex flex-col gap-8 border-b border-white/15 pb-16 md:flex-row md:items-end md:justify-between">
           <div>
             <h2 className="font-display text-3xl font-semibold leading-tight tracking-tight text-white sm:text-[2.5rem]">
               Your next invoice, done in two minutes.
             </h2>
-            <p className="mt-3 max-w-lg text-[15px] leading-relaxed text-slate-400">
+            <p className="mt-3 max-w-lg text-[15px] leading-relaxed text-teal-100/80">
               Free to use. No account needed until you want to keep a history.
             </p>
           </div>
           <div className="flex shrink-0 flex-wrap gap-3">
             <Link
               href={routes.createInvoice}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#3FC1C9] px-6 py-3 text-[15px] font-semibold text-[#06222a] transition-colors hover:bg-[#6FD9DD]"
+              className="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 text-[15px] font-semibold text-[#0b5c66] transition-colors hover:bg-teal-50"
             >
               Create an invoice
               <ArrowRight className="h-4 w-4" aria-hidden />
@@ -49,13 +49,13 @@ export function SiteFooter() {
       <div className="mx-auto grid w-full max-w-[1200px] gap-10 px-4 pb-14 pt-14 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <Logo href={routes.home} size={40} showMark={false} tone="onDark" />
-          <p className="mt-4 max-w-xs text-[15px] leading-[1.7] text-slate-400">
+          <p className="mt-4 max-w-xs text-[15px] leading-[1.7] text-teal-100/80">
             Free invoice maker and PDF tools for UK freelancers and small
             businesses. Log in only if you want saved history.
           </p>
           <a
             href={`mailto:${siteConfig.supportEmail}`}
-            className="mt-5 inline-flex items-center gap-2 break-all rounded-lg bg-white/5 px-4 py-2 text-sm font-medium text-teal-200 ring-1 ring-white/10 transition-colors hover:bg-white/10"
+            className="mt-5 inline-flex items-center gap-2 break-all rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white ring-1 ring-white/20 transition-colors hover:bg-white/15"
           >
             <Mail className="h-4 w-4" aria-hidden />
             {siteConfig.supportEmail}
@@ -121,14 +121,14 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
-              <CookieSettingsButton className="text-[15px] text-slate-300 hover-fine:hover:text-white" />
+              <CookieSettingsButton className="text-[15px] text-teal-50/90 hover-fine:hover:text-white" />
             </li>
           </ul>
         </nav>
       </div>
 
-      <div className="border-t border-white/10">
-        <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-2 px-4 py-6 text-[13px] text-slate-400 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+      <div className="border-t border-white/15">
+        <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-2 px-4 py-6 text-[13px] text-teal-100/80 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <p>
             © {year} {siteConfig.name}. All rights reserved.
           </p>
